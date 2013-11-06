@@ -4,6 +4,8 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -19,6 +21,8 @@ public class ArticleViewFragment extends Fragment
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
   {
+    // an option to share the text must be added here
+    setHasOptionsMenu(true);
 
     // If activity recreated (such as from screen rotate), restore
     // the previous article selection set by onSaveInstanceState().
@@ -55,6 +59,13 @@ public class ArticleViewFragment extends Fragment
     }
   }
 
+  @Override
+  public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+  {
+    inflater.inflate(R.menu.viewing, menu);
+  }
+
+
   public void updateArticleView(int position)
   {
     TextView article;
@@ -78,4 +89,6 @@ public class ArticleViewFragment extends Fragment
     // Save the current article selection in case we need to recreate the fragment
     outState.putInt(ARG_POSITION, mCurrentPosition);
   }
+
+
 }

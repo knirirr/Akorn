@@ -1,6 +1,5 @@
 package org.akorn.akorn;
 
-;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
@@ -143,7 +142,6 @@ public class NavigationDrawerFragment extends Fragment {
                 if (!isAdded()) {
                     return;
                 }
-
                 getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
 
@@ -162,6 +160,8 @@ public class NavigationDrawerFragment extends Fragment {
                             .getDefaultSharedPreferences(getActivity());
                     sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply();
                 }
+
+
 
                 getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
@@ -230,9 +230,24 @@ public class NavigationDrawerFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // If the drawer is open, show the global app actions in the action bar. See also
         // showGlobalContextActionBar, which controls the top-left area of the action bar.
-        if (mDrawerLayout != null && isDrawerOpen()) {
-            inflater.inflate(R.menu.global, menu);
-            showGlobalContextActionBar();
+        if (mDrawerLayout != null && isDrawerOpen())
+        {
+          inflater.inflate(R.menu.global, menu);
+
+          // hide extra items
+          if (menu.findItem(R.id.action_share) != null)
+          {
+            MenuItem item = menu.findItem(R.id.action_share);
+            item.setVisible(false);
+            getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+            Toast.makeText(getActivity(), "Menu should be cleared.", Toast.LENGTH_SHORT).show();
+          }
+          else
+          {
+            Toast.makeText(getActivity(), "Failed to clear the menu.", Toast.LENGTH_SHORT).show();
+          }
+
+          showGlobalContextActionBar();
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -243,11 +258,14 @@ public class NavigationDrawerFragment extends Fragment {
             return true;
         }
 
+      /*
+      // Is this code really necessary? It doesn't seem to work. Perhaps it can be removed later.
         switch (item.getItemId()) {
-            case R.id.action_example:
-                Toast.makeText(getActivity(), "Example action.", Toast.LENGTH_SHORT).show();
+            case R.id.action_settings:
+                Toast.makeText(getActivity(), "Settings selected (drawer).", Toast.LENGTH_SHORT).show();
                 return true;
         }
+        */
 
         return super.onOptionsItemSelected(item);
     }

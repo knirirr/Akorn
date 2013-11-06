@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="not_working">Not working yet!</string>
+    <string name="sharing_text">Shared from the Akorn Android app.</string>
 
     <string name="app_name">Akorn</string>
     <string name="title_section1">Search type 1</string>
@@ -10,5 +11,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
+    <string name="action_share">Share</string>
+    <string name="send_to">Share article</string>
 
 </resources>

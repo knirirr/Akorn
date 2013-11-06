@@ -6,6 +6,7 @@ import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -47,7 +48,7 @@ public class ViewingActivity extends Activity
         {
           // If we're being restored from a previous state,
           // then we don't need to do anything and should return or else
-          // we could end up with overlapping fragments.                                                                                 if (savedInstanceState != null)
+          // we could end up with overlapping fragments.
           if (savedInstanceState != null)
           {
             return;
@@ -110,12 +111,12 @@ public class ViewingActivity extends Activity
     {
         if (!mNavigationDrawerFragment.isDrawerOpen())
         {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.viewing, menu);
-            restoreActionBar();
-            return true;
+          // Only show items in the action bar relevant to this screen
+          // if the drawer is not showing. Otherwise, let the drawer
+          // decide what to show in the action bar.
+          getMenuInflater().inflate(R.menu.global, menu);
+          restoreActionBar();
+          return true;
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -129,56 +130,30 @@ public class ViewingActivity extends Activity
         switch (item.getItemId())
         {
             case R.id.action_settings:
-                return true;
+              Toast.makeText(this, "Settings selected (main).", Toast.LENGTH_SHORT).show();
+              return true;
+            case R.id.action_share:
+              //Toast.makeText(this, "Sharing action!", Toast.LENGTH_SHORT).show();
+              TextView tv;
+              if (findViewById(R.id.view_fragment) != null)
+              {
+                 tv = (TextView) findViewById(R.id.view_fragment);
+              }
+              else
+              {
+                tv = (TextView) findViewById(R.id.individual_article);
+              }
+              String text_to_send = tv.getText().toString();
+              text_to_send = text_to_send + "\n\n" + getString(R.string.sharing_text); // make this optional
+              Intent sendIntent = new Intent();
+              sendIntent.setAction(Intent.ACTION_SEND);
+              sendIntent.putExtra(Intent.EXTRA_TEXT, text_to_send);
+              sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Article title goes here");// add the article title if an email
+              sendIntent.setType("text/plain");
+              startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
+              return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment
-    {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber)
-        {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment()
-        {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState)
-        {
-            View rootView = inflater.inflate(R.layout.fragment_list, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
-
-        @Override
-        public void onAttach(Activity activity)
-        {
-            super.onAttach(activity);
-            ((ViewingActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
-        }
     }
 
     public void onArticleSelected(int position)
