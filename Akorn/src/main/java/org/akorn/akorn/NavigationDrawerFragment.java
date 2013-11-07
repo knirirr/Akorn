@@ -21,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
@@ -225,43 +226,43 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-      super.onCreateOptionsMenu(menu, inflater);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+    {
         // If the drawer is open, show the global app actions in the action bar. See also
         // showGlobalContextActionBar, which controls the top-left area of the action bar.
         if (mDrawerLayout != null && isDrawerOpen())
         {
           inflater.inflate(R.menu.global, menu);
-
-          // hide extra items
-          if (menu.findItem(R.id.action_share) != null)
-          {
-            MenuItem item = menu.findItem(R.id.action_share);
-            item.setVisible(false);
-            getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-            Toast.makeText(getActivity(), "Menu should be cleared: " + menu.size(), Toast.LENGTH_SHORT).show();
-          }
-          else
-          {
-            if (menu.size() == 1)
-            {
-              //menu.clear();
-              //getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-              Toast.makeText(getActivity(), "How about that for a hack?" , Toast.LENGTH_SHORT).show();
-            }
-            else
-            {
-              Toast.makeText(getActivity(), "Failed to clear the menu: " + menu.size() , Toast.LENGTH_SHORT).show();
-            }
-          }
-
+          super.onCreateOptionsMenu(menu, inflater);
           showGlobalContextActionBar();
         }
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
+    public void onPrepareOptionsMenu(Menu menu)
+    {
+      // hide extra items
+      if (mDrawerLayout != null && isDrawerOpen())
+      {
+        if (menu.findItem(R.id.action_share) != null)
+        {
+          MenuItem item = menu.findItem(R.id.action_share);
+          item.setVisible(false);
+          //getActivity().invalidateOptionsMenu();
+          //Toast.makeText(getActivity(), "Menu should be cleared: ", Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+          //Toast.makeText(getActivity(), "Failed to clear the menu.", Toast.LENGTH_SHORT).show();
+        }
+      }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        if (mDrawerToggle.onOptionsItemSelected(item))
+        {
             return true;
         }
 
