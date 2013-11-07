@@ -37,7 +37,7 @@ public class ViewingActivity extends Activity
         setContentView(R.layout.list_view);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getFragmentManager().findFragmentById(R.id.navigation_drawer);
+        getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
         // Set up the drawer.
@@ -49,6 +49,7 @@ public class ViewingActivity extends Activity
           // If we're being restored from a previous state,
           // then we don't need to do anything and should return or else
           // we could end up with overlapping fragments.
+
           if (savedInstanceState != null)
           {
             return;
@@ -60,9 +61,12 @@ public class ViewingActivity extends Activity
           // In case this activity was started with special instructions from an Intent,
           // pass the Intent's extras to the fragment as arguments
           firstFragment.setArguments(getIntent().getExtras());
+
           // Add the fragment in the 'fragment_container' FrameLayout
           getFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
+
         }
+
     }
 
     @Override

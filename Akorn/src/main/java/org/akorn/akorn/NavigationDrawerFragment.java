@@ -57,12 +57,11 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
-    public NavigationDrawerFragment() {
-    }
+    public NavigationDrawerFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+      super.onCreate(savedInstanceState);
 
         // Read in the flag indicating whether or not the user has demonstrated awareness of the
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
@@ -81,9 +80,11 @@ public class NavigationDrawerFragment extends Fragment {
         setHasOptionsMenu(true);
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+            Bundle savedInstanceState)
+    {
         mDrawerListView = (ListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -160,9 +161,6 @@ public class NavigationDrawerFragment extends Fragment {
                             .getDefaultSharedPreferences(getActivity());
                     sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).apply();
                 }
-
-
-
                 getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
             }
         };
@@ -228,6 +226,7 @@ public class NavigationDrawerFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+      super.onCreateOptionsMenu(menu, inflater);
         // If the drawer is open, show the global app actions in the action bar. See also
         // showGlobalContextActionBar, which controls the top-left area of the action bar.
         if (mDrawerLayout != null && isDrawerOpen())
@@ -240,16 +239,24 @@ public class NavigationDrawerFragment extends Fragment {
             MenuItem item = menu.findItem(R.id.action_share);
             item.setVisible(false);
             getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
-            Toast.makeText(getActivity(), "Menu should be cleared.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Menu should be cleared: " + menu.size(), Toast.LENGTH_SHORT).show();
           }
           else
           {
-            Toast.makeText(getActivity(), "Failed to clear the menu.", Toast.LENGTH_SHORT).show();
+            if (menu.size() == 1)
+            {
+              //menu.clear();
+              //getActivity().invalidateOptionsMenu(); // calls onPrepareOptionsMenu()
+              Toast.makeText(getActivity(), "How about that for a hack?" , Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+              Toast.makeText(getActivity(), "Failed to clear the menu: " + menu.size() , Toast.LENGTH_SHORT).show();
+            }
           }
 
           showGlobalContextActionBar();
         }
-        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -274,15 +281,17 @@ public class NavigationDrawerFragment extends Fragment {
      * Per the navigation drawer design guidelines, updates the action bar to show the global app
      * 'context', rather than just what's in the current screen.
      */
-    private void showGlobalContextActionBar() {
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setTitle(R.string.app_name);
+    private void showGlobalContextActionBar()
+    {
+      ActionBar actionBar = getActionBar();
+      actionBar.setDisplayShowTitleEnabled(true);
+      actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+      actionBar.setTitle(R.string.app_name);
     }
 
-    private ActionBar getActionBar() {
-        return getActivity().getActionBar();
+    private ActionBar getActionBar()
+    {
+      return getActivity().getActionBar();
     }
 
     /**

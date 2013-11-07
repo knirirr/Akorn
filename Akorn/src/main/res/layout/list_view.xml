@@ -25,6 +25,7 @@
         android:layout_width="@dimen/navigation_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:name="org.akorn.akorn.NavigationDrawerFragment" />
+        android:name="org.akorn.akorn.NavigationDrawerFragment"
+        tools:layout="@layout/simple_list_item_activated_1"/>
 
 </android.support.v4.widget.DrawerLayout>
