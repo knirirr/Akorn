@@ -160,7 +160,7 @@ public class ViewingActivity extends Activity
         return super.onOptionsItemSelected(item);
     }
 
-    public void onArticleSelected(int position)
+    public void onArticleSelected(int position,int sql_article_id)
     {
       // The user selected the headline of an article from the HeadlinesFragment
 
@@ -173,7 +173,7 @@ public class ViewingActivity extends Activity
         // If article frag is available, we're in two-pane layout...
 
         // Call a method in the ArticleFragment to update its content
-        articleViewFrag.updateArticleView(position);
+        articleViewFrag.updateArticleView(position,sql_article_id);
 
       }
       else
@@ -183,6 +183,7 @@ public class ViewingActivity extends Activity
         ArticleViewFragment newFragment = new ArticleViewFragment();
         Bundle args = new Bundle();
         args.putInt(ArticleViewFragment.ARG_POSITION, position);
+        args.putInt(ArticleViewFragment.ARG_ID, sql_article_id);
         newFragment.setArguments(args);
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
 

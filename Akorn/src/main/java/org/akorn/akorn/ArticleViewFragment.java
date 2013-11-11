@@ -1,7 +1,10 @@
 package org.akorn.akorn;
 
 import android.app.Fragment;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -10,13 +13,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.akorn.akorn.database.ArticleTable;
+
 /**
  * Created by milo on 04/11/2013.
  */
 public class ArticleViewFragment extends Fragment
 {
   final static String ARG_POSITION = "position";
+  final static String ARG_ID = "id";
   int mCurrentPosition = -1;
+  int mSqlId = 0;
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -50,15 +57,14 @@ public class ArticleViewFragment extends Fragment
     if (args != null)
     {
       // Set article based on argument passed in
-      updateArticleView(args.getInt(ARG_POSITION));
+      updateArticleView(args.getInt(ARG_POSITION),args.getInt(ARG_ID));
     }
     else if (mCurrentPosition != -1)
     {
       // Set article based on saved instance state defined during onCreateView
-      updateArticleView(mCurrentPosition);
+      updateArticleView(mCurrentPosition,mSqlId);
     }
   }
-
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
   {
@@ -71,7 +77,7 @@ public class ArticleViewFragment extends Fragment
   }
 
 
-  public void updateArticleView(int position)
+  public void updateArticleView(int position, int sql_article_id)
   {
     TextView article;
     if (getActivity().findViewById(R.id.fragment_container) != null)
@@ -82,8 +88,32 @@ public class ArticleViewFragment extends Fragment
     {
       article = (TextView) getActivity().findViewById(R.id.view_fragment);
     }
-    article.setText(Article.Articles[position]);
     mCurrentPosition = position;
+    mSqlId = sql_article_id;
+    article.setMovementMethod(new ScrollingMovementMethod()); // make textview scrollable
+
+    //article.setText(Article.Articles[position]);
+    // rather than the above, load the correct article text
+    Uri uri = Uri.parse("content://org.akorn.akorn.contentprovider/articles" + "/" + sql_article_id);
+    Cursor cursor = getActivity().getContentResolver().query(uri,
+        new String[]
+        {
+            ArticleTable.COLUMN_ID,
+            ArticleTable.COLUMN_ABSTRACT,
+            ArticleTable.COLUMN_TITLE
+        }, // need title in order to share
+        null, null, null);
+    Log.i("AKORN", "Cursor: " + cursor.getColumnNames().toString());
+    if (cursor.moveToFirst())
+    {
+      do
+      {
+        String abs = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_ABSTRACT));
+        article.setText(abs.replaceAll("[\n\r]", " "));
+      }
+      while(cursor.moveToNext());
+    }
+    cursor.close();
   }
 
   @Override

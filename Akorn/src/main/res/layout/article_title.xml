@@ -11,16 +11,16 @@
               android:layout_marginLeft="?android:attr/listPreferredItemPaddingLeft"
               android:layout_marginTop="8dip"
               android:text="Title"
-              android:textAppearance="?android:attr/textAppearanceListItem"
+              android:textAppearance="?android:attr/textAppearanceListItemSmall"
             />
 
     <TextView android:id="@+id/article_id"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:layout_below="@android:id/text1"
-              android:layout_alignLeft="@android:id/text1"
+              android:layout_below="@id/article_title"
+              android:layout_alignLeft="@id/article_title"
               android:text="ID"
               android:textAppearance="?android:attr/textAppearanceSmall"
-            />
+              android:gravity="right"/>
 
 </LinearLayout>

@@ -4,6 +4,7 @@
           android:id="@+id/individual_article"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
+          android:scrollbars = "vertical"
           android:text="Exciting article information"
           android:padding="16dp"
           android:textSize="18sp" />

@@ -69,7 +69,6 @@ public class AkornContentProvider extends ContentProvider
   {
 
     Log.i("AKORN","URI is: " + uri.toString());
-    // Uisng SQLiteQueryBuilder instead of query() method
     SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 
     // check if the caller has requested a column which does not exists
@@ -84,8 +83,7 @@ public class AkornContentProvider extends ContentProvider
         break;
       case ARTICLES_ID:
         // adding the ID to the original query
-        queryBuilder.appendWhere(ArticleTable.COLUMN_ID + "="
-            + uri.getLastPathSegment());
+        queryBuilder.appendWhere(ArticleTable.COLUMN_ID + "=" + uri.getLastPathSegment());
         break;
       default:
         throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -101,12 +99,27 @@ public class AkornContentProvider extends ContentProvider
 
   private void checkColumns(String[] projection)
   {
-    String[] available = { ArticleTable.COLUMN_ARTICLE_ID, ArticleTable.COLUMN_READ , ArticleTable.COLUMN_JOURNAL,
-        ArticleTable.COLUMN_ID, ArticleTable.COLUMN_LINK, ArticleTable.COLUMN_ABSTRACT, ArticleTable.COLUMN_TITLE,
-        AuthorArticleTable.COLUMN_ID, AuthorArticleTable.COLUMN_ARTICLE_ID, AuthorArticleTable.COLUMN_AUTHOR_ID,
-        AuthorTable.COLUMN_ID, AuthorTable.COLUMN_AUTHOR_NAME, SearchArticleTable.COLUMN_ID,
-        SearchArticleTable.COLUMN_ARTICLE_ID, SearchArticleTable.COLUMN_SEARCH_ID, SearchTable.COLUMN_ID,
-        SearchTable.COLUMN_DESCRIPTION, SearchTable.COLUMN_SEARCH_ID};
+    String[] available = {
+        ArticleTable.COLUMN_ARTICLE_ID,
+        ArticleTable.COLUMN_READ ,
+        ArticleTable.COLUMN_JOURNAL,
+        ArticleTable.COLUMN_ID,
+        ArticleTable.COLUMN_LINK,
+        ArticleTable.COLUMN_ABSTRACT,
+        ArticleTable.COLUMN_TITLE,
+        AuthorArticleTable.COLUMN_ID,
+        AuthorArticleTable.COLUMN_ARTICLE_ID,
+        AuthorArticleTable.COLUMN_AUTHOR_ID,
+        AuthorTable.COLUMN_ID,
+        AuthorTable.COLUMN_AUTHOR_NAME,
+        SearchArticleTable.COLUMN_ID,
+        SearchArticleTable.COLUMN_ARTICLE_ID,
+        SearchArticleTable.COLUMN_SEARCH_ID,
+        SearchTable.COLUMN_ID,
+        SearchTable.COLUMN_DESCRIPTION,
+        SearchTable.COLUMN_SEARCH_ID
+    };
+
     if (projection != null)
     {
       HashSet<String> requestedColumns = new HashSet<String>(Arrays.asList(projection));

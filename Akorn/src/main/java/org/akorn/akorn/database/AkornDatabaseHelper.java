@@ -32,6 +32,7 @@ public class AkornDatabaseHelper extends SQLiteOpenHelper
   @Override
   public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion)
   {
+    Log.i("AKORN", "DatabaseHelper onUpgrade()");
     ArticleTable.onUpgrade(database, oldVersion, newVersion);
     AuthorArticleTable.onUpgrade(database, oldVersion, newVersion);
     AuthorTable.onUpgrade(database, oldVersion, newVersion);

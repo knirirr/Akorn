@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
@@ -31,7 +32,7 @@ public class ArticleListFragment extends ListFragment
   public interface OnHeadlineSelectedListener
   {
     /** Called by HeadlinesFragment when a list item is selected */
-    public void onArticleSelected(int position);
+    public void onArticleSelected(int position, int sql_article_id);
   }
 
   @Override
@@ -45,7 +46,11 @@ public class ArticleListFragment extends ListFragment
 
     Uri uri = Uri.parse("content://org.akorn.akorn.contentprovider/articles");
     Cursor cursor = getActivity().getContentResolver().query(uri,
-        new String[]{ArticleTable.COLUMN_ID, ArticleTable.COLUMN_TITLE}, null, null, null);
+        new String[]{ArticleTable.COLUMN_ID,
+                     ArticleTable.COLUMN_TITLE,
+                     ArticleTable.COLUMN_JOURNAL,
+                     ArticleTable.COLUMN_ARTICLE_ID},
+                 null, null, null);
 
     if (cursor == null)
     {
@@ -54,14 +59,15 @@ public class ArticleListFragment extends ListFragment
     }
     else
     {
-      Log.i("AKORN", "CURSOR: " + cursor.toString());
+      // Don't bother, this should be working now
+      //Log.i("AKORN", "CURSOR: " + cursor.toString());
     }
 
     // Defines a list of columns to retrieve from the Cursor and load into an output row
     String[] mWordListColumns =
     {
       ArticleTable.COLUMN_TITLE,
-      ArticleTable.COLUMN_ID
+      ArticleTable.COLUMN_ARTICLE_ID
     };
 
   // Defines a list of View IDs that will receive the Cursor columns for each row
@@ -115,8 +121,15 @@ public class ArticleListFragment extends ListFragment
   @Override
   public void onListItemClick(ListView l, View v, int position, long id)
   {
+    // the article id at this location in the database is needed (either the
+    // local sqlite id or the remote one)
+    Cursor data = (Cursor) getListView().getItemAtPosition(position);
+    int sql_article_id = data.getInt(data.getColumnIndex(ArticleTable.COLUMN_ID));
+    Log.i("AKORN", "The ID selected was: " + String.valueOf(sql_article_id));
+
     // Notify the parent activity of selected item
-    mCallback.onArticleSelected(position);
+    //mCallback.onArticleSelected(position);
+    mCallback.onArticleSelected(position,sql_article_id);
 
     // Set the item as checked to be highlighted when in two-pane layout
     getListView().setItemChecked(position, true);
