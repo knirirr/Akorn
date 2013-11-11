@@ -2,13 +2,23 @@ package org.akorn.akorn;
 
 import android.app.ListFragment;
 import android.app.Activity;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
+
+import org.akorn.akorn.contentprovider.AkornContentProvider;
+import org.akorn.akorn.database.ArticleTable;
+
+import java.net.URI;
 
 /**
  * Created by milo on 04/11/2013.
@@ -29,13 +39,46 @@ public class ArticleListFragment extends ListFragment
   {
     super.onCreate(savedInstanceState);
 
-    // We need to use a different list item layout for devices older than Honeycomb
-    //int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
-    //    android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
+    //int layout = android.R.layout.simple_list_item_activated_1;
+    int layout = R.layout.article_title;
 
-    int layout = android.R.layout.simple_list_item_activated_1;
-    // Create an array adapter for the list view, using the Ipsum headlines array
-    setListAdapter(new ArrayAdapter<String>(getActivity(), layout, Article.Headlines));
+
+    Uri uri = Uri.parse("content://org.akorn.akorn.contentprovider/articles");
+    Cursor cursor = getActivity().getContentResolver().query(uri,
+        new String[]{ArticleTable.COLUMN_ID, ArticleTable.COLUMN_TITLE}, null, null, null);
+
+    if (cursor == null)
+    {
+      Log.i("AKORN", "FRC! Cursor is null!");
+      Toast.makeText(getActivity(), getString(R.string.database_error), Toast.LENGTH_SHORT).show();
+    }
+    else
+    {
+      Log.i("AKORN", "CURSOR: " + cursor.toString());
+    }
+
+    // Defines a list of columns to retrieve from the Cursor and load into an output row
+    String[] mWordListColumns =
+    {
+      ArticleTable.COLUMN_TITLE,
+      ArticleTable.COLUMN_ID
+    };
+
+  // Defines a list of View IDs that will receive the Cursor columns for each row
+  int[] mWordListItems = { R.id.article_title, R.id.article_id};
+
+    // Creates a new SimpleCursorAdapter
+    SimpleCursorAdapter mCursorAdapter = new SimpleCursorAdapter(
+      getActivity(),               // The application's Context object
+      layout,
+      cursor,                               // The result from the query
+      mWordListColumns,                      // A string array of column names in the cursor
+      mWordListItems,                        // An integer array of view IDs in the row layout
+      0);                                    // Flags (usually none are needed)
+
+
+    //setListAdapter(new ArrayAdapter<String>(getActivity(), layout, Article.Headlines));
+    setListAdapter(mCursorAdapter);
   }
 
   @Override

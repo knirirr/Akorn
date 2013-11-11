@@ -2,6 +2,7 @@
 <resources>
     <string name="not_working">Not working yet!</string>
     <string name="sharing_text">Shared from the Akorn Android app.</string>
+    <string name="database_error">Database error!</string>
 
     <string name="app_name">Akorn</string>
     <string name="title_section1">Search type 1</string>

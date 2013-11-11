@@ -24,7 +24,7 @@ public class AuthorArticleTable
       + "("
       + COLUMN_ID + " integer primary key autoincrement, "
       + COLUMN_AUTHOR_ID + " text not null, "
-      + COLUMN_ARTICLE_ID + " text not null, "
+      + COLUMN_ARTICLE_ID + " text not null"
       + ");";
 
   public static void onCreate(SQLiteDatabase database)

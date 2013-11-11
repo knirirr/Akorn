@@ -24,7 +24,7 @@ public class SearchTable
       + "("
       + COLUMN_ID + " integer primary key autoincrement, "
       + COLUMN_SEARCH_ID + " text not null, "
-      + COLUMN_DESCRIPTION + " text not null, "
+      + COLUMN_DESCRIPTION + " text not null"
       + ");";
 
   public static void onCreate(SQLiteDatabase database)

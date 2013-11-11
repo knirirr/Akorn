@@ -23,7 +23,7 @@ public class AuthorTable
       + TABLE_AUTHORS
       + "("
       + COLUMN_ID + " integer primary key autoincrement, "
-      + COLUMN_AUTHOR_NAME + " text not null, "
+      + COLUMN_AUTHOR_NAME + " text not null"
       + ");";
 
   public static void onCreate(SQLiteDatabase database)

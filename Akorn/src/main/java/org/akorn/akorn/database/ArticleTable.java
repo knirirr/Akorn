@@ -15,6 +15,7 @@ public class ArticleTable
   */
   public static final String TABLE_ARTICLES = "articles";
   public static final String COLUMN_ID = "_id";
+  public static final String COLUMN_TITLE = "title";
   public static final String COLUMN_ARTICLE_ID = "article_id";
   public static final String COLUMN_JOURNAL = "journal";
   public static final String COLUMN_LINK = "link";
@@ -26,11 +27,12 @@ public class ArticleTable
       + TABLE_ARTICLES
       + "("
       + COLUMN_ID + " integer primary key autoincrement, "
+      + COLUMN_TITLE + " text not null, "
       + COLUMN_ARTICLE_ID + " text not null, "
       + COLUMN_JOURNAL + " text not null,"
       + COLUMN_LINK + " text not null,"
       + COLUMN_ABSTRACT + " text not null,"
-      + COLUMN_READ + " integer not null,"
+      + COLUMN_READ + " integer not null"
       + ");";
 
   public static void onCreate(SQLiteDatabase database)
