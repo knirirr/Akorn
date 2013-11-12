@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.akorn.akorn.database.ArticleTable;
@@ -40,7 +41,7 @@ public class ArticleViewFragment extends Fragment
     }
 
     // Inflate the layout for this fragment
-    TextView article = (TextView) inflater.inflate(R.layout.article_view, container, false);
+    LinearLayout article = (LinearLayout) inflater.inflate(R.layout.article_view, container, false);
     return article;
   }
 
@@ -79,18 +80,15 @@ public class ArticleViewFragment extends Fragment
 
   public void updateArticleView(int position, int sql_article_id)
   {
-    TextView article;
-    if (getActivity().findViewById(R.id.fragment_container) != null)
-    {
-      article = (TextView) getActivity().findViewById(R.id.individual_article);
-    }
-    else
-    {
-      article = (TextView) getActivity().findViewById(R.id.view_fragment);
-    }
     mCurrentPosition = position;
     mSqlId = sql_article_id;
-    article.setMovementMethod(new ScrollingMovementMethod()); // make textview scrollable
+
+    // content, title &c. all textviews
+    TextView article_content = (TextView) getActivity().findViewById(R.id.article_content);
+    article_content.setMovementMethod(new ScrollingMovementMethod()); // make textview scrollable
+    TextView article_title = (TextView) getActivity().findViewById(R.id.article_title);
+    TextView article_journal = (TextView) getActivity().findViewById(R.id.article_journal);
+    TextView article_authors = (TextView) getActivity().findViewById(R.id.article_authors);
 
     //article.setText(Article.Articles[position]);
     // rather than the above, load the correct article text
@@ -100,20 +98,28 @@ public class ArticleViewFragment extends Fragment
         {
             ArticleTable.COLUMN_ID,
             ArticleTable.COLUMN_ABSTRACT,
-            ArticleTable.COLUMN_TITLE
+            ArticleTable.COLUMN_TITLE,
+            ArticleTable.COLUMN_LINK,
+            ArticleTable.COLUMN_JOURNAL
         }, // need title in order to share
         null, null, null);
-    Log.i("AKORN", "Cursor: " + cursor.getColumnNames().toString());
+    //Log.i("AKORN", "Cursor: " + cursor.getColumnNames().toString());
     if (cursor.moveToFirst())
     {
       do
       {
         String abs = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_ABSTRACT));
-        article.setText(abs.replaceAll("[\n\r]", " "));
+        //article.setText(abs.replaceAll("[\n\r]", " "));
+        article_content.setText(abs);
+        article_title.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE)));
+        article_journal.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL)));
       }
       while(cursor.moveToNext());
     }
     cursor.close();
+
+    // another query to get the authors? I think so, as there will be several authors per article
+    article_authors.setText("One Author, Another Author, Yet Another and Final Author");
   }
 
   @Override

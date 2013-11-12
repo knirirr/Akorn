@@ -17,7 +17,7 @@
               android:layout_weight="1"
               android:layout_width="0dp"
               android:layout_height="match_parent"
-              tools:layout="@layout/simple_list_item_activated_1"/>
+              tools:layout="@layout/article_title"/>
 
     <fragment android:name="org.akorn.akorn.ArticleViewFragment"
               android:id="@+id/view_fragment"

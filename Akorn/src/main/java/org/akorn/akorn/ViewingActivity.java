@@ -138,21 +138,15 @@ public class ViewingActivity extends Activity
               return true;
             case R.id.action_share:
               //Toast.makeText(this, "Sharing action!", Toast.LENGTH_SHORT).show();
-              TextView tv;
-              if (findViewById(R.id.view_fragment) != null)
-              {
-                 tv = (TextView) findViewById(R.id.view_fragment);
-              }
-              else
-              {
-                tv = (TextView) findViewById(R.id.individual_article);
-              }
-              String text_to_send = tv.getText().toString();
+              TextView content = (TextView) findViewById(R.id.article_content);
+              TextView title = (TextView) findViewById(R.id.article_title);
+              String text_to_send = content.getText().toString();
               text_to_send = text_to_send + "\n\n" + getString(R.string.sharing_text); // make this optional
+              // perhaps the URL should be added in here
               Intent sendIntent = new Intent();
               sendIntent.setAction(Intent.ACTION_SEND);
               sendIntent.putExtra(Intent.EXTRA_TEXT, text_to_send);
-              sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Article title goes here");// add the article title if an email
+              sendIntent.putExtra(Intent.EXTRA_SUBJECT, title.getText().toString());// add the article title if an email
               sendIntent.setType("text/plain");
               startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
               return true;

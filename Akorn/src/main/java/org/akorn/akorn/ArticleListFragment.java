@@ -39,10 +39,15 @@ public class ArticleListFragment extends ListFragment
   public void onCreate(Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
+  }
+
+  @Override
+  public void onActivityCreated(Bundle savedInstanceState)
+  {
+    super.onActivityCreated(savedInstanceState);
 
     //int layout = android.R.layout.simple_list_item_activated_1;
     int layout = R.layout.article_title;
-
 
     Uri uri = Uri.parse("content://org.akorn.akorn.contentprovider/articles");
     Cursor cursor = getActivity().getContentResolver().query(uri,
@@ -60,18 +65,18 @@ public class ArticleListFragment extends ListFragment
     else
     {
       // Don't bother, this should be working now
-      //Log.i("AKORN", "CURSOR: " + cursor.toString());
+      Log.i("AKORN", "CURSOR: " + cursor.toString());
     }
 
     // Defines a list of columns to retrieve from the Cursor and load into an output row
     String[] mWordListColumns =
     {
       ArticleTable.COLUMN_TITLE,
-      ArticleTable.COLUMN_ARTICLE_ID
+      ArticleTable.COLUMN_JOURNAL
     };
 
   // Defines a list of View IDs that will receive the Cursor columns for each row
-  int[] mWordListItems = { R.id.article_title, R.id.article_id};
+  int[] mWordListItems = { R.id.article_title, R.id.article_journal};
 
     // Creates a new SimpleCursorAdapter
     SimpleCursorAdapter mCursorAdapter = new SimpleCursorAdapter(
