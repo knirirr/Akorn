@@ -15,4 +15,10 @@
     <string name="action_share">Share</string>
     <string name="send_to">Share article</string>
 
+    <!-- preferences -->
+    <string name="pref_username">Username</string>
+    <string name="pref_username_summary">Login name for your account the Akorn website</string>
+    <string name="pref_password">Password</string>
+    <string name="pref_password_summary">Password for the above user account</string>
+
 </resources>

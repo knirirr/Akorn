@@ -134,7 +134,9 @@ public class ViewingActivity extends Activity
         switch (item.getItemId())
         {
             case R.id.action_settings:
-              Toast.makeText(this, "Settings selected (main).", Toast.LENGTH_SHORT).show();
+              //Toast.makeText(this, "Settings selected (main).", Toast.LENGTH_SHORT).show();
+              Intent intent = new Intent(this, SettingsActivity.class);
+              startActivity(intent);
               return true;
             case R.id.action_share:
               //Toast.makeText(this, "Sharing action!", Toast.LENGTH_SHORT).show();
