@@ -139,5 +139,4 @@ public class ArticleListFragment extends ListFragment
     // Set the item as checked to be highlighted when in two-pane layout
     getListView().setItemChecked(position, true);
   }
-
 }

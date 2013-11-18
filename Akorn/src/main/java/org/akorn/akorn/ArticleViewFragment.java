@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -74,6 +75,15 @@ public class ArticleViewFragment extends Fragment
     {
       inflater.inflate(R.menu.viewing, menu);
       //getActivity().invalidateOptionsMenu();
+    }
+    if (menu.findItem(R.id.action_sync) != null)
+    {
+      MenuItem item = menu.findItem(R.id.action_sync);
+      item.setVisible(false);
+    }
+    else
+    {
+      //Toast.makeText(getActivity(), "Failed to clear the menu.", Toast.LENGTH_SHORT).show();
     }
   }
 

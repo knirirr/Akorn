@@ -7,7 +7,9 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -133,25 +135,40 @@ public class ViewingActivity extends Activity
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId())
         {
-            case R.id.action_settings:
-              //Toast.makeText(this, "Settings selected (main).", Toast.LENGTH_SHORT).show();
-              Intent intent = new Intent(this, SettingsActivity.class);
-              startActivity(intent);
+          case R.id.action_settings:
+            //Toast.makeText(this, "Settings selected (main).", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+          case R.id.action_share:
+            //Toast.makeText(this, "Sharing action!", Toast.LENGTH_SHORT).show();
+            TextView content = (TextView) findViewById(R.id.article_content);
+            TextView title = (TextView) findViewById(R.id.article_title);
+            String text_to_send = content.getText().toString();
+            text_to_send = text_to_send + "\n\n" + getString(R.string.sharing_text); // make this optional
+            // perhaps the URL should be added in here
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, text_to_send);
+            sendIntent.putExtra(Intent.EXTRA_SUBJECT, title.getText().toString());// add the article title if an email
+            sendIntent.setType("text/plain");
+            startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
+            return true;
+          case R.id.action_sync:
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            String username = prefs.getString("pref_username", "");
+            String password = prefs.getString("pref_password", "");
+            if (username.isEmpty() || password.isEmpty())
+            {
+              Toast.makeText(this, getString(R.string.please_configure), Toast.LENGTH_SHORT).show();
               return true;
-            case R.id.action_share:
-              //Toast.makeText(this, "Sharing action!", Toast.LENGTH_SHORT).show();
-              TextView content = (TextView) findViewById(R.id.article_content);
-              TextView title = (TextView) findViewById(R.id.article_title);
-              String text_to_send = content.getText().toString();
-              text_to_send = text_to_send + "\n\n" + getString(R.string.sharing_text); // make this optional
-              // perhaps the URL should be added in here
-              Intent sendIntent = new Intent();
-              sendIntent.setAction(Intent.ACTION_SEND);
-              sendIntent.putExtra(Intent.EXTRA_TEXT, text_to_send);
-              sendIntent.putExtra(Intent.EXTRA_SUBJECT, title.getText().toString());// add the article title if an email
-              sendIntent.setType("text/plain");
-              startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
-              return true;
+            }
+            //Toast.makeText(this, "Would sync at this point.", Toast.LENGTH_SHORT).show();
+            Intent i= new Intent(this, AkornSyncService.class);
+            // potentially add data to the intent
+            //i.putExtra("KEY1", "Value to be used by the sync service");
+            this.startService(i);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

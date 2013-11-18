@@ -31,6 +31,13 @@
             android:name=".contentprovider.AkornContentProvider"
             android:authorities="org.akorn.akorn.contentprovider" >
         </provider>
+        <service
+            android:name="AkornSyncService"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/service_name">
+        </service>
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
 </manifest>

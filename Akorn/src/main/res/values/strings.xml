@@ -21,4 +21,9 @@
     <string name="pref_password">Password</string>
     <string name="pref_password_summary">Password for the above user account</string>
 
+    <!-- SyncService -->
+    <string name="service_name">AcornSyncService</string>
+    <string name="action_sync">Refresh</string> <!-- for the sync button -->
+    <string name="please_configure">Please configure your username and password using the \"Settings\" menu option</string>
+
 </resources>
