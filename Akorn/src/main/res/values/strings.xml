@@ -16,8 +16,8 @@
     <string name="send_to">Share article</string>
 
     <!-- preferences -->
-    <string name="pref_username">Username</string>
-    <string name="pref_username_summary">Login name for your account the Akorn website</string>
+    <string name="pref_username">Email</string>
+    <string name="pref_username_summary">Login email address for your account on the Akorn website</string>
     <string name="pref_password">Password</string>
     <string name="pref_password_summary">Password for the above user account</string>
 
@@ -25,5 +25,7 @@
     <string name="service_name">AcornSyncService</string>
     <string name="action_sync">Refresh</string> <!-- for the sync button -->
     <string name="please_configure">Please configure your username and password using the \"Settings\" menu option</string>
+    <string name="loginFail">Incorrect email or password!</string>
+    <string name="syncFail">Article sync failed!</string>
 
 </resources>
