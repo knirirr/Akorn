@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.JsonReader;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -12,13 +13,27 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +47,7 @@ public class AkornSyncService extends IntentService
   public static final String URL = "http://akorn.org/api/";
   private static final String TAG = "AkornSyncService";
   private Handler mHandler;
+  private CookieStore cookiestore;
 
   public AkornSyncService()
   {
@@ -104,7 +120,8 @@ public class AkornSyncService extends IntentService
       else if (statusCode == 204) // no content but successful login
       {
         // get the cookie here
-        List<Cookie> cookiejar = client.getCookieStore().getCookies();
+        cookiestore = client.getCookieStore();
+        List<Cookie> cookiejar = cookiestore.getCookies();
         for (Cookie bict : cookiejar)
         {
           Log.i(TAG,"Name: " + bict.getName());
@@ -140,6 +157,75 @@ public class AkornSyncService extends IntentService
     catch (Exception e)
     {
       e.printStackTrace();
+    }
+    /*
+      The next step is to get the user's saved searches, before using these to obtain the user's articles.
+     */
+    HttpContext localContext = new BasicHttpContext();
+    localContext.setAttribute(ClientContext.COOKIE_STORE, cookiestore); // use cookie store grabbed above
+    HttpGet httpGet = new HttpGet(URL + "searches");
+    InputStream inputStream = null;
+    String jsonResult;
+    try
+    {
+      HttpResponse response = client.execute(httpGet, localContext);
+      HttpEntity entity = response.getEntity();
+      inputStream = entity.getContent();
+
+      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"), 8);
+      StringBuilder sb = new StringBuilder();
+
+      String line = null;
+      while ((line = reader.readLine()) != null)
+      {
+        sb.append(line + "\n");
+      }
+      jsonResult = sb.toString();
+      Log.i(TAG, "Some JSON: " + jsonResult);
+    }
+    catch (IOException e)
+    {
+      Log.i(TAG, "Error getting search info: " + e.toString());
+      return;
+    }
+    finally
+    {
+      try{if(inputStream != null)inputStream.close();}catch(Exception squish){}
+    }
+
+    /*
+      Now we should have the json in jsonResult and can try parsing it
+     */
+    try
+    {
+      JSONObject jObject = new JSONObject(jsonResult);
+      // There must be a better way to get the json array out than using what appears to be
+      // an arbitrary key here. I'll have to look into it.
+      JSONArray jArray = jObject.getJSONArray("bd20075c-e1ef-4b54-aec4-fadb9a6f5e4e");
+      for (int i=0; i < jArray.length(); i++)
+      {
+        try
+        {
+          JSONObject oneObject = jArray.getJSONObject(i);
+          // Pulling items from the array
+          String j_text = oneObject.getString("text");
+          String j_full = oneObject.getString("full");
+          String j_type = oneObject.getString("type");
+          String j_id = oneObject.getString("id");
+          Log.i(TAG, "JSON parsed: " + j_text + "," + j_full + "," + j_type + "," + j_id);
+        }
+        catch (JSONException e)
+        {
+          // Oops
+        }
+      }
+
+    }
+    catch (JSONException e)
+    {
+      Log.e(TAG,"Can't parse JSON from server: " + e.toString());
+      // a toast here, perhaps?
+      return;
     }
   }
 
