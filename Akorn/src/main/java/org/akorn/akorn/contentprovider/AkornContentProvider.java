@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.util.Log;
 
 import org.akorn.akorn.Article;
@@ -17,6 +18,7 @@ import org.akorn.akorn.database.AuthorTable;
 import org.akorn.akorn.database.SearchArticleTable;
 import org.akorn.akorn.database.SearchTable;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -29,6 +31,7 @@ public class AkornContentProvider extends ContentProvider
   private AkornDatabaseHelper database;
 
   public static final String AUTHORITY = "org.akorn.akorn.contentprovider";
+  public static final String TAG = "AkornContentProvider";
 
   private static final int ARTICLES = 10;
   private static final int ARTICLES_ID = 15;
@@ -116,7 +119,10 @@ public class AkornContentProvider extends ContentProvider
         SearchArticleTable.COLUMN_ARTICLE_ID,
         SearchArticleTable.COLUMN_SEARCH_ID,
         SearchTable.COLUMN_ID,
-        SearchTable.COLUMN_DESCRIPTION,
+        SearchTable.COLUMN_TERM_ID,
+        SearchTable.COLUMN_TEXT,
+        SearchTable.COLUMN_FULL,
+        SearchTable.COLUMN_TYPE,
         SearchTable.COLUMN_SEARCH_ID
     };
 
@@ -141,18 +147,66 @@ public class AkornContentProvider extends ContentProvider
   @Override
   public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs)
   {
-    return 0;
+    int rowsUpdated = 0;
+    int uriType = sURIMatcher.match(uri);
+    SQLiteDatabase sqlDB = database.getWritableDatabase();
+    switch (uriType)
+    {
+      case SEARCHES:
+        rowsUpdated = sqlDB.update(SearchTable.TABLE_SEARCH,
+            values,
+            selection,
+            selectionArgs);
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown URI: " + uri);
+    }
+    getContext().getContentResolver().notifyChange(uri, null);
+    return rowsUpdated;
   }
 
   @Override
   public Uri insert(Uri uri, ContentValues values)
   {
+    int uriType = sURIMatcher.match(uri);
+    SQLiteDatabase sqlDB = database.getWritableDatabase();
+    switch (uriType)
+    {
+      case SEARCHES:
+        try
+        {
+          sqlDB.insert(SearchTable.TABLE_SEARCH, null, values);
+        }
+        catch (Exception e)
+        {
+          Log.e(TAG,"Failed to insert data: " + e.toString());
+        }
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown URI: " + uri);
+    }
+    getContext().getContentResolver().notifyChange(uri, null);
     return uri;
   }
 
   @Override
   public int delete(Uri uri, String selection, String[] selectionArgs)
   {
+    int uriType = sURIMatcher.match(uri);
+    SQLiteDatabase sqlDB = database.getWritableDatabase();
+    switch (uriType)
+    {
+      case SEARCHES:
+        Log.i(TAG,"Purging search table!");
+        sqlDB.delete(SearchTable.TABLE_SEARCH, null, null);
+        // reset IDs. Probably not necessary, but might as well be done
+        sqlDB.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + SearchTable.TABLE_SEARCH + "'");
+        Log.i(TAG,"Purged!");
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown URI: " + uri);
+    }
+    getContext().getContentResolver().notifyChange(uri, null);
     return 0;
   }
 }

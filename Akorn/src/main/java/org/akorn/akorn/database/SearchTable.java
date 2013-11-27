@@ -16,7 +16,10 @@ public class SearchTable
   public static final String TABLE_SEARCH = "searches";
   public static final String COLUMN_ID = "_id";
   public static final String COLUMN_SEARCH_ID = "search_id"; // I'm assuming that there's a BSON ID on the server...
-  public static final String COLUMN_DESCRIPTION = "description";
+  public static final String COLUMN_FULL = "full";
+  public static final String COLUMN_TEXT = "text";
+  public static final String COLUMN_TYPE = "type";
+  public static final String COLUMN_TERM_ID = "term_id";
 
   // SQL statement for creating the table
   private static final String DATABASE_CREATE = "create table "
@@ -24,7 +27,10 @@ public class SearchTable
       + "("
       + COLUMN_ID + " integer primary key autoincrement, "
       + COLUMN_SEARCH_ID + " text not null, "
-      + COLUMN_DESCRIPTION + " text not null"
+      + COLUMN_FULL + " text, "
+      + COLUMN_TEXT + " text not null, "
+      + COLUMN_TYPE + " text not null, "
+      + COLUMN_TERM_ID + " text"
       + ");";
 
   public static void onCreate(SQLiteDatabase database)

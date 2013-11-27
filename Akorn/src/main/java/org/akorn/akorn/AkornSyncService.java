@@ -1,14 +1,18 @@
 package org.akorn.akorn;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.JsonReader;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.akorn.akorn.contentprovider.AkornContentProvider;
+import org.akorn.akorn.database.SearchTable;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -143,6 +147,7 @@ public class AkornSyncService extends IntentService
       {
         mHandler.post(new ToastRunnable(getString(R.string.loginFail)));
         Log.i(TAG,"Bad username or password!");
+        return;
       }
       else
       {
@@ -182,6 +187,12 @@ public class AkornSyncService extends IntentService
       }
       jsonResult = sb.toString();
       Log.i(TAG, "Some JSON: " + jsonResult);
+      /*
+        If all those data have come back successfully then the logical next step given the database schema
+        is to purge the searches table ready to insert the new stuff below...
+      */
+      Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
+      getContentResolver().delete(uri, null, null);
     }
     catch (IOException e)
     {
@@ -190,36 +201,60 @@ public class AkornSyncService extends IntentService
     }
     finally
     {
-      try{if(inputStream != null)inputStream.close();}catch(Exception squish){}
+      try{ if(inputStream != null)inputStream.close(); }
+      catch(Exception squish){
+      // make sure it's closed
+      }
     }
 
     /*
-      Now we should have the json in jsonResult and can try parsing it
+      Now we should have the json in jsonResult and can try parsing it.
+      If anyone can think of a more cunning way to parse what the Akorn server sends then by
+      all means let me know.
      */
     try
     {
       JSONObject jObject = new JSONObject(jsonResult);
-      // There must be a better way to get the json array out than using what appears to be
-      // an arbitrary key here. I'll have to look into it.
-      JSONArray jArray = jObject.getJSONArray("bd20075c-e1ef-4b54-aec4-fadb9a6f5e4e");
-      for (int i=0; i < jArray.length(); i++)
+      // all the keys of the array must be collected and iterated over in order to pull out the arrays
+      // of search terms. Then, these will have to be crammed into the database somehow
+      JSONArray namearray=jObject.names();
+      for (int h=0; h < namearray.length(); h++)
       {
-        try
+        JSONArray jArray = jObject.getJSONArray(namearray.getString(h));
+        for (int i=0; i < jArray.length(); i++)
         {
-          JSONObject oneObject = jArray.getJSONObject(i);
-          // Pulling items from the array
-          String j_text = oneObject.getString("text");
-          String j_full = oneObject.getString("full");
-          String j_type = oneObject.getString("type");
-          String j_id = oneObject.getString("id");
-          Log.i(TAG, "JSON parsed: " + j_text + "," + j_full + "," + j_type + "," + j_id);
-        }
-        catch (JSONException e)
-        {
-          // Oops
+          try
+          {
+            JSONObject oneObject = jArray.getJSONObject(i);
+            // Pulling items from the array - may need changing for multiple-term searches
+            String pe = "Couldn't get term from JSON object: ";
+            String j_type = null;
+            String j_full = null;
+            String j_text = null;
+            String j_id = null;
+            try { j_text = oneObject.getString("text"); } catch (JSONException e) {Log.e(TAG, pe + e.toString());}
+            try { j_full = oneObject.getString("full"); } catch (JSONException e) {Log.e(TAG, pe + e.toString());}
+            try { j_type = oneObject.getString("type"); } catch (JSONException e) {Log.e(TAG, pe + e.toString());}
+            try { j_id = oneObject.getString("id"); } catch (JSONException e) { Log.e(TAG, pe + e.toString()); }
+            Log.i(TAG, "JSON parsed: " + namearray.getString(h) + ": " + j_text + "," + j_full + "," + j_type + "," + j_id);
+
+            // now construct some ContentValues to insert
+            Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
+            ContentValues values = new ContentValues();
+            values.put(SearchTable.COLUMN_TEXT,j_text);
+            values.put(SearchTable.COLUMN_FULL,j_full);
+            values.put(SearchTable.COLUMN_TYPE,j_type);
+            values.put(SearchTable.COLUMN_SEARCH_ID,namearray.getString(h));
+            values.put(SearchTable.COLUMN_TERM_ID,j_id);
+            getContentResolver().insert(uri, values);
+          }
+          catch (JSONException e)
+          {
+            // Oops
+            Log.e(TAG, "Couldn't parse JSON: " + e.toString());
+          }
         }
       }
-
     }
     catch (JSONException e)
     {
@@ -227,6 +262,8 @@ public class AkornSyncService extends IntentService
       // a toast here, perhaps?
       return;
     }
+
+
   }
 
   /*
