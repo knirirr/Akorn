@@ -96,8 +96,8 @@ public class AkornContentProvider extends ContentProvider
     SQLiteDatabase db = database.getWritableDatabase();
     Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
     // make sure that potential listeners are getting notified
+    getContext().getContentResolver().notifyChange(uri, null);
     cursor.setNotificationUri(getContext().getContentResolver(), uri);
-
     return cursor;
   }
 

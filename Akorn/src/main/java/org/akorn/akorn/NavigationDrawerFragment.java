@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.database.Cursor;
+import android.database.DataSetObserver;
 import android.net.Uri;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
@@ -20,12 +21,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import org.akorn.akorn.contentprovider.AkornContentProvider;
 import org.akorn.akorn.database.SearchTable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -147,7 +155,41 @@ public class NavigationDrawerFragment extends Fragment {
           mWordListItems,
           0);
 
+      /*
+      // a structure to hold the text and type for each search, with the key
+      // being the search ID
+      // this should fix the problem of searches being separated out into their constituents
+      Map<String, ArrayList<String>> searches = new HashMap<String,ArrayList<String>>();
+      while(cursor.moveToNext())
+      {
+        String search_id = cursor.getString(cursor.getColumnIndex(SearchTable.COLUMN_SEARCH_ID));
+        String type = cursor.getString(cursor.getColumnIndex(SearchTable.COLUMN_TYPE));
+        String text = cursor.getString(cursor.getColumnIndex(SearchTable.COLUMN_TEXT));
+        Log.i(TAG,"SEARCH: " + type + "," + text + "," + search_id);
+        if (searches.containsKey(search_id))
+        {
+          ArrayList<String> alist = new ArrayList<String>();
+          alist.add(0,searches.get(search_id).get(0).concat(" | " + text));
+          alist.add(1,searches.get(search_id).get(1).concat(" | " + type));
+          searches.put(search_id,alist);
+        }
+        else
+        {
+          ArrayList<String> alist = new ArrayList<String>();
+          alist.add(0, text);
+          alist.add(1, type);
+          searches.put(search_id,alist);
+        }
+      }
 
+
+      //ListAdapter mCursorAdapter = new ArrayAdapter(getActivity(), layout, new ArrayList(searches.values()));
+      //ListAdapter mCursorAdapter = new SimpleAdapter(getActivity(), new ArrayList<String>(),layout );
+
+      Log.i(TAG, "SEARCHES: " + searches.toString());
+      Log.i(TAG, "MOAR_SEARCHES: " + searches.values().toString());
+      //mDrawerListView.setAdapter(mCursorAdapter);
+      */
       mDrawerListView.setAdapter(mCursorAdapter);
       mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
       return mDrawerListView;

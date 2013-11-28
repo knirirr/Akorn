@@ -263,6 +263,16 @@ public class AkornSyncService extends IntentService
       return;
     }
 
+    /*
+      Now the searches have been obtained, it's finally time to get the articles. According to the website devs:
+      http://akorn.org/api/articles?skip=0&limit=20&k=hello%7Cmilo
+        &j=f45f136fbd14caa156e5b4b846113877%7Cf45f136fbd14caa156e5b4b8461113e9%7Cf45f136fbd14caa156e5b4b8460b3344
+      It looks like the "keyword" type items are being put in the k argument and the journal ids from the "journal"
+      type items are being put in the j argument, joined together with whatever %7C is
+      un-urlencoded, possibly a "+" symbol.
+     */
+
+
 
   }
 
