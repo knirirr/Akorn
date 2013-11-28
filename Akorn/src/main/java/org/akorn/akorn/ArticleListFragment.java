@@ -4,14 +4,9 @@ import android.app.ListFragment;
 import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
@@ -27,6 +22,7 @@ import java.net.URI;
 public class ArticleListFragment extends ListFragment
 {
   OnHeadlineSelectedListener mCallback;
+  private static final String TAG = "Akorn";
 
   // The container Activity must implement this interface so the frag can deliver messages
   public interface OnHeadlineSelectedListener
@@ -49,7 +45,7 @@ public class ArticleListFragment extends ListFragment
     //int layout = android.R.layout.simple_list_item_activated_1;
     int layout = R.layout.article_title;
 
-    Uri uri = Uri.parse("content://org.akorn.akorn.contentprovider/articles");
+    Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
     Cursor cursor = getActivity().getContentResolver().query(uri,
         new String[]{ArticleTable.COLUMN_ID,
                      ArticleTable.COLUMN_TITLE,
@@ -59,13 +55,8 @@ public class ArticleListFragment extends ListFragment
 
     if (cursor == null)
     {
-      Log.i("AKORN", "FRC! Cursor is null!");
+      Log.i(TAG, "FRC! Cursor is null in ArticleListFragment!");
       Toast.makeText(getActivity(), getString(R.string.database_error), Toast.LENGTH_SHORT).show();
-    }
-    else
-    {
-      // Don't bother, this should be working now
-      Log.i("AKORN", "CURSOR: " + cursor.toString());
     }
 
     // Defines a list of columns to retrieve from the Cursor and load into an output row

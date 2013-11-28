@@ -10,9 +10,12 @@
     <string name="title_section3">Search type 3</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- menu -->
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
     <string name="action_share">Share</string>
+    <string name="action_website">Website</string>
     <string name="send_to">Share article</string>
 
     <!-- preferences -->

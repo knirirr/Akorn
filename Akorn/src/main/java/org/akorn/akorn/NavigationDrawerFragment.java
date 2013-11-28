@@ -3,6 +3,8 @@ package org.akorn.akorn;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.database.Cursor;
+import android.net.Uri;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -10,6 +12,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,9 +20,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
+
+import org.akorn.akorn.contentprovider.AkornContentProvider;
+import org.akorn.akorn.database.SearchTable;
 
 
 /**
@@ -58,10 +64,13 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
+    private static String TAG = "Akorn";
+
     public NavigationDrawerFragment() { }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
       super.onCreate(savedInstanceState);
 
         // Read in the flag indicating whether or not the user has demonstrated awareness of the
@@ -83,32 +92,70 @@ public class NavigationDrawerFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState)
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        mDrawerListView = (ListView) inflater.inflate(
-                R.layout.fragment_navigation_drawer, container, false);
-        mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectItem(position);
-            }
-        });
-        mDrawerListView.setAdapter(new ArrayAdapter<String>(
-                getActionBar().getThemedContext(),
-                android.R.layout.simple_list_item_activated_1,
-                android.R.id.text1,
-                new String[]{
-                        getString(R.string.title_section1),
-                        getString(R.string.title_section2),
-                        getString(R.string.title_section3),
-                }));
-        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
-        return mDrawerListView;
+      /*
+       The list of the user's searches is required for display in the navigation bar
+       */
+      Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
+      Cursor cursor = getActivity().getContentResolver().query(uri,
+          new String[]
+          {
+            SearchTable.COLUMN_ID,
+            SearchTable.COLUMN_SEARCH_ID,
+            SearchTable.COLUMN_FULL,
+            SearchTable.COLUMN_TYPE,
+            SearchTable.COLUMN_TEXT
+          },
+          null, null, null);
+
+      if (cursor == null)
+      {
+        Log.i(TAG, "FRC! Cursor is null in NavigationDrawerFragment!");
+        Toast.makeText(getActivity(), getString(R.string.database_error), Toast.LENGTH_SHORT).show();
+      }
+
+      int layout = R.layout.search_title;
+
+      mDrawerListView = (ListView) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+
+      mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+      {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+        {
+          selectItem(position);
+        }
+      });
+
+      // Defines a list of columns to retrieve from the Cursor and load into an output row
+      String[] mWordListColumns =
+      {
+        SearchTable.COLUMN_TEXT,
+        SearchTable.COLUMN_TYPE
+      };
+
+      // Defines a list of View IDs that will receive the Cursor columns for each row
+      int[] mWordListItems = { R.id.search_full, R.id.search_type};
+
+      // Creates a new SimpleCursorAdapter to bind to the navigation drawer
+      SimpleCursorAdapter mCursorAdapter = new SimpleCursorAdapter(
+          getActivity(),
+          layout,
+          cursor,
+          mWordListColumns,
+          mWordListItems,
+          0);
+
+
+      mDrawerListView.setAdapter(mCursorAdapter);
+      mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+      return mDrawerListView;
     }
 
-    public boolean isDrawerOpen() {
-        return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
+    public boolean isDrawerOpen()
+    {
+      return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
     }
 
     /**
@@ -117,7 +164,8 @@ public class NavigationDrawerFragment extends Fragment {
      * @param fragmentId   The android:id of this fragment in its activity's layout.
      * @param drawerLayout The DrawerLayout containing this fragment's UI.
      */
-    public void setUp(int fragmentId, DrawerLayout drawerLayout) {
+    public void setUp(int fragmentId, DrawerLayout drawerLayout)
+    {
         mFragmentContainerView = getActivity().findViewById(fragmentId);
         mDrawerLayout = drawerLayout;
 
@@ -183,17 +231,21 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
-    private void selectItem(int position) {
-        mCurrentSelectedPosition = position;
-        if (mDrawerListView != null) {
-            mDrawerListView.setItemChecked(position, true);
-        }
-        if (mDrawerLayout != null) {
-            mDrawerLayout.closeDrawer(mFragmentContainerView);
-        }
-        if (mCallbacks != null) {
-            mCallbacks.onNavigationDrawerItemSelected(position);
-        }
+    private void selectItem(int position)
+    {
+      mCurrentSelectedPosition = position;
+      if (mDrawerListView != null)
+      {
+        mDrawerListView.setItemChecked(position, true);
+      }
+      if (mDrawerLayout != null)
+      {
+        mDrawerLayout.closeDrawer(mFragmentContainerView);
+      }
+      if (mCallbacks != null)
+      {
+      mCallbacks.onNavigationDrawerItemSelected(position);
+      }
     }
 
     @Override
@@ -272,15 +324,6 @@ public class NavigationDrawerFragment extends Fragment {
         {
             return true;
         }
-
-      /*
-      // Is this code really necessary? It doesn't seem to work. Perhaps it can be removed later.
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                Toast.makeText(getActivity(), "Settings selected (drawer).", Toast.LENGTH_SHORT).show();
-                return true;
-        }
-        */
 
         return super.onOptionsItemSelected(item);
     }

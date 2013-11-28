@@ -29,7 +29,8 @@
         </activity>
         <provider
             android:name=".contentprovider.AkornContentProvider"
-            android:authorities="org.akorn.akorn.contentprovider" >
+            android:authorities="org.akorn.akorn.contentprovider"
+            android:exported="false">
         </provider>
         <service
             android:name="AkornSyncService"

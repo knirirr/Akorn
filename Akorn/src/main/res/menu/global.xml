@@ -3,6 +3,10 @@
         android:title="@string/action_settings"
         android:orderInCategory="100"
         android:showAsAction="never" />
+    <item android:id="@+id/action_website"
+        android:title="@string/action_website"
+        android:orderInCategory="50"
+        android:showAsAction="never" />
     <item android:id="@+id/action_sync"
           android:title="@string/action_sync"
           android:icon="@android:drawable/ic_popup_sync"

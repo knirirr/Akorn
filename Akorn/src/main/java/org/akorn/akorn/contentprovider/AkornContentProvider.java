@@ -71,22 +71,23 @@ public class AkornContentProvider extends ContentProvider
   public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder)
   {
 
-    Log.i("AKORN","URI is: " + uri.toString());
     SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
 
     // check if the caller has requested a column which does not exists
     checkColumns(projection);
 
-    // Set the table
-    queryBuilder.setTables(ArticleTable.TABLE_ARTICLES);
-
     int uriType = sURIMatcher.match(uri);
     switch (uriType) {
       case ARTICLES:
+        queryBuilder.setTables(ArticleTable.TABLE_ARTICLES);
         break;
       case ARTICLES_ID:
         // adding the ID to the original query
+        queryBuilder.setTables(ArticleTable.TABLE_ARTICLES);
         queryBuilder.appendWhere(ArticleTable.COLUMN_ID + "=" + uri.getLastPathSegment());
+        break;
+      case SEARCHES:
+        queryBuilder.setTables(SearchTable.TABLE_SEARCH);
         break;
       default:
         throw new IllegalArgumentException("Unknown URI: " + uri);

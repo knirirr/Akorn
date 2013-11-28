@@ -8,6 +8,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -87,22 +88,6 @@ public class ViewingActivity extends Activity
         Toast.makeText(this, getString(R.string.not_working), Toast.LENGTH_SHORT).show();
     }
 
-    public void onSectionAttached(int number)
-    {
-        switch (number)
-        {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-        }
-    }
-
     public void restoreActionBar()
     {
         ActionBar actionBar = getActionBar();
@@ -135,10 +120,14 @@ public class ViewingActivity extends Activity
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId())
         {
+          case R.id.action_website:
+            Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("http://akorn.org"));
+            startActivity(viewIntent);
+            return true;
           case R.id.action_settings:
             //Toast.makeText(this, "Settings selected (main).", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
+            Intent actionIntent = new Intent(this, SettingsActivity.class);
+            startActivity(actionIntent);
             return true;
           case R.id.action_share:
             //Toast.makeText(this, "Sharing action!", Toast.LENGTH_SHORT).show();

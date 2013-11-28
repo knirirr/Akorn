@@ -226,7 +226,7 @@ public class AkornSyncService extends IntentService
           try
           {
             JSONObject oneObject = jArray.getJSONObject(i);
-            // Pulling items from the array - may need changing for multiple-term searches
+            // Pulling items from the array 
             String pe = "Couldn't get term from JSON object: ";
             String j_type = null;
             String j_full = null;
