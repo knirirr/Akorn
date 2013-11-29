@@ -88,7 +88,18 @@ public class AkornContentProvider extends ContentProvider
         break;
       case SEARCHES:
         queryBuilder.setTables(SearchTable.TABLE_SEARCH);
-        break;
+        Cursor cursor = database.getReadableDatabase().rawQuery(
+            "SELECT " + SearchTable.COLUMN_ID + ", " +
+            SearchTable.COLUMN_SEARCH_ID + ", " +
+            "group_concat(" + SearchTable.COLUMN_FULL + ", \" | \") AS " + SearchTable.COLUMN_FULL + ", " +
+            "group_concat(" + SearchTable.COLUMN_TYPE + ", \" | \") AS " + SearchTable.COLUMN_TYPE + ", " +
+            "group_concat(" + SearchTable.COLUMN_TEXT+ ", \" | \") AS " + SearchTable.COLUMN_TEXT +
+             " FROM " + SearchTable.TABLE_SEARCH + " GROUP BY " + SearchTable.COLUMN_SEARCH_ID
+            , null);
+        getContext().getContentResolver().notifyChange(uri, null);
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return cursor;
+        //break;
       default:
         throw new IllegalArgumentException("Unknown URI: " + uri);
     }
@@ -100,6 +111,7 @@ public class AkornContentProvider extends ContentProvider
     cursor.setNotificationUri(getContext().getContentResolver(), uri);
     return cursor;
   }
+
 
   private void checkColumns(String[] projection)
   {
