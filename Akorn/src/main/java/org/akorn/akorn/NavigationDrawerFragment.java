@@ -363,19 +363,21 @@ public class NavigationDrawerFragment extends Fragment
 
   private SimpleCursorAdapter getList()
   {
-      Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
-      Cursor cursor = getActivity().getContentResolver().query(uri,
-          new String[]
-          {
-            SearchTable.COLUMN_ID,
-            SearchTable.COLUMN_SEARCH_ID,
-            SearchTable.COLUMN_FULL,
-            SearchTable.COLUMN_TYPE,
-            SearchTable.COLUMN_TEXT
-            //"group_concat(" + SearchTable.COLUMN_TYPE + ",\" | \") as " + SearchTable.COLUMN_TYPE,
-            //"group_concat(" + SearchTable.COLUMN_TEXT + ",\" | \") as " + SearchTable.COLUMN_TEXT
-          },
-          null, null, null);
+    Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
+    // this particular syntax is effectively un-needed, as a raw query is being used
+    // in the content provider if a search of searches is used, in order that a
+    // group_concat may be used
+    // http://www.sqlite.org/lang_aggfunc.html
+    Cursor cursor = getActivity().getContentResolver().query(uri,
+      new String[]
+      {
+        SearchTable.COLUMN_ID,
+        SearchTable.COLUMN_SEARCH_ID,
+        SearchTable.COLUMN_FULL,
+        SearchTable.COLUMN_TYPE,
+        SearchTable.COLUMN_TEXT
+      },
+      null, null, null);
 
       if (cursor == null)
       {
