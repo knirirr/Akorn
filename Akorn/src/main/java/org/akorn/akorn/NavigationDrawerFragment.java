@@ -3,9 +3,10 @@ package org.akorn.akorn;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.database.ContentObserver;
 import android.database.Cursor;
-import android.database.DataSetObserver;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -41,7 +42,8 @@ import java.util.Map;
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
  */
-public class NavigationDrawerFragment extends Fragment {
+public class NavigationDrawerFragment extends Fragment
+{
 
     /**
      * Remember the position of the selected item.
@@ -76,26 +78,35 @@ public class NavigationDrawerFragment extends Fragment {
 
     public NavigationDrawerFragment() { }
 
+    private AkornObserver observer;
+    private SimpleCursorAdapter mCursorAdapter;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
       super.onCreate(savedInstanceState);
 
-        // Read in the flag indicating whether or not the user has demonstrated awareness of the
-        // drawer. See PREF_USER_LEARNED_DRAWER for details.
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
+      // Read in the flag indicating whether or not the user has demonstrated awareness of the
+      // drawer. See PREF_USER_LEARNED_DRAWER for details.
+      SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+      mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
 
-        if (savedInstanceState != null) {
-            mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
-            mFromSavedInstanceState = true;
-        }
+      if (savedInstanceState != null)
+      {
+        mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
+        mFromSavedInstanceState = true;
+      }
 
-        // Select either the default item (0) or the last selected item.
-        selectItem(mCurrentSelectedPosition);
+      // Select either the default item (0) or the last selected item.
+      selectItem(mCurrentSelectedPosition);
 
-        // Indicate that this fragment would like to influence the set of actions in the action bar.
-        setHasOptionsMenu(true);
+      // Indicate that this fragment would like to influence the set of actions in the action bar.
+      setHasOptionsMenu(true);
+
+      // register for changes in the content adapter
+      Uri searchUri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
+      observer = new AkornObserver(new Handler());
+      getActivity().getContentResolver().registerContentObserver(searchUri, true, observer);
     }
 
 
@@ -105,26 +116,6 @@ public class NavigationDrawerFragment extends Fragment {
       /*
        The list of the user's searches is required for display in the navigation bar
        */
-      Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
-      Cursor cursor = getActivity().getContentResolver().query(uri,
-          new String[]
-          {
-            SearchTable.COLUMN_ID,
-            SearchTable.COLUMN_SEARCH_ID,
-            SearchTable.COLUMN_FULL,
-            SearchTable.COLUMN_TYPE,
-            SearchTable.COLUMN_TEXT
-          },
-          null, null, null);
-
-      if (cursor == null)
-      {
-        Log.i(TAG, "FRC! Cursor is null in NavigationDrawerFragment!");
-        Toast.makeText(getActivity(), getString(R.string.database_error), Toast.LENGTH_SHORT).show();
-      }
-
-      int layout = R.layout.search_title;
-
       mDrawerListView = (ListView) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
 
       mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
@@ -136,60 +127,7 @@ public class NavigationDrawerFragment extends Fragment {
         }
       });
 
-      // Defines a list of columns to retrieve from the Cursor and load into an output row
-      String[] mWordListColumns =
-      {
-        SearchTable.COLUMN_TEXT,
-        SearchTable.COLUMN_TYPE
-      };
-
-      // Defines a list of View IDs that will receive the Cursor columns for each row
-      int[] mWordListItems = { R.id.search_full, R.id.search_type};
-
-      // Creates a new SimpleCursorAdapter to bind to the navigation drawer
-      SimpleCursorAdapter mCursorAdapter = new SimpleCursorAdapter(
-          getActivity(),
-          layout,
-          cursor,
-          mWordListColumns,
-          mWordListItems,
-          0);
-
-      /*
-      // a structure to hold the text and type for each search, with the key
-      // being the search ID
-      // this should fix the problem of searches being separated out into their constituents
-      Map<String, ArrayList<String>> searches = new HashMap<String,ArrayList<String>>();
-      while(cursor.moveToNext())
-      {
-        String search_id = cursor.getString(cursor.getColumnIndex(SearchTable.COLUMN_SEARCH_ID));
-        String type = cursor.getString(cursor.getColumnIndex(SearchTable.COLUMN_TYPE));
-        String text = cursor.getString(cursor.getColumnIndex(SearchTable.COLUMN_TEXT));
-        Log.i(TAG,"SEARCH: " + type + "," + text + "," + search_id);
-        if (searches.containsKey(search_id))
-        {
-          ArrayList<String> alist = new ArrayList<String>();
-          alist.add(0,searches.get(search_id).get(0).concat(" | " + text));
-          alist.add(1,searches.get(search_id).get(1).concat(" | " + type));
-          searches.put(search_id,alist);
-        }
-        else
-        {
-          ArrayList<String> alist = new ArrayList<String>();
-          alist.add(0, text);
-          alist.add(1, type);
-          searches.put(search_id,alist);
-        }
-      }
-
-
-      //ListAdapter mCursorAdapter = new ArrayAdapter(getActivity(), layout, new ArrayList(searches.values()));
-      //ListAdapter mCursorAdapter = new SimpleAdapter(getActivity(), new ArrayList<String>(),layout );
-
-      Log.i(TAG, "SEARCHES: " + searches.toString());
-      Log.i(TAG, "MOAR_SEARCHES: " + searches.values().toString());
-      //mDrawerListView.setAdapter(mCursorAdapter);
-      */
+      mCursorAdapter = getList();
       mDrawerListView.setAdapter(mCursorAdapter);
       mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
       return mDrawerListView;
@@ -390,10 +328,115 @@ public class NavigationDrawerFragment extends Fragment {
     /**
      * Callbacks interface that all activities using this fragment must implement.
      */
-    public static interface NavigationDrawerCallbacks {
+    public static interface NavigationDrawerCallbacks
+    {
         /**
          * Called when an item in the navigation drawer is selected.
          */
         void onNavigationDrawerItemSelected(int position);
     }
+
+  class AkornObserver extends ContentObserver
+  {
+    public AkornObserver(Handler handler)
+    {
+      super(handler);
+    }
+
+    @Override
+    public void onChange(boolean selfChange)
+    {
+      this.onChange(selfChange, null);
+    }
+
+    @Override
+    public void onChange(boolean selfChange, Uri uri)
+    {
+      // do s.th.
+      // depending on the handler you might be on the UI
+      // thread, so be cautious!
+      mCursorAdapter.notifyDataSetChanged();
+      mDrawerListView.invalidate();
+      Log.i(TAG,"Cursor dataset changed!");
+    }
+  }
+
+  private SimpleCursorAdapter getList()
+  {
+          Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
+      Cursor cursor = getActivity().getContentResolver().query(uri,
+          new String[]
+          {
+            SearchTable.COLUMN_ID,
+            SearchTable.COLUMN_SEARCH_ID,
+            SearchTable.COLUMN_FULL,
+            SearchTable.COLUMN_TYPE,
+            SearchTable.COLUMN_TEXT
+          },
+          null, null, null);
+
+      if (cursor == null)
+      {
+        Log.i(TAG, "FRC! Cursor is null in NavigationDrawerFragment!");
+        Toast.makeText(getActivity(), getString(R.string.database_error), Toast.LENGTH_SHORT).show();
+      }
+          // Defines a list of columns to retrieve from the Cursor and load into an output row
+      String[] mWordListColumns =
+      {
+        SearchTable.COLUMN_TEXT,
+        SearchTable.COLUMN_TYPE
+      };
+
+      // Defines a list of View IDs that will receive the Cursor columns for each row
+      int[] mWordListItems = { R.id.search_full, R.id.search_type};
+
+      // layout for each of the articles in the sidebar
+      int layout = R.layout.search_title;
+
+      // Creates a new SimpleCursorAdapter to bind to the navigation drawer
+      mCursorAdapter = new SimpleCursorAdapter(
+          getActivity(),
+          layout,
+          cursor,
+          mWordListColumns,
+          mWordListItems,
+          0);
+    return mCursorAdapter;
+     /*
+      // a structure to hold the text and type for each search, with the key
+      // being the search ID
+      // this should fix the problem of searches being separated out into their constituents
+      Map<String, ArrayList<String>> searches = new HashMap<String,ArrayList<String>>();
+      while(cursor.moveToNext())
+      {
+        String search_id = cursor.getString(cursor.getColumnIndex(SearchTable.COLUMN_SEARCH_ID));
+        String type = cursor.getString(cursor.getColumnIndex(SearchTable.COLUMN_TYPE));
+        String text = cursor.getString(cursor.getColumnIndex(SearchTable.COLUMN_TEXT));
+        Log.i(TAG,"SEARCH: " + type + "," + text + "," + search_id);
+        if (searches.containsKey(search_id))
+        {
+          ArrayList<String> alist = new ArrayList<String>();
+          alist.add(0,searches.get(search_id).get(0).concat(" | " + text));
+          alist.add(1,searches.get(search_id).get(1).concat(" | " + type));
+          searches.put(search_id,alist);
+        }
+        else
+        {
+          ArrayList<String> alist = new ArrayList<String>();
+          alist.add(0, text);
+          alist.add(1, type);
+          searches.put(search_id,alist);
+        }
+      }
+
+
+      //ListAdapter mCursorAdapter = new ArrayAdapter(getActivity(), layout, new ArrayList(searches.values()));
+      //ListAdapter mCursorAdapter = new SimpleAdapter(getActivity(), new ArrayList<String>(),layout );
+
+      Log.i(TAG, "SEARCHES: " + searches.toString());
+      Log.i(TAG, "MOAR_SEARCHES: " + searches.values().toString());
+      //mDrawerListView.setAdapter(mCursorAdapter);
+      */
+  }
+
 }
