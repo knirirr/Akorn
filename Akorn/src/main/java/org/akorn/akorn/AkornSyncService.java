@@ -7,9 +7,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.JsonReader;
 import android.util.Log;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import org.akorn.akorn.contentprovider.AkornContentProvider;
@@ -28,7 +26,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,11 +34,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -53,6 +50,7 @@ public class AkornSyncService extends IntentService
   private static final String TAG = "AkornSyncService";
   private Handler mHandler;
   private CookieStore cookiestore;
+  private Map<String,String> searchresults;
 
   public AkornSyncService()
   {
@@ -87,6 +85,10 @@ public class AkornSyncService extends IntentService
     String username = prefs.getString("pref_username", "");
     String password = prefs.getString("pref_password", "");
     String session_id = "";
+
+    // store the values from each successful search result in a hash in order to
+    // make getting the articles easier later
+    searchresults = new HashMap<String, String>();
 
     /*
       First, get the session id for use later
@@ -241,13 +243,40 @@ public class AkornSyncService extends IntentService
 
             // now construct some ContentValues to insert
             Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
+            String s_id = namearray.getString(h);
             ContentValues values = new ContentValues();
             values.put(SearchTable.COLUMN_TEXT,j_text);
             values.put(SearchTable.COLUMN_FULL,j_full);
             values.put(SearchTable.COLUMN_TYPE,j_type);
-            values.put(SearchTable.COLUMN_SEARCH_ID,namearray.getString(h));
+            values.put(SearchTable.COLUMN_SEARCH_ID,s_id);
             values.put(SearchTable.COLUMN_TERM_ID,j_id);
             getContentResolver().insert(uri, values);
+
+            // also update the searchresults hashmap so this can be used to grab the results
+            if (searchresults.containsKey(s_id))
+            {
+              if (j_id.isEmpty())  // keyword
+              {
+                searchresults.put(s_id,"k=" + j_text);
+              }
+              else
+              {
+                searchresults.put(s_id,"j=" + j_id);
+              }
+            }
+            else
+            {
+              String current = searchresults.get(s_id);
+              if (j_id.isEmpty())
+              {
+                searchresults.put(s_id, current + "%7Ck=" + j_text);
+              }
+              else
+              {
+                searchresults.put(s_id, current + "%7Cj=" + j_id);
+              }
+            }
+
           }
           catch (JSONException e)
           {
@@ -273,6 +302,13 @@ public class AkornSyncService extends IntentService
       un-urlencoded, possibly a "+" symbol.
      */
 
+    for (Map.Entry<String,String> entry : searchresults.entrySet())
+    {
+      String key = entry.getKey();
+      String value = entry.getValue();
+      httpGet = new HttpGet(URL + "articles?" + value.replace(" ","%20"));
+      inputStream = null;
+    }
 
 
   }
