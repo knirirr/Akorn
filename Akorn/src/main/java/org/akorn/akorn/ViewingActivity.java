@@ -17,6 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -102,6 +104,7 @@ public class ViewingActivity extends Activity
     {
         if (!mNavigationDrawerFragment.isDrawerOpen())
         {
+
           // Only show items in the action bar relevant to this screen
           // if the drawer is not showing. Otherwise, let the drawer
           // decide what to show in the action bar.
