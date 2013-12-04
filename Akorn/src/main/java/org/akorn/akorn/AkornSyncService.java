@@ -255,25 +255,25 @@ public class AkornSyncService extends IntentService
             // also update the searchresults hashmap so this can be used to grab the results
             if (searchresults.containsKey(s_id))
             {
-              if (j_id.isEmpty())  // keyword
-              {
-                searchresults.put(s_id,"k=" + j_text);
-              }
-              else
-              {
-                searchresults.put(s_id,"j=" + j_id);
-              }
-            }
-            else
-            {
               String current = searchresults.get(s_id);
-              if (j_id.isEmpty())
+              if (j_full == null)
               {
                 searchresults.put(s_id, current + "%7Ck=" + j_text);
               }
               else
               {
                 searchresults.put(s_id, current + "%7Cj=" + j_id);
+              }            }
+            else
+            {
+
+              if (j_full == null)  // keyword
+              {
+                searchresults.put(s_id,"k=" + j_text);
+              }
+              else
+              {
+                searchresults.put(s_id,"j=" + j_id);
               }
             }
 
@@ -302,12 +302,14 @@ public class AkornSyncService extends IntentService
       un-urlencoded, possibly a "+" symbol.
      */
 
+    Log.i(TAG, "Searchresults: " + searchresults.toString());
     for (Map.Entry<String,String> entry : searchresults.entrySet())
     {
       String key = entry.getKey();
       String value = entry.getValue();
-      httpGet = new HttpGet(URL + "articles?" + value.replace(" ","%20"));
-      inputStream = null;
+      //httpGet = new HttpGet(URL + "articles?" + value.replace(" ","%20"));
+      //inputStream = null;
+      Log.i(TAG,"URL: " + URL + "articles?" + value.replace(" ","%20"));
     }
 
 
