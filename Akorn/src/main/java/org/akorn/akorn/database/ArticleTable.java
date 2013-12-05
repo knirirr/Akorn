@@ -20,6 +20,7 @@ public class ArticleTable
   public static final String COLUMN_JOURNAL = "journal";
   public static final String COLUMN_LINK = "link";
   public static final String COLUMN_ABSTRACT = "abstract";
+  public static final String COLUMN_AUTHORS = "authors";
   public static final String COLUMN_READ = "read";
 
   // SQL statement for creating the table
@@ -29,9 +30,10 @@ public class ArticleTable
       + COLUMN_ID + " integer primary key autoincrement, "
       + COLUMN_TITLE + " text not null, "
       + COLUMN_ARTICLE_ID + " text not null, "
-      + COLUMN_JOURNAL + " text not null,"
-      + COLUMN_LINK + " text not null,"
-      + COLUMN_ABSTRACT + " text not null,"
+      + COLUMN_JOURNAL + " text not null, "
+      + COLUMN_LINK + " text not null, "
+      + COLUMN_ABSTRACT + " text not null, " // must be null if I web scrape rather than get XML
+      + COLUMN_AUTHORS + " text not null, "
       + COLUMN_READ + " integer not null"
       + ");";
 

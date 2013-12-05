@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import org.akorn.akorn.contentprovider.AkornContentProvider;
+import org.akorn.akorn.database.ArticleTable;
 import org.akorn.akorn.database.SearchTable;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -29,6 +30,10 @@ import org.apache.http.protocol.HttpContext;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,6 +42,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -300,17 +306,65 @@ public class AkornSyncService extends IntentService
       It looks like the "keyword" type items are being put in the k argument and the journal ids from the "journal"
       type items are being put in the j argument, joined together with whatever %7C is
       un-urlencoded, possibly a "+" symbol.
+      ...oh, it's a pipe!
      */
 
-    Log.i(TAG, "Searchresults: " + searchresults.toString());
+    Log.i(TAG, "START");
     for (Map.Entry<String,String> entry : searchresults.entrySet())
     {
-      String key = entry.getKey();
+      //String key = entry.getKey();
       String value = entry.getValue();
-      //httpGet = new HttpGet(URL + "articles?" + value.replace(" ","%20"));
-      //inputStream = null;
-      Log.i(TAG,"URL: " + URL + "articles?" + value.replace(" ","%20"));
+      String articleUrl = URL + "articles?" + value.replace(" ","%20");
+      ContentValues values;
+      Log.i(TAG,"URL: " + articleUrl);
+      try
+      {
+        Document doc = Jsoup.connect(articleUrl).get();
+        Elements articles = doc.getElementsByTag("li");
+        int count = 0;
+        for (Element article : articles)
+        {
+          values = new ContentValues();
+          Elements authors = article.getElementsByClass("authors");
+          for (Element a : authors)
+          {
+            values.put(ArticleTable.COLUMN_AUTHORS,a.html().replace("&hellip;", " and "));
+          }
+          Elements journal = article.getElementsByClass("journal");
+          for (Element j : journal)
+          {
+            values.put(ArticleTable.COLUMN_JOURNAL,j.text());
+            Elements links = j.getElementsByTag("a");
+            for (Element l : links)
+            {
+              values.put(ArticleTable.COLUMN_LINK,l.attr("href"));
+            }
+          }
+          Elements title = article.getElementsByTag("h3");
+          for (Element t : title)
+          {
+            Elements subtitle = t.getElementsByTag("a");
+            for (Element s : subtitle)
+            {
+              values.put(ArticleTable.COLUMN_ARTICLE_ID,s.attr("href").replace("/doc/",""));
+              values.put(ArticleTable.COLUMN_TITLE,s.html());
+            }
+          }
+          values.put(ArticleTable.COLUMN_ABSTRACT,"A long, waffling abstract.");
+          values.put(ArticleTable.COLUMN_READ,0);
+          Log.i(TAG, String.valueOf(count) + ": VALUES: " + values.toString());
+          count++;
+        }
+        Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
+        getContentResolver().insert(uri, values);
+      }
+      catch (IOException e)
+      {
+        Log.i(TAG,"No articles for URL: " + articleUrl);
+        //Log.e(TAG,"Failed to parse URL " + articleUrl + " error: " + e.toString());
+      }
     }
+    Log.i(TAG, "FINISH");
 
 
   }

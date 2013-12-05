@@ -7,18 +7,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.util.Log;
 
 import org.akorn.akorn.Article;
 import org.akorn.akorn.database.AkornDatabaseHelper;
 import org.akorn.akorn.database.ArticleTable;
-import org.akorn.akorn.database.AuthorArticleTable;
-import org.akorn.akorn.database.AuthorTable;
 import org.akorn.akorn.database.SearchArticleTable;
 import org.akorn.akorn.database.SearchTable;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -35,26 +31,18 @@ public class AkornContentProvider extends ContentProvider
 
   private static final int ARTICLES = 10;
   private static final int ARTICLES_ID = 15;
-  private static final int AUTHORS = 20;
-  private static final int AUTHORS_ID = 25;
-  private static final int SEARCHES = 30;
-  private static final int SEARCHES_ID = 35;
-  private static final int AUTHORS_ARTICLES = 40;
-  private static final int AUTHORS_ARTICLES_ID = 45;
-  private static final int SEARCHES_ARTICLES = 50;
-  private static final int SEARCHES_ARTICLES_ID = 55;
+  private static final int SEARCHES = 25;
+  private static final int SEARCHES_ID = 30;
+  private static final int SEARCHES_ARTICLES = 35;
+  private static final int SEARCHES_ARTICLES_ID = 40;
 
   private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
   static
   {
     sURIMatcher.addURI(AUTHORITY, "articles", ARTICLES);
     sURIMatcher.addURI(AUTHORITY, "articles/#", ARTICLES_ID);
-    sURIMatcher.addURI(AUTHORITY, "authors", AUTHORS);
-    sURIMatcher.addURI(AUTHORITY, "authors/#", AUTHORS_ID);
     sURIMatcher.addURI(AUTHORITY, "searches", SEARCHES);
     sURIMatcher.addURI(AUTHORITY, "searches/#", SEARCHES_ID);
-    sURIMatcher.addURI(AUTHORITY, "authors_articles", AUTHORS_ARTICLES);
-    sURIMatcher.addURI(AUTHORITY, "authors_articles/#", AUTHORS_ARTICLES_ID);
     sURIMatcher.addURI(AUTHORITY, "searches_articles", SEARCHES_ARTICLES);
     sURIMatcher.addURI(AUTHORITY, "searches_articles/#", SEARCHES_ARTICLES_ID);
   }
@@ -77,7 +65,8 @@ public class AkornContentProvider extends ContentProvider
     checkColumns(projection);
 
     int uriType = sURIMatcher.match(uri);
-    switch (uriType) {
+    switch (uriType)
+    {
       case ARTICLES:
         queryBuilder.setTables(ArticleTable.TABLE_ARTICLES);
         break;
@@ -123,11 +112,7 @@ public class AkornContentProvider extends ContentProvider
         ArticleTable.COLUMN_LINK,
         ArticleTable.COLUMN_ABSTRACT,
         ArticleTable.COLUMN_TITLE,
-        AuthorArticleTable.COLUMN_ID,
-        AuthorArticleTable.COLUMN_ARTICLE_ID,
-        AuthorArticleTable.COLUMN_AUTHOR_ID,
-        AuthorTable.COLUMN_ID,
-        AuthorTable.COLUMN_AUTHOR_NAME,
+        ArticleTable.COLUMN_AUTHORS,
         SearchArticleTable.COLUMN_ID,
         SearchArticleTable.COLUMN_ARTICLE_ID,
         SearchArticleTable.COLUMN_SEARCH_ID,
@@ -185,6 +170,16 @@ public class AkornContentProvider extends ContentProvider
     SQLiteDatabase sqlDB = database.getWritableDatabase();
     switch (uriType)
     {
+      case ARTICLES:
+        try
+        {
+          sqlDB.insert(ArticleTable.TABLE_ARTICLES, null, values);
+        }
+        catch (Exception e)
+        {
+          Log.e(TAG,"Failed to insert data: " + e.toString());
+        }
+        break;
       case SEARCHES:
         try
         {

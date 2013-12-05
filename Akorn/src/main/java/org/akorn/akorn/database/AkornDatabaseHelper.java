@@ -23,8 +23,6 @@ public class AkornDatabaseHelper extends SQLiteOpenHelper
   {
     Log.i("AKORN", "DatabaseHelper onCreate()");
     ArticleTable.onCreate(database);
-    AuthorArticleTable.onCreate(database);
-    AuthorTable.onCreate(database);
     SearchArticleTable.onCreate(database);
     SearchTable.onCreate(database);
   }
@@ -34,8 +32,6 @@ public class AkornDatabaseHelper extends SQLiteOpenHelper
   {
     Log.i("AKORN", "DatabaseHelper onUpgrade()");
     ArticleTable.onUpgrade(database, oldVersion, newVersion);
-    AuthorArticleTable.onUpgrade(database, oldVersion, newVersion);
-    AuthorTable.onUpgrade(database, oldVersion, newVersion);
     SearchArticleTable.onUpgrade(database, oldVersion, newVersion);
     SearchTable.onUpgrade(database, oldVersion, newVersion);
   }
