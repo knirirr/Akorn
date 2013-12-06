@@ -113,6 +113,7 @@ public class AkornContentProvider extends ContentProvider
         ArticleTable.COLUMN_ABSTRACT,
         ArticleTable.COLUMN_TITLE,
         ArticleTable.COLUMN_AUTHORS,
+        ArticleTable.COLUMN_DATE,
         SearchArticleTable.COLUMN_ID,
         SearchArticleTable.COLUMN_ARTICLE_ID,
         SearchArticleTable.COLUMN_SEARCH_ID,

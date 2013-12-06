@@ -17,6 +17,11 @@ import android.widget.TextView;
 
 import org.akorn.akorn.database.ArticleTable;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * Created by milo on 04/11/2013.
  */
@@ -24,6 +29,7 @@ public class ArticleViewFragment extends Fragment
 {
   final static String ARG_POSITION = "position";
   final static String ARG_ID = "id";
+  final static String TAG = "Akorn";
   int mCurrentPosition = -1;
   int mSqlId = 0;
 
@@ -110,7 +116,9 @@ public class ArticleViewFragment extends Fragment
             ArticleTable.COLUMN_ABSTRACT,
             ArticleTable.COLUMN_TITLE,
             ArticleTable.COLUMN_LINK,
-            ArticleTable.COLUMN_JOURNAL
+            ArticleTable.COLUMN_JOURNAL,
+            ArticleTable.COLUMN_AUTHORS,
+            ArticleTable.COLUMN_DATE
         }, // need title in order to share
         null, null, null);
     //Log.i("AKORN", "Cursor: " + cursor.getColumnNames().toString());
@@ -120,16 +128,40 @@ public class ArticleViewFragment extends Fragment
       {
         String abs = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_ABSTRACT));
         //article.setText(abs.replaceAll("[\n\r]", " "));
+        String myFormatString = "yyyy-MM-d'T'h:m:s";
+        Date showdate = null;
+        try
+        {
+          showdate = new SimpleDateFormat(myFormatString, Locale.ENGLISH).parse(
+            cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_DATE))
+          );
+        }
+        catch (ParseException e)
+        {
+          Log.e(TAG,"Can't parse date: " + cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_DATE)));
+        }
         article_content.setText(abs);
         article_title.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE)));
-        article_journal.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL)));
+        if (showdate != null)
+        {
+          article_journal.setText(
+            cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL))
+            + ", "
+            + showdate.toString()
+          );
+        }
+        else
+        {
+         article_journal.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL)));
+        }
+        article_authors.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_AUTHORS)));
       }
       while(cursor.moveToNext());
     }
     cursor.close();
 
     // another query to get the authors? I think so, as there will be several authors per article
-    article_authors.setText("One Author, Another Author, Yet Another and Final Author");
+    //article_authors.setText("One Author, Another Author, Yet Another and Final Author");
   }
 
   @Override

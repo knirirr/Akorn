@@ -10,7 +10,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:text="Article title"
-          android:padding="2dp"
+          android:padding="4dp"
           android:textStyle="bold"
           android:textSize="20sp" />
     <TextView
@@ -18,7 +18,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:text="Journal"
-          android:padding="2dp"
+          android:padding="4dp"
           android:textStyle="italic"
           android:textSize="16sp" />
     <TextView
@@ -26,9 +26,9 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:text="Authors"
-          android:padding="2dp"
+          android:padding="4dp"
           android:textStyle="normal"
-          android:textSize="16sp" />
+          android:textSize="18sp" />
     <TextView
           android:id="@+id/article_content"
           android:layout_width="wrap_content"

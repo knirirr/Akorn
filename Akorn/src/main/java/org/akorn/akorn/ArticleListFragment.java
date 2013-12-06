@@ -42,6 +42,11 @@ public class ArticleListFragment extends ListFragment
   {
     super.onActivityCreated(savedInstanceState);
 
+    //String searchId = getArguments().getString("search_id", "");
+    //Log.i(TAG,"GOT SEARCH ID: " + searchId);
+
+    // then, article ids must be pulled out of the search_article table
+
     //int layout = android.R.layout.simple_list_item_activated_1;
     int layout = R.layout.article_title;
 
@@ -51,7 +56,10 @@ public class ArticleListFragment extends ListFragment
                      ArticleTable.COLUMN_TITLE,
                      ArticleTable.COLUMN_JOURNAL,
                      ArticleTable.COLUMN_ARTICLE_ID},
-                 null, null, null);
+                     null,
+                     null,
+                     null
+        );
 
     if (cursor == null)
     {

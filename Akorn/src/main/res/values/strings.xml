@@ -29,6 +29,9 @@
     <string name="action_sync">Refresh</string> <!-- for the sync button -->
     <string name="please_configure">Please configure your username and password using the \"Settings\" menu option</string>
     <string name="loginFail">Incorrect email or password!</string>
+    <string name="loginSuccess">Successfully connected to the Akorn server!</string>
     <string name="syncFail">Article sync failed!</string>
+    <string name="syncFinish">Finished syncing with Akorn server!</string>
+    <string name="in_progress">Sync service is already running!</string>
 
 </resources>

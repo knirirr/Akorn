@@ -8,9 +8,11 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,9 +20,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.BaseAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.akorn.akorn.database.ArticleTable;
+import org.akorn.akorn.database.SearchArticleTable;
+import org.akorn.akorn.database.SearchTable;
 
 public class ViewingActivity extends Activity
         implements  NavigationDrawerFragment.NavigationDrawerCallbacks, ArticleListFragment.OnHeadlineSelectedListener
@@ -29,6 +36,7 @@ public class ViewingActivity extends Activity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+  private final String TAG = "Akorn";
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -77,17 +85,36 @@ public class ViewingActivity extends Activity
     @Override
     public void onNavigationDrawerItemSelected(int position)
     {
+      // get the values at this postion in the list
+      /*
+      ListView listView = (ListView) this.findViewById(R.id.navigation_drawer);
+      ListAdapter adapter = listView.getAdapter();
+      Cursor cursor = (Cursor) adapter.getItem(position);
+      String search_id = cursor.getString(cursor.getColumnIndex(SearchTable.COLUMN_SEARCH_ID));
+      */
+
+      //Toast.makeText(this, getString(R.string.not_working), Toast.LENGTH_SHORT).show();
+      Toast.makeText(this, "Selected item: " + String.valueOf(position), Toast.LENGTH_SHORT).show();
+
+      //if (search_id.isEmpty())
+      //{
+        //Log.e(TAG, "No search ID found!");
+      //}
+      //else
+      //{
+        //Log.i(TAG, "Got search_id: " + search_id);
         // load the list fragment if not already loaded, and refresh it with the appropriate
         // list of articles, or for now show a "doesn't work" message
         /*
         FragmentManager fragmentManager = getFragmentManager();
-        ArticleViewFragment secondFragment = new ArticleViewFragment(); // position + 1
+        ArticleListFragment secondFragment = new ArticleListFragment();
         Bundle args = new Bundle();
-        args.putInt("position", position + 1);
+        args.putString("search_id", search_id);
         secondFragment.setArguments(args);
         fragmentManager.beginTransaction().replace(R.id.fragment_container, secondFragment).commit();
         */
-        Toast.makeText(this, getString(R.string.not_working), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, getString(R.string.not_working), Toast.LENGTH_SHORT).show();
+      //}
     }
 
     public void restoreActionBar()
@@ -155,7 +182,11 @@ public class ViewingActivity extends Activity
               Toast.makeText(this, getString(R.string.please_configure), Toast.LENGTH_SHORT).show();
               return true;
             }
-            //Toast.makeText(this, "Would sync at this point.", Toast.LENGTH_SHORT).show();
+            if (AkornSyncService.isRunning == true)
+            {
+              Toast.makeText(this, getString(R.string.in_progress), Toast.LENGTH_SHORT).show();
+              return true;
+            }
             Intent i= new Intent(this, AkornSyncService.class);
             // potentially add data to the intent
             //i.putExtra("KEY1", "Value to be used by the sync service");

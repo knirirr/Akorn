@@ -13,6 +13,7 @@ import android.widget.Toast;
 import org.akorn.akorn.contentprovider.AkornContentProvider;
 import org.akorn.akorn.database.ArticleTable;
 import org.akorn.akorn.database.SearchTable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -40,11 +41,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 
 /**
@@ -63,6 +68,8 @@ public class AkornSyncService extends IntentService
     super("AkornSyncService");
   }
 
+  public static boolean isRunning = false;
+
   @Override
   public int onStartCommand(Intent intent, int flags, int startId)
   {
@@ -76,10 +83,9 @@ public class AkornSyncService extends IntentService
   @Override
   public void onDestroy()
   {
+    isRunning = false;
     super.onDestroy();
   }
-
-
 
   protected void onHandleIntent(Intent intent)
   {
@@ -87,6 +93,8 @@ public class AkornSyncService extends IntentService
       If the user has got this far then they must have supplied their username
       and password, for the app won't start this service unless both are defined.
      */
+    isRunning = true;
+
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     String username = prefs.getString("pref_username", "");
     String password = prefs.getString("pref_password", "");
@@ -142,7 +150,7 @@ public class AkornSyncService extends IntentService
           if (bict.getName().equals("sessionid"))
           {
             session_id = bict.getValue();
-            mHandler.post(new ToastRunnable("Got the session ID!"));
+            mHandler.post(new ToastRunnable(getString(R.string.loginSuccess)));
           }
         }
         if (session_id.equals(""))
@@ -269,10 +277,10 @@ public class AkornSyncService extends IntentService
               else
               {
                 searchresults.put(s_id, current + "%7Cj=" + j_id);
-              }            }
+              }
+            }
             else
             {
-
               if (j_full == null)  // keyword
               {
                 searchresults.put(s_id,"k=" + j_text);
@@ -314,49 +322,80 @@ public class AkornSyncService extends IntentService
     {
       //String key = entry.getKey();
       String value = entry.getValue();
-      String articleUrl = URL + "articles?" + value.replace(" ","%20");
-      ContentValues values;
+      String articleUrl = URL + "articles.xml?" + value.replace(" ","%20");
       Log.i(TAG,"URL: " + articleUrl);
+
       try
       {
         Document doc = Jsoup.connect(articleUrl).get();
-        Elements articles = doc.getElementsByTag("li");
+        Elements articles = doc.getElementsByTag("article");
+        ContentValues values;
         int count = 0;
         for (Element article : articles)
         {
+          //Log.i(TAG, "ELEMENT: " + article.toString());
           values = new ContentValues();
-          Elements authors = article.getElementsByClass("authors");
+          Elements authors = article.getElementsByTag("authors");
           for (Element a : authors)
           {
-            values.put(ArticleTable.COLUMN_AUTHORS,a.html().replace("&hellip;", " and "));
+            Elements names = a.getElementsByTag("author");
+            StringBuilder builder = new StringBuilder();
+            int first = 0;
+            for (Element n : names)
+            {
+              if (first == 0)
+              {
+                builder.append(org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(n.html()));
+              }
+              else
+              {
+                builder.append(", " + org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(n.html()));
+              }
+              first++;
+            }
+            values.put(ArticleTable.COLUMN_AUTHORS, builder.toString());
           }
-          Elements journal = article.getElementsByClass("journal");
+          Elements id = article.getElementsByTag("id");
+          for (Element i : id)
+          {
+            values.put(ArticleTable.COLUMN_ARTICLE_ID,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(i.html()));
+          }
+          Elements journal = article.getElementsByTag("journal");
           for (Element j : journal)
           {
-            values.put(ArticleTable.COLUMN_JOURNAL,j.text());
-            Elements links = j.getElementsByTag("a");
-            for (Element l : links)
-            {
-              values.put(ArticleTable.COLUMN_LINK,l.attr("href"));
-            }
+            values.put(ArticleTable.COLUMN_JOURNAL,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(j.html()));
           }
-          Elements title = article.getElementsByTag("h3");
+          Elements title = article.getElementsByTag("title");
           for (Element t : title)
           {
-            Elements subtitle = t.getElementsByTag("a");
-            for (Element s : subtitle)
-            {
-              values.put(ArticleTable.COLUMN_ARTICLE_ID,s.attr("href").replace("/doc/",""));
-              values.put(ArticleTable.COLUMN_TITLE,s.html());
-            }
+            values.put(ArticleTable.COLUMN_TITLE,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(t.html()));
           }
-          values.put(ArticleTable.COLUMN_ABSTRACT,"A long, waffling abstract.");
+          Elements waffle = article.getElementsByTag("abstract");
+          for (Element w : waffle)
+          {
+            values.put(ArticleTable.COLUMN_ABSTRACT,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(w.html()));
+          }
+          Elements link = article.getElementsByTag("link");
+          for (Element l : link)
+          {
+            values.put(ArticleTable.COLUMN_LINK,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(l.html()));
+          }
+          Elements date = article.getElementsByTag("date_published");
+          for (Element d : date)
+          {
+            values.put(ArticleTable.COLUMN_DATE,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(d.html()));
+          }
+          Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
           values.put(ArticleTable.COLUMN_READ,0);
-          Log.i(TAG, String.valueOf(count) + ": VALUES: " + values.toString());
-          count++;
+          getContentResolver().insert(uri, values);
+          //Log.i(TAG, String.valueOf(count) + ": VALUES: " + values.toString());
+
+          /*
+            The search_article table must also be populated here, otherwise one can't get articles from
+            the search_id sent to the ArticleListFragment
+           */
         }
-        Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
-        getContentResolver().insert(uri, values);
+
       }
       catch (IOException e)
       {
@@ -364,9 +403,8 @@ public class AkornSyncService extends IntentService
         //Log.e(TAG,"Failed to parse URL " + articleUrl + " error: " + e.toString());
       }
     }
+    mHandler.post(new ToastRunnable(getString(R.string.syncFinish)));
     Log.i(TAG, "FINISH");
-
-
   }
 
   /*
