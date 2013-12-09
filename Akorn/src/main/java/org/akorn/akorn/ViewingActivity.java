@@ -49,8 +49,7 @@ public class ViewingActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_view);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-        getFragmentManager().findFragmentById(R.id.navigation_drawer);
+        mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
         // Set up the drawer.
@@ -76,7 +75,16 @@ public class ViewingActivity extends Activity
           firstFragment.setArguments(getIntent().getExtras());
 
           // Add the fragment in the 'fragment_container' FrameLayout
-          getFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
+          //getFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
+          FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+          // Replace whatever is in the fragment_container view with this fragment,
+          // and add the transaction to the back stack so the user can navigate back
+          transaction.replace(R.id.fragment_container, firstFragment);
+          transaction.addToBackStack(null);
+
+          // Commit the transaction
+          transaction.commit();
 
         }
 
