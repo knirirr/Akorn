@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import org.akorn.akorn.contentprovider.AkornContentProvider;
 import org.akorn.akorn.database.ArticleTable;
+import org.akorn.akorn.database.SearchArticleTable;
 import org.akorn.akorn.database.SearchTable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -320,7 +321,7 @@ public class AkornSyncService extends IntentService
     Log.i(TAG, "START");
     for (Map.Entry<String,String> entry : searchresults.entrySet())
     {
-      //String key = entry.getKey();
+      String key = entry.getKey();
       String value = entry.getValue();
       String articleUrl = URL + "articles.xml?" + value.replace(" ","%20");
       Log.i(TAG,"URL: " + articleUrl);
@@ -330,11 +331,13 @@ public class AkornSyncService extends IntentService
         Document doc = Jsoup.connect(articleUrl).get();
         Elements articles = doc.getElementsByTag("article");
         ContentValues values;
-        int count = 0;
+        ContentValues joinValues;
         for (Element article : articles)
         {
           //Log.i(TAG, "ELEMENT: " + article.toString());
           values = new ContentValues();
+          joinValues = new ContentValues();
+          joinValues.put(SearchArticleTable.COLUMN_SEARCH_ID,key);
           Elements authors = article.getElementsByTag("authors");
           for (Element a : authors)
           {
@@ -359,6 +362,7 @@ public class AkornSyncService extends IntentService
           for (Element i : id)
           {
             values.put(ArticleTable.COLUMN_ARTICLE_ID,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(i.html()));
+            joinValues.put(SearchArticleTable.COLUMN_ARTICLE_ID,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(i.html()));
           }
           Elements journal = article.getElementsByTag("journal");
           for (Element j : journal)
@@ -388,6 +392,8 @@ public class AkornSyncService extends IntentService
           Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
           values.put(ArticleTable.COLUMN_READ,0);
           getContentResolver().insert(uri, values);
+          Uri joinUri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches/articles");
+          getContentResolver().insert(joinUri, joinValues);
           //Log.i(TAG, String.valueOf(count) + ": VALUES: " + values.toString());
 
           /*

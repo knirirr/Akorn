@@ -43,6 +43,7 @@ public class ArticleTable
   public static void onCreate(SQLiteDatabase database)
   {
     database.execSQL(DATABASE_CREATE);
+    database.execSQL("CREATE UNIQUE INDEX article_id_index ON " + TABLE_ARTICLES + "  (" + COLUMN_ARTICLE_ID + ")");
   }
 
   /*

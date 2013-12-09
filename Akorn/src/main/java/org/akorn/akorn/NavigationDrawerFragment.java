@@ -3,6 +3,7 @@ package org.akorn.akorn;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -99,7 +100,7 @@ public class NavigationDrawerFragment extends Fragment
       }
 
       // Select either the default item (0) or the last selected item.
-      selectItem(mCurrentSelectedPosition);
+      selectItem(mCurrentSelectedPosition,"");
 
       // Indicate that this fragment would like to influence the set of actions in the action bar.
       setHasOptionsMenu(true);
@@ -119,18 +120,30 @@ public class NavigationDrawerFragment extends Fragment
        */
       mDrawerListView = (ListView) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
 
+      mCursorAdapter = getList();
+      mDrawerListView.setAdapter(mCursorAdapter);
+      mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+
       mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
       {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id)
         {
-          selectItem(position);
+          String search_id = "";
+          try
+          {
+            Cursor c = (Cursor) mCursorAdapter.getItem(position);
+            search_id = c.getString(c.getColumnIndex(SearchTable.COLUMN_SEARCH_ID));
+          }
+          catch (Exception e)
+          {
+            Log.e(TAG,"CURSOR FAIL: " + e.toString());
+          }
+          selectItem(position,search_id);
         }
       });
 
-      mCursorAdapter = getList();
-      mDrawerListView.setAdapter(mCursorAdapter);
-      mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+
       return mDrawerListView;
     }
 
@@ -215,7 +228,7 @@ public class NavigationDrawerFragment extends Fragment
         mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
-    private void selectItem(int position)
+    private void selectItem(int position, String search_id)
     {
       mCurrentSelectedPosition = position;
       if (mDrawerListView != null)
@@ -228,7 +241,8 @@ public class NavigationDrawerFragment extends Fragment
       }
       if (mCallbacks != null)
       {
-      mCallbacks.onNavigationDrawerItemSelected(position);
+        mCallbacks.onNavigationDrawerItemSelected(position);
+        mCallbacks.updateSearchId(search_id);
       }
     }
 
@@ -350,10 +364,11 @@ public class NavigationDrawerFragment extends Fragment
      */
     public static interface NavigationDrawerCallbacks
     {
-        /**
-         * Called when an item in the navigation drawer is selected.
-         */
-        void onNavigationDrawerItemSelected(int position);
+      /**
+       * Called when an item in the navigation drawer is selected.
+       */
+      void onNavigationDrawerItemSelected(int position);
+      void updateSearchId(String search_id);
     }
 
   class AkornObserver extends ContentObserver

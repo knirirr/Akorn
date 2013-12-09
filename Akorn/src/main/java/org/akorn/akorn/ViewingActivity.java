@@ -85,36 +85,41 @@ public class ViewingActivity extends Activity
     @Override
     public void onNavigationDrawerItemSelected(int position)
     {
-      // get the values at this postion in the list
-      /*
-      ListView listView = (ListView) this.findViewById(R.id.navigation_drawer);
-      ListAdapter adapter = listView.getAdapter();
-      Cursor cursor = (Cursor) adapter.getItem(position);
-      String search_id = cursor.getString(cursor.getColumnIndex(SearchTable.COLUMN_SEARCH_ID));
-      */
+      Log.i(TAG,"ViewingActivity: " + String.valueOf(position));
+    }
 
-      //Toast.makeText(this, getString(R.string.not_working), Toast.LENGTH_SHORT).show();
-      Toast.makeText(this, "Selected item: " + String.valueOf(position), Toast.LENGTH_SHORT).show();
+    @Override
+    public void updateSearchId(String search_id)
+    {
+      // nothing
+      Log.i(TAG,"ViewingActivity: " + search_id);
+      ArticleListFragment articleListFrag = (ArticleListFragment)
+          getFragmentManager().findFragmentById(R.id.list_fragment);
+      if (articleListFrag != null)
+      {
+        // If article frag is available, we're in two-pane layout...
 
-      //if (search_id.isEmpty())
-      //{
-        //Log.e(TAG, "No search ID found!");
-      //}
-      //else
-      //{
-        //Log.i(TAG, "Got search_id: " + search_id);
-        // load the list fragment if not already loaded, and refresh it with the appropriate
-        // list of articles, or for now show a "doesn't work" message
-        /*
-        FragmentManager fragmentManager = getFragmentManager();
-        ArticleListFragment secondFragment = new ArticleListFragment();
+        // Call a method in the ArticleFragment to update its content
+        articleListFrag.updateSearchId(search_id); // fix this
+      }
+      else
+      {
+        // If the frag is not available, we're in the one-pane layout and must swap frags...
+        // Create fragment and give it an argument for the selected article
+        ArticleListFragment newFragment = new ArticleListFragment();
         Bundle args = new Bundle();
-        args.putString("search_id", search_id);
-        secondFragment.setArguments(args);
-        fragmentManager.beginTransaction().replace(R.id.fragment_container, secondFragment).commit();
-        */
-        //Toast.makeText(this, getString(R.string.not_working), Toast.LENGTH_SHORT).show();
-      //}
+        args.putString("search_id",search_id);
+        newFragment.setArguments(args);
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+        // Replace whatever is in the fragment_container view with this fragment,
+        // and add the transaction to the back stack so the user can navigate back
+        transaction.replace(R.id.fragment_container, newFragment);
+        transaction.addToBackStack(null);
+
+        // Commit the transaction
+        transaction.commit();
+      }
     }
 
     public void restoreActionBar()

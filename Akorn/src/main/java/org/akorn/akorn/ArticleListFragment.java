@@ -23,6 +23,8 @@ public class ArticleListFragment extends ListFragment
 {
   OnHeadlineSelectedListener mCallback;
   private static final String TAG = "Akorn";
+  private String searchId = "";
+  private SimpleCursorAdapter mCursorAdapter;
 
   // The container Activity must implement this interface so the frag can deliver messages
   public interface OnHeadlineSelectedListener
@@ -35,59 +37,22 @@ public class ArticleListFragment extends ListFragment
   public void onCreate(Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
+    try
+    {
+      searchId = getArguments().getString("search_id","");
+      Log.e(TAG,"Got search_id: " + searchId);
+    }
+    catch (Exception e)
+    {
+      Log.e(TAG,"Couldn't get search_id: " + e.toString());
+    }
   }
 
   @Override
   public void onActivityCreated(Bundle savedInstanceState)
   {
     super.onActivityCreated(savedInstanceState);
-
-    //String searchId = getArguments().getString("search_id", "");
-    //Log.i(TAG,"GOT SEARCH ID: " + searchId);
-
-    // then, article ids must be pulled out of the search_article table
-
-    //int layout = android.R.layout.simple_list_item_activated_1;
-    int layout = R.layout.article_title;
-
-    Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
-    Cursor cursor = getActivity().getContentResolver().query(uri,
-        new String[]{ArticleTable.COLUMN_ID,
-                     ArticleTable.COLUMN_TITLE,
-                     ArticleTable.COLUMN_JOURNAL,
-                     ArticleTable.COLUMN_ARTICLE_ID},
-                     null,
-                     null,
-                     null
-        );
-
-    if (cursor == null)
-    {
-      Log.i(TAG, "FRC! Cursor is null in ArticleListFragment!");
-      Toast.makeText(getActivity(), getString(R.string.database_error), Toast.LENGTH_SHORT).show();
-    }
-
-    // Defines a list of columns to retrieve from the Cursor and load into an output row
-    String[] mWordListColumns =
-    {
-      ArticleTable.COLUMN_TITLE,
-      ArticleTable.COLUMN_JOURNAL
-    };
-
-  // Defines a list of View IDs that will receive the Cursor columns for each row
-  int[] mWordListItems = { R.id.article_title, R.id.article_journal};
-
-    // Creates a new SimpleCursorAdapter
-    SimpleCursorAdapter mCursorAdapter = new SimpleCursorAdapter(
-      getActivity(),               // The application's Context object
-      layout,
-      cursor,                               // The result from the query
-      mWordListColumns,                      // A string array of column names in the cursor
-      mWordListItems,                        // An integer array of view IDs in the row layout
-      0);                                    // Flags (usually none are needed)
-
-
-    //setListAdapter(new ArrayAdapter<String>(getActivity(), layout, Article.Headlines));
+    mCursorAdapter = getList(searchId);
     setListAdapter(mCursorAdapter);
   }
 
@@ -138,4 +103,73 @@ public class ArticleListFragment extends ListFragment
     // Set the item as checked to be highlighted when in two-pane layout
     getListView().setItemChecked(position, true);
   }
+
+  public void updateSearchId(String search_id)
+  {
+    Log.i(TAG,"ArticleListFragment: " + search_id);
+    searchId = search_id;
+    mCursorAdapter = getList(search_id);
+    mCursorAdapter.notifyDataSetChanged();
+    setListAdapter(mCursorAdapter);
+  }
+
+  // add a getList() method
+  private SimpleCursorAdapter getList(String search_id)
+  {
+    //int layout = android.R.layout.simple_list_item_activated_1;
+    int layout = R.layout.article_title;
+
+    Uri uri = null;
+    Cursor cursor = null;
+    String[] selectArgs = null;
+    if (search_id == null || search_id.isEmpty())
+    {
+      Log.i(TAG, "SEARCH_ID is NULL!");
+      uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
+      selectArgs = new String[]{ArticleTable.COLUMN_ID,
+                                ArticleTable.COLUMN_TITLE,
+                                ArticleTable.COLUMN_JOURNAL,
+                                ArticleTable.COLUMN_ARTICLE_ID};
+    }
+    else
+    {
+      Log.i(TAG, "SEARCH_ID is: " + search_id);
+      uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches/articles/" + search_id);
+    }
+    cursor = getActivity().getContentResolver().query(uri,
+                   selectArgs,
+                   null,
+                   null,
+                   null
+      );
+
+    if (cursor == null)
+    {
+      Log.i(TAG, "FRC! Cursor is null in ArticleListFragment!");
+      Toast.makeText(getActivity(), getString(R.string.database_error), Toast.LENGTH_SHORT).show();
+      return null;
+    }
+
+    // Defines a list of columns to retrieve from the Cursor and load into an output row
+    String[] mWordListColumns =
+    {
+      ArticleTable.COLUMN_TITLE,
+      ArticleTable.COLUMN_JOURNAL
+    };
+
+  // Defines a list of View IDs that will receive the Cursor columns for each row
+  int[] mWordListItems = { R.id.article_title, R.id.article_journal};
+
+  // Creates a new SimpleCursorAdapter
+  SimpleCursorAdapter mCursorAdapter = new SimpleCursorAdapter(
+    getActivity(),               // The application's Context object
+    layout,
+    cursor,                               // The result from the query
+    mWordListColumns,                      // A string array of column names in the cursor
+    mWordListItems,                        // An integer array of view IDs in the row layout
+    0);                                    // Flags (usually none are needed)
+
+    return mCursorAdapter;
+  }
+
 }

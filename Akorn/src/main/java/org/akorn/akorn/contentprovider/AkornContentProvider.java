@@ -43,8 +43,8 @@ public class AkornContentProvider extends ContentProvider
     sURIMatcher.addURI(AUTHORITY, "articles/#", ARTICLES_ID);
     sURIMatcher.addURI(AUTHORITY, "searches", SEARCHES);
     sURIMatcher.addURI(AUTHORITY, "searches/#", SEARCHES_ID);
-    sURIMatcher.addURI(AUTHORITY, "searches_articles", SEARCHES_ARTICLES);
-    sURIMatcher.addURI(AUTHORITY, "searches_articles/#", SEARCHES_ARTICLES_ID);
+    sURIMatcher.addURI(AUTHORITY, "searches/articles", SEARCHES_ARTICLES);
+    sURIMatcher.addURI(AUTHORITY, "searches/articles/*", SEARCHES_ARTICLES_ID);
   }
 
   @Override
@@ -59,25 +59,34 @@ public class AkornContentProvider extends ContentProvider
   public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder)
   {
 
+    Log.i(TAG, "URI: " + uri.getPath());
+    Log.i(TAG, "LAST: " + uri.getLastPathSegment());
     SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+    Cursor cursor = null;
 
     // check if the caller has requested a column which does not exists
     checkColumns(projection);
-
     int uriType = sURIMatcher.match(uri);
+    Log.i(TAG, "URITYPE: " + String.valueOf(uriType));
     switch (uriType)
     {
       case ARTICLES:
         queryBuilder.setTables(ArticleTable.TABLE_ARTICLES);
-        break;
+        cursor = queryBuilder.query(database.getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder);
+        getContext().getContentResolver().notifyChange(uri, null);
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return cursor;
       case ARTICLES_ID:
         // adding the ID to the original query
         queryBuilder.setTables(ArticleTable.TABLE_ARTICLES);
         queryBuilder.appendWhere(ArticleTable.COLUMN_ID + "=" + uri.getLastPathSegment());
-        break;
+        cursor = queryBuilder.query(database.getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder);
+        getContext().getContentResolver().notifyChange(uri, null);
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return cursor;
       case SEARCHES:
         queryBuilder.setTables(SearchTable.TABLE_SEARCH);
-        Cursor cursor = database.getReadableDatabase().rawQuery(
+        cursor = database.getReadableDatabase().rawQuery(
             "SELECT " + SearchTable.COLUMN_ID + ", " +
             SearchTable.COLUMN_SEARCH_ID + ", " +
             "group_concat(" + SearchTable.COLUMN_FULL + ", \" | \") AS " + SearchTable.COLUMN_FULL + ", " +
@@ -88,17 +97,24 @@ public class AkornContentProvider extends ContentProvider
         getContext().getContentResolver().notifyChange(uri, null);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
-        //break;
+      case SEARCHES_ARTICLES_ID:
+        cursor = database.getReadableDatabase().rawQuery("SELECT DISTINCT " +
+            ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_ID + ", " +
+            ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_TITLE + ", " +
+            ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_JOURNAL + ", " +
+            ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_ARTICLE_ID +
+            " FROM " + ArticleTable.TABLE_ARTICLES + " INNER JOIN " +
+            SearchArticleTable.TABLE_SEARCHES_ARTICLES +
+            " ON " +
+            SearchArticleTable.TABLE_SEARCHES_ARTICLES + "." + SearchArticleTable.COLUMN_ARTICLE_ID + "=" +
+            ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_ARTICLE_ID +
+            " WHERE " +
+            SearchArticleTable.COLUMN_SEARCH_ID + "=" + " '" + uri.getLastPathSegment() + "'"
+        , null);
+        return cursor;
       default:
         throw new IllegalArgumentException("Unknown URI: " + uri);
     }
-
-    SQLiteDatabase db = database.getWritableDatabase();
-    Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
-    // make sure that potential listeners are getting notified
-    getContext().getContentResolver().notifyChange(uri, null);
-    cursor.setNotificationUri(getContext().getContentResolver(), uri);
-    return cursor;
   }
 
 
@@ -185,6 +201,16 @@ public class AkornContentProvider extends ContentProvider
         try
         {
           sqlDB.insert(SearchTable.TABLE_SEARCH, null, values);
+        }
+        catch (Exception e)
+        {
+          Log.e(TAG,"Failed to insert data: " + e.toString());
+        }
+        break;
+      case SEARCHES_ARTICLES:
+        try
+        {
+          sqlDB.insert(SearchArticleTable.TABLE_SEARCHES_ARTICLES, null, values);
         }
         catch (Exception e)
         {
