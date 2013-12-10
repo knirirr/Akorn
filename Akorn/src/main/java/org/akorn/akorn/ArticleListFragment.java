@@ -22,7 +22,7 @@ import java.net.URI;
 public class ArticleListFragment extends ListFragment
 {
   OnHeadlineSelectedListener mCallback;
-  private static final String TAG = "Akorn";
+  private static final String TAG = "AkornArticleListFragment";
   private String searchId = "";
   private SimpleCursorAdapter mCursorAdapter;
 
@@ -124,7 +124,7 @@ public class ArticleListFragment extends ListFragment
     String[] selectArgs = null;
     if (search_id == null || search_id.isEmpty())
     {
-      Log.i(TAG, "SEARCH_ID is NULL!");
+      //Log.i(TAG, "SEARCH_ID is NULL!");
       uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
       selectArgs = new String[]{ArticleTable.COLUMN_ID,
                                 ArticleTable.COLUMN_TITLE,
@@ -133,7 +133,7 @@ public class ArticleListFragment extends ListFragment
     }
     else
     {
-      Log.i(TAG, "SEARCH_ID is: " + search_id);
+      //Log.i(TAG, "SEARCH_ID is: " + search_id);
       uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches/articles/" + search_id);
     }
     cursor = getActivity().getContentResolver().query(uri,

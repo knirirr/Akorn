@@ -32,11 +32,11 @@ import org.akorn.akorn.database.SearchTable;
 public class ViewingActivity extends Activity
         implements  NavigationDrawerFragment.NavigationDrawerCallbacks, ArticleListFragment.OnHeadlineSelectedListener
 {
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
-  private final String TAG = "Akorn";
+  /*
+     Fragment managing the behaviors, interactions and presentation of the navigation drawer.
+   */
+  private NavigationDrawerFragment mNavigationDrawerFragment;
+  private final String TAG = "AkornViewingActivity";
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.

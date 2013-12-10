@@ -29,7 +29,7 @@ public class ArticleViewFragment extends Fragment
 {
   final static String ARG_POSITION = "position";
   final static String ARG_ID = "id";
-  final static String TAG = "Akorn";
+  final static String TAG = "AkornArticleViewFragment";
   int mCurrentPosition = -1;
   int mSqlId = 0;
 
@@ -80,12 +80,15 @@ public class ArticleViewFragment extends Fragment
     if (menu.findItem(R.id.action_share) == null)
     {
       inflater.inflate(R.menu.viewing, menu);
-      //getActivity().invalidateOptionsMenu();
     }
     if (menu.findItem(R.id.action_sync) != null)
     {
-      MenuItem item = menu.findItem(R.id.action_sync);
-      item.setVisible(false);
+      ArticleListFragment articleListFrag = (ArticleListFragment) getFragmentManager().findFragmentById(R.id.list_fragment);
+      if (articleListFrag == null) // we have a single-pane layout
+      {
+        MenuItem item = menu.findItem(R.id.action_sync);
+        item.setVisible(false);
+      }
     }
     else
     {
@@ -105,6 +108,8 @@ public class ArticleViewFragment extends Fragment
     TextView article_title = (TextView) getActivity().findViewById(R.id.article_title);
     TextView article_journal = (TextView) getActivity().findViewById(R.id.article_journal);
     TextView article_authors = (TextView) getActivity().findViewById(R.id.article_authors);
+
+    Log.i(TAG, "Title(1): " + article_title.getText().toString());
 
     //article.setText(Article.Articles[position]);
     // rather than the above, load the correct article text
@@ -141,7 +146,9 @@ public class ArticleViewFragment extends Fragment
           Log.e(TAG,"Can't parse date: " + cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_DATE)));
         }
         article_content.setText(abs);
+        //Log.i(TAG, "Title: " + cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE)));
         article_title.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE)));
+        //Log.i(TAG, "Title(2): " + article_title.getText().toString());
         if (showdate != null)
         {
           article_journal.setText(
@@ -160,8 +167,16 @@ public class ArticleViewFragment extends Fragment
     }
     cursor.close();
 
-    // another query to get the authors? I think so, as there will be several authors per article
-    //article_authors.setText("One Author, Another Author, Yet Another and Final Author");
+    // cause textviews to refresh in two-column view (I hope)
+    //ArticleViewFragment articleViewFrag = (ArticleViewFragment) getFragmentManager().findFragmentById(R.id.view_fragment);
+    //if (articleViewFrag != null)
+    ViewGroup artView = (ViewGroup) getActivity().findViewById(R.id.view_fragment);
+    if (artView != null)
+    {
+      Log.i(TAG, "Trying to invalidate textviews!");
+      //LinearLayout artView = (LinearLayout) getActivity().findViewById(R.id.view_fragment);
+      artView.invalidate();
+    }
   }
 
   @Override

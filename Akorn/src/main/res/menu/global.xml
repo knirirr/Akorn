@@ -9,6 +9,6 @@
         android:showAsAction="never" />
     <item android:id="@+id/action_sync"
           android:title="@string/action_sync"
-          android:icon="@android:drawable/ic_popup_sync"
+          android:icon="@android:drawable/ic_menu_rotate"
           android:showAsAction="ifRoom" />
 </menu>

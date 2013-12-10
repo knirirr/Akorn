@@ -29,12 +29,17 @@ public class AkornContentProvider extends ContentProvider
   public static final String AUTHORITY = "org.akorn.akorn.contentprovider";
   public static final String TAG = "AkornContentProvider";
 
+  /*
+    SEARCHES_ARTICLES_ID is expecting a search ID (string); if the reverse search is needed
+    then an ARTICLES_SEARCHES_ID URI will be required to take the article ID
+   */
   private static final int ARTICLES = 10;
   private static final int ARTICLES_ID = 15;
   private static final int SEARCHES = 25;
   private static final int SEARCHES_ID = 30;
   private static final int SEARCHES_ARTICLES = 35;
   private static final int SEARCHES_ARTICLES_ID = 40;
+
 
   private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
   static
@@ -51,7 +56,7 @@ public class AkornContentProvider extends ContentProvider
   public boolean onCreate()
   {
     database = new AkornDatabaseHelper(getContext());
-    Log.i("AKORN", "Database onCreate()");
+    //Log.i(TAG, "Database onCreate()");
     return true;
   }
 
@@ -59,15 +64,15 @@ public class AkornContentProvider extends ContentProvider
   public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder)
   {
 
-    Log.i(TAG, "URI: " + uri.getPath());
-    Log.i(TAG, "LAST: " + uri.getLastPathSegment());
+    //Log.i(TAG, "URI: " + uri.getPath());
+    //Log.i(TAG, "LAST: " + uri.getLastPathSegment());
     SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
     Cursor cursor = null;
 
     // check if the caller has requested a column which does not exists
     checkColumns(projection);
     int uriType = sURIMatcher.match(uri);
-    Log.i(TAG, "URITYPE: " + String.valueOf(uriType));
+    //Log.i(TAG, "URITYPE: " + String.valueOf(uriType));
     switch (uriType)
     {
       case ARTICLES:
@@ -190,7 +195,7 @@ public class AkornContentProvider extends ContentProvider
       case ARTICLES:
         try
         {
-          sqlDB.insert(ArticleTable.TABLE_ARTICLES, null, values);
+          sqlDB.insertWithOnConflict(ArticleTable.TABLE_ARTICLES, null, values,sqlDB.CONFLICT_REPLACE);
         }
         catch (Exception e)
         {
@@ -210,7 +215,7 @@ public class AkornContentProvider extends ContentProvider
       case SEARCHES_ARTICLES:
         try
         {
-          sqlDB.insert(SearchArticleTable.TABLE_SEARCHES_ARTICLES, null, values);
+          sqlDB.insertWithOnConflict(SearchArticleTable.TABLE_SEARCHES_ARTICLES, null, values,sqlDB.CONFLICT_REPLACE);
         }
         catch (Exception e)
         {

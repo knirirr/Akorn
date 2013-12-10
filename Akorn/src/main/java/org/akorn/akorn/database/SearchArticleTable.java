@@ -22,9 +22,11 @@ public class SearchArticleTable
   private static final String DATABASE_CREATE = "create table "
       + TABLE_SEARCHES_ARTICLES
       + "("
-      + COLUMN_ID + " integer primary key autoincrement, "
+      //+ COLUMN_ID + ", " //integer auto increment, " //" integer primary key autoincrement, "
       + COLUMN_SEARCH_ID + " text not null, "
-      + COLUMN_ARTICLE_ID + " text not null"
+      + COLUMN_ARTICLE_ID + " text not null, "
+      + "PRIMARY KEY ("
+      + COLUMN_SEARCH_ID + "," + COLUMN_ARTICLE_ID + ")"
       + ");";
 
   public static void onCreate(SQLiteDatabase database)

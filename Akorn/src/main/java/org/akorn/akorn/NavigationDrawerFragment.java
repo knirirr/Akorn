@@ -392,7 +392,6 @@ public class NavigationDrawerFragment extends Fragment
       // thread, so be cautious!
       mCursorAdapter.notifyDataSetChanged();
       mDrawerListView.invalidate();
-      Log.i(TAG,"Cursor dataset changed!");
     }
   }
 
