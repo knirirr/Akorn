@@ -39,6 +39,7 @@ public class AkornContentProvider extends ContentProvider
   private static final int SEARCHES_ID = 30;
   private static final int SEARCHES_ARTICLES = 35;
   private static final int SEARCHES_ARTICLES_ID = 40;
+  private static final int CLEANUP_ARTICLES = 45;
 
 
   private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -50,6 +51,7 @@ public class AkornContentProvider extends ContentProvider
     sURIMatcher.addURI(AUTHORITY, "searches/#", SEARCHES_ID);
     sURIMatcher.addURI(AUTHORITY, "searches/articles", SEARCHES_ARTICLES);
     sURIMatcher.addURI(AUTHORITY, "searches/articles/*", SEARCHES_ARTICLES_ID);
+    sURIMatcher.addURI(AUTHORITY, "cleanup/articles", CLEANUP_ARTICLES);
   }
 
   @Override
@@ -97,7 +99,8 @@ public class AkornContentProvider extends ContentProvider
             "group_concat(" + SearchTable.COLUMN_FULL + ", \" | \") AS " + SearchTable.COLUMN_FULL + ", " +
             "group_concat(" + SearchTable.COLUMN_TYPE + ", \" | \") AS " + SearchTable.COLUMN_TYPE + ", " +
             "group_concat(" + SearchTable.COLUMN_TEXT+ ", \" | \") AS " + SearchTable.COLUMN_TEXT +
-             " FROM " + SearchTable.TABLE_SEARCH + " GROUP BY " + SearchTable.COLUMN_SEARCH_ID
+            " FROM " + SearchTable.TABLE_SEARCH + " GROUP BY " + SearchTable.COLUMN_SEARCH_ID +
+            " ORDER BY " + SearchTable.COLUMN_ID
             , null);
         getContext().getContentResolver().notifyChange(uri, null);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
@@ -238,10 +241,23 @@ public class AkornContentProvider extends ContentProvider
     {
       case SEARCHES:
         Log.i(TAG,"Purging search table!");
-        sqlDB.delete(SearchTable.TABLE_SEARCH, null, null);
+        //sqlDB.delete(SearchTable.TABLE_SEARCH, null, null);
         // reset IDs. Probably not necessary, but might as well be done
-        sqlDB.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + SearchTable.TABLE_SEARCH + "'");
+        //sqlDB.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + SearchTable.TABLE_SEARCH + "'");
+        SearchTable.onCreate(sqlDB);
         Log.i(TAG,"Purged!");
+        break;
+      case CLEANUP_ARTICLES:
+        Log.i(TAG,"Cleaning up orphaned articles.");
+        try
+        {
+          sqlDB.execSQL("DELETE FROM " + ArticleTable.TABLE_ARTICLES + " WHERE " + ArticleTable.COLUMN_ARTICLE_ID
+              + " NOT IN (SELECT ARTICLE_ID FROM " + SearchArticleTable.TABLE_SEARCHES_ARTICLES + ")");
+        }
+        catch (Exception e)
+        {
+          Log.e(TAG,"Cleanup failed!");
+        }
         break;
       default:
         throw new IllegalArgumentException("Unknown URI: " + uri);

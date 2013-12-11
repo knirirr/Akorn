@@ -108,6 +108,7 @@ public class ArticleViewFragment extends Fragment
     TextView article_title = (TextView) getActivity().findViewById(R.id.article_title);
     TextView article_journal = (TextView) getActivity().findViewById(R.id.article_journal);
     TextView article_authors = (TextView) getActivity().findViewById(R.id.article_authors);
+    TextView article_url = (TextView) getActivity().findViewById(R.id.article_url);
 
     Log.i(TAG, "Title(1): " + article_title.getText().toString());
 
@@ -123,7 +124,8 @@ public class ArticleViewFragment extends Fragment
             ArticleTable.COLUMN_LINK,
             ArticleTable.COLUMN_JOURNAL,
             ArticleTable.COLUMN_AUTHORS,
-            ArticleTable.COLUMN_DATE
+            ArticleTable.COLUMN_DATE,
+            ArticleTable.COLUMN_LINK
         }, // need title in order to share
         null, null, null);
     //Log.i("AKORN", "Cursor: " + cursor.getColumnNames().toString());
@@ -162,6 +164,7 @@ public class ArticleViewFragment extends Fragment
          article_journal.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL)));
         }
         article_authors.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_AUTHORS)));
+        article_url.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_LINK)));
       }
       while(cursor.moveToNext());
     }

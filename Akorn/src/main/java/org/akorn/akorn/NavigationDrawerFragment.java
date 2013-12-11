@@ -402,6 +402,7 @@ public class NavigationDrawerFragment extends Fragment
     // in the content provider if a search of searches is used, in order that a
     // group_concat may be used
     // http://www.sqlite.org/lang_aggfunc.html
+    String[] orderBy = { String.valueOf(SearchTable.COLUMN_ID) };
     Cursor cursor = getActivity().getContentResolver().query(uri,
       new String[]
       {
@@ -411,7 +412,7 @@ public class NavigationDrawerFragment extends Fragment
         SearchTable.COLUMN_TYPE,
         SearchTable.COLUMN_TEXT
       },
-      null, null, null);
+      null, orderBy , null);
 
       if (cursor == null)
       {

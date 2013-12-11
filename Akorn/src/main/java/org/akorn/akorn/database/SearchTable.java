@@ -35,7 +35,10 @@ public class SearchTable
 
   public static void onCreate(SQLiteDatabase database)
   {
+    database.execSQL("DROP TABLE IF EXISTS " + TABLE_SEARCH);
     database.execSQL(DATABASE_CREATE);
+    database.execSQL("INSERT INTO " + TABLE_SEARCH +
+        " VALUES(NULL,'saved_articles','Saved articles','Saved articles','user-specified','NA')");
   }
 
   /*

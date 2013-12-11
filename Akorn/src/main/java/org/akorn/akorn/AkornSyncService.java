@@ -1,9 +1,14 @@
 package org.akorn.akorn;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -63,6 +68,9 @@ public class AkornSyncService extends IntentService
   private Handler mHandler;
   private CookieStore cookiestore;
   private Map<String,String> searchresults;
+  private NotificationManager notificationManager;
+  private Bitmap icon;
+  private Notification noti;
 
   public AkornSyncService()
   {
@@ -70,6 +78,7 @@ public class AkornSyncService extends IntentService
   }
 
   public static boolean isRunning = false;
+  public static boolean hasFailed = false;
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId)
@@ -81,10 +90,31 @@ public class AkornSyncService extends IntentService
     return super.onStartCommand(intent,flags,startId);
   }
 
+  @Deprecated // must do something about this eventually
   @Override
   public void onDestroy()
   {
     isRunning = false;
+    String notificationText = getString(R.string.syncFinish);
+    if (hasFailed == true)
+    {
+      notificationText = getString(R.string.syncFail);
+      hasFailed = false;
+    }
+    Intent activityIntent = new Intent(this,ViewingActivity.class);
+    PendingIntent launchIntent = PendingIntent.getActivity(this, 0, activityIntent, 0);
+
+    noti = new Notification.Builder(this)
+        .setContentTitle("Akorn")
+        .setContentIntent(launchIntent)
+        .setContentText(notificationText)
+        .setSmallIcon(R.drawable.ic_stat)
+        .setLargeIcon(icon)
+        .getNotification();
+
+    // Hide the notification after its selected
+    noti.flags |= Notification.FLAG_AUTO_CANCEL;
+    notificationManager.notify(1, noti);
     super.onDestroy();
   }
 
@@ -95,6 +125,12 @@ public class AkornSyncService extends IntentService
       and password, for the app won't start this service unless both are defined.
      */
     isRunning = true;
+
+    // bitmap for notification icon
+    icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_launcher);
+
+    // the notification service is essential
+    notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     String username = prefs.getString("pref_username", "");
@@ -124,6 +160,8 @@ public class AkornSyncService extends IntentService
     {
       Log.e(TAG, "Attempt to prepare URL failed.");
       e.printStackTrace();
+      hasFailed = true;
+      return;
     }
     post.setEntity(formEntity);
 
@@ -157,13 +195,15 @@ public class AkornSyncService extends IntentService
         if (session_id.equals(""))
         {
           Log.i(TAG,"Failed to get a session id");
-          mHandler.post(new ToastRunnable("FRC no session ID!"));
+          mHandler.post(new ToastRunnable(getString(R.string.syncFail)));
+          hasFailed = true;
           return;
         }
       }
       else if (statusCode == 400)
       {
         mHandler.post(new ToastRunnable(getString(R.string.loginFail)));
+        hasFailed = true;
         Log.i(TAG,"Bad username or password!");
         return;
       }
@@ -179,7 +219,9 @@ public class AkornSyncService extends IntentService
     }
     catch (Exception e)
     {
+      hasFailed = true;
       e.printStackTrace();
+      return;
     }
     /*
       The next step is to get the user's saved searches, before using these to obtain the user's articles.
@@ -215,6 +257,7 @@ public class AkornSyncService extends IntentService
     catch (IOException e)
     {
       Log.i(TAG, "Error getting search info: " + e.toString());
+      hasFailed = true;
       return;
     }
     finally
@@ -296,7 +339,9 @@ public class AkornSyncService extends IntentService
           catch (JSONException e)
           {
             // Oops
+            hasFailed = true;
             Log.e(TAG, "Couldn't parse JSON: " + e.toString());
+            return;
           }
         }
       }
@@ -304,6 +349,7 @@ public class AkornSyncService extends IntentService
     catch (JSONException e)
     {
       Log.e(TAG,"Can't parse JSON from server: " + e.toString());
+      hasFailed = true;
       // a toast here, perhaps?
       return;
     }
@@ -379,11 +425,12 @@ public class AkornSyncService extends IntentService
           {
             values.put(ArticleTable.COLUMN_ABSTRACT,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(w.html()));
           }
-          Elements link = article.getElementsByTag("link");
+          Elements link = article.getElementsByAttribute("link");
           for (Element l : link)
           {
             values.put(ArticleTable.COLUMN_LINK,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(l.html()));
           }
+          link = article.getElementsByTag("link");
           Elements date = article.getElementsByTag("date_published");
           for (Element d : date)
           {
@@ -409,6 +456,13 @@ public class AkornSyncService extends IntentService
         //Log.e(TAG,"Failed to parse URL " + articleUrl + " error: " + e.toString());
       }
     }
+
+    // finally, clean up the search_articles table by removing articles which are not linked
+    // to a search...
+    Uri cleanup = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/cleanup/articles");
+    getContentResolver().delete(cleanup,null,null);
+
+    // a notification is needed here as well...
     mHandler.post(new ToastRunnable(getString(R.string.syncFinish)));
     Log.i(TAG, "FINISH");
   }

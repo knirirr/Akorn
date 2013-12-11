@@ -14,6 +14,14 @@
           android:textStyle="bold"
           android:textSize="20sp" />
     <TextView
+          android:id="@+id/article_authors"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Authors"
+          android:padding="4dp"
+          android:textStyle="normal"
+          android:textSize="18sp" />
+    <TextView
           android:id="@+id/article_journal"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
@@ -22,13 +30,15 @@
           android:textStyle="italic"
           android:textSize="16sp" />
     <TextView
-          android:id="@+id/article_authors"
+          android:id="@+id/article_url"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:text="Authors"
+          android:text="http://akorn.org"
+          android:autoLink="web"
           android:padding="4dp"
           android:textStyle="normal"
-          android:textSize="18sp" />
+          android:textSize="16sp" />
+
     <TextView
           android:id="@+id/article_content"
           android:layout_width="wrap_content"
