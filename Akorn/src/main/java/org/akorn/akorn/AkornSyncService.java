@@ -49,6 +49,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -282,6 +283,10 @@ public class AkornSyncService extends IntentService
       for (int h=0; h < namearray.length(); h++)
       {
         JSONArray jArray = jObject.getJSONArray(namearray.getString(h));
+        ArrayList<String> keywordseen = new ArrayList<String>();
+        ArrayList<String> journalseen = new ArrayList<String>();
+        //Map<String,Boolean> keywordseen = new HashMap<String, Boolean>();
+        //Map<String,Boolean> journalseen = new HashMap<String, Boolean>();
         for (int i=0; i < jArray.length(); i++)
         {
           try
@@ -316,11 +321,27 @@ public class AkornSyncService extends IntentService
               String current = searchresults.get(s_id);
               if (j_full == null)
               {
-                searchresults.put(s_id, current + "%7Ck=" + j_text);
+                if (keywordseen.contains(s_id))
+                {
+                  searchresults.put(s_id, current + "%7Ck=" + j_text);
+                  keywordseen.add(s_id);
+                }
+                else
+                {
+                  searchresults.put(s_id, current + "%7C" + j_text);
+                }
               }
               else
               {
-                searchresults.put(s_id, current + "%7Cj=" + j_id);
+                if (journalseen.contains(s_id))
+                {
+                  searchresults.put(s_id, current + "%7Cj=" + j_id);
+                  journalseen.add(s_id);
+                }
+                else
+                {
+                  searchresults.put(s_id, current + "%7C" + j_id);
+                }
               }
             }
             else
@@ -328,10 +349,12 @@ public class AkornSyncService extends IntentService
               if (j_full == null)  // keyword
               {
                 searchresults.put(s_id,"k=" + j_text);
+                journalseen.add(s_id);
               }
               else
               {
                 searchresults.put(s_id,"j=" + j_id);
+                keywordseen.add(s_id);
               }
             }
 
@@ -425,12 +448,11 @@ public class AkornSyncService extends IntentService
           {
             values.put(ArticleTable.COLUMN_ABSTRACT,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(w.html()));
           }
-          Elements link = article.getElementsByAttribute("link");
+          Elements link = article.getElementsByTag("link");
           for (Element l : link)
           {
             values.put(ArticleTable.COLUMN_LINK,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(l.html()));
           }
-          link = article.getElementsByTag("link");
           Elements date = article.getElementsByTag("date_published");
           for (Element d : date)
           {
@@ -438,15 +460,10 @@ public class AkornSyncService extends IntentService
           }
           Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
           values.put(ArticleTable.COLUMN_READ,0);
+          values.put(ArticleTable.COLUMN_FAVOURITE,0);
           getContentResolver().insert(uri, values);
           Uri joinUri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches/articles");
           getContentResolver().insert(joinUri, joinValues);
-          //Log.i(TAG, String.valueOf(count) + ": VALUES: " + values.toString());
-
-          /*
-            The search_article table must also be populated here, otherwise one can't get articles from
-            the search_id sent to the ArticleListFragment
-           */
         }
 
       }

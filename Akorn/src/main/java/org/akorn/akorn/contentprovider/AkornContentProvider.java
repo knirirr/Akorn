@@ -40,6 +40,8 @@ public class AkornContentProvider extends ContentProvider
   private static final int SEARCHES_ARTICLES = 35;
   private static final int SEARCHES_ARTICLES_ID = 40;
   private static final int CLEANUP_ARTICLES = 45;
+  private static final int SEARCHES_ARTICLES_SAVE = 50;
+  private static final int SEARCHES_ARTICLES_DELETE = 55;
 
 
   private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -52,6 +54,8 @@ public class AkornContentProvider extends ContentProvider
     sURIMatcher.addURI(AUTHORITY, "searches/articles", SEARCHES_ARTICLES);
     sURIMatcher.addURI(AUTHORITY, "searches/articles/*", SEARCHES_ARTICLES_ID);
     sURIMatcher.addURI(AUTHORITY, "cleanup/articles", CLEANUP_ARTICLES);
+    sURIMatcher.addURI(AUTHORITY, "searches_articles_save/*", SEARCHES_ARTICLES_SAVE);
+    sURIMatcher.addURI(AUTHORITY, "searches_articles_delete/*", SEARCHES_ARTICLES_DELETE);
   }
 
   @Override
@@ -131,6 +135,7 @@ public class AkornContentProvider extends ContentProvider
     String[] available = {
         ArticleTable.COLUMN_ARTICLE_ID,
         ArticleTable.COLUMN_READ ,
+        ArticleTable.COLUMN_FAVOURITE,
         ArticleTable.COLUMN_JOURNAL,
         ArticleTable.COLUMN_ID,
         ArticleTable.COLUMN_LINK,
@@ -225,6 +230,17 @@ public class AkornContentProvider extends ContentProvider
           Log.e(TAG,"Failed to insert data: " + e.toString());
         }
         break;
+      case SEARCHES_ARTICLES_SAVE:
+        try
+        {
+          sqlDB.execSQL("INSERT INTO searches_articles VALUES('saved_articles','" + uri.getLastPathSegment() + "')");
+        }
+        catch (Exception e)
+        {
+          Log.e(TAG, "Insert failed: " + e.toString());
+        }
+        sqlDB.execSQL("UPDATE articles SET favourite = 1 where article_id ='" + uri.getLastPathSegment() + "'");
+        break;
       default:
         throw new IllegalArgumentException("Unknown URI: " + uri);
     }
@@ -258,6 +274,10 @@ public class AkornContentProvider extends ContentProvider
         {
           Log.e(TAG,"Cleanup failed!");
         }
+        break;
+      case SEARCHES_ARTICLES_DELETE:
+        sqlDB.execSQL("DELETE FROM searches_articles where article_id = '" + uri.getLastPathSegment() + "'");
+        sqlDB.execSQL("UPDATE articles SET favourite = 0 where article_id ='" + uri.getLastPathSegment() + "'");
         break;
       default:
         throw new IllegalArgumentException("Unknown URI: " + uri);

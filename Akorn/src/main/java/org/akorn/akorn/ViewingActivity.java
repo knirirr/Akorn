@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -88,6 +89,8 @@ public class ViewingActivity extends Activity
 
         }
 
+
+
     }
 
     @Override
@@ -100,18 +103,19 @@ public class ViewingActivity extends Activity
     public void updateSearchId(String search_id)
     {
       // nothing
-      Log.i(TAG,"ViewingActivity: " + search_id);
       ArticleListFragment articleListFrag = (ArticleListFragment)
           getFragmentManager().findFragmentById(R.id.list_fragment);
       if (articleListFrag != null)
       {
         // If article frag is available, we're in two-pane layout...
+        Log.i(TAG,"ViewingActivity (2): " + search_id);
 
         // Call a method in the ArticleFragment to update its content
-        articleListFrag.updateSearchId(search_id); // fix this
+        articleListFrag.refreshUi(search_id);
       }
       else
       {
+        Log.i(TAG,"ViewingActivity (1): " + search_id);
         // If the frag is not available, we're in the one-pane layout and must swap frags...
         // Create fragment and give it an argument for the selected article
         ArticleListFragment newFragment = new ArticleListFragment();

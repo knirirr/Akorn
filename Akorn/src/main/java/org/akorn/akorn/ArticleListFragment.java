@@ -7,6 +7,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
@@ -25,6 +28,7 @@ public class ArticleListFragment extends ListFragment
   private static final String TAG = "AkornArticleListFragment";
   private String searchId = "";
   private SimpleCursorAdapter mCursorAdapter;
+  private Cursor cursor = null;
 
   // The container Activity must implement this interface so the frag can deliver messages
   public interface OnHeadlineSelectedListener
@@ -104,13 +108,20 @@ public class ArticleListFragment extends ListFragment
     getListView().setItemChecked(position, true);
   }
 
-  public void updateSearchId(String search_id)
+  public void refreshUi(String search_id)
   {
     Log.i(TAG,"ArticleListFragment: " + search_id);
     searchId = search_id;
     mCursorAdapter = getList(search_id);
     mCursorAdapter.notifyDataSetChanged();
     setListAdapter(mCursorAdapter);
+    /*
+    ListView lv = getListView();
+    Log.i(TAG, "LV: " + lv.toString());
+    lv.setAdapter(mCursorAdapter);
+    lv.invalidateViews();
+    lv.invalidate();
+    */
   }
 
   // add a getList() method
@@ -120,7 +131,6 @@ public class ArticleListFragment extends ListFragment
     int layout = R.layout.article_title;
 
     Uri uri = null;
-    Cursor cursor = null;
     String[] selectArgs = null;
     if (search_id == null || search_id.isEmpty())
     {
@@ -129,7 +139,8 @@ public class ArticleListFragment extends ListFragment
       selectArgs = new String[]{ArticleTable.COLUMN_ID,
                                 ArticleTable.COLUMN_TITLE,
                                 ArticleTable.COLUMN_JOURNAL,
-                                ArticleTable.COLUMN_ARTICLE_ID};
+                                ArticleTable.COLUMN_ARTICLE_ID,
+                                ArticleTable.COLUMN_FAVOURITE};
     }
     else
     {
@@ -157,17 +168,19 @@ public class ArticleListFragment extends ListFragment
       ArticleTable.COLUMN_JOURNAL
     };
 
-  // Defines a list of View IDs that will receive the Cursor columns for each row
-  int[] mWordListItems = { R.id.article_title, R.id.article_journal};
+    // Defines a list of View IDs that will receive the Cursor columns for each row
+    int[] mWordListItems = { R.id.article_title, R.id.article_journal};
 
-  // Creates a new SimpleCursorAdapter
-  SimpleCursorAdapter mCursorAdapter = new SimpleCursorAdapter(
-    getActivity(),               // The application's Context object
-    layout,
-    cursor,                               // The result from the query
-    mWordListColumns,                      // A string array of column names in the cursor
-    mWordListItems,                        // An integer array of view IDs in the row layout
-    0);                                    // Flags (usually none are needed)
+    // Creates a new SimpleCursorAdapter
+    //SimpleCursorAdapter mCursorAdapter = new SimpleCursorAdapter(
+    ArticleCursorAdapter mCursorAdapter = new ArticleCursorAdapter(
+      getActivity(),               // The application's Context object
+      layout,
+      cursor,                               // The result from the query
+      mWordListColumns,                      // A string array of column names in the cursor
+      mWordListItems); //,                        // An integer array of view IDs in the row layout
+      //0);                                    // Flags (usually none are needed)
+
 
     return mCursorAdapter;
   }

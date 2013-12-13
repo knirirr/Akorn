@@ -104,11 +104,12 @@ public class ArticleViewFragment extends Fragment
 
     // content, title &c. all textviews
     TextView article_content = (TextView) getActivity().findViewById(R.id.article_content);
-    article_content.setMovementMethod(new ScrollingMovementMethod()); // make textview scrollable
     TextView article_title = (TextView) getActivity().findViewById(R.id.article_title);
     TextView article_journal = (TextView) getActivity().findViewById(R.id.article_journal);
     TextView article_authors = (TextView) getActivity().findViewById(R.id.article_authors);
     TextView article_url = (TextView) getActivity().findViewById(R.id.article_url);
+
+    article_content.setMovementMethod(new ScrollingMovementMethod()); // make textview scrollable
 
     Log.i(TAG, "Title(1): " + article_title.getText().toString());
 
@@ -133,7 +134,6 @@ public class ArticleViewFragment extends Fragment
     {
       do
       {
-        String abs = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_ABSTRACT));
         //article.setText(abs.replaceAll("[\n\r]", " "));
         String myFormatString = "yyyy-MM-d'T'h:m:s";
         Date showdate = null;
@@ -142,29 +142,30 @@ public class ArticleViewFragment extends Fragment
           showdate = new SimpleDateFormat(myFormatString, Locale.ENGLISH).parse(
             cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_DATE))
           );
+          Log.i(TAG, "Got date: " + showdate);
         }
         catch (ParseException e)
         {
           Log.e(TAG,"Can't parse date: " + cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_DATE)));
         }
-        article_content.setText(abs);
-        //Log.i(TAG, "Title: " + cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE)));
-        article_title.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE)));
-        //Log.i(TAG, "Title(2): " + article_title.getText().toString());
         if (showdate != null)
         {
-          article_journal.setText(
-            cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL))
-            + ", "
-            + showdate.toString()
-          );
+          String journal = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL));
+          article_journal.setText(journal + ", " + showdate.toString() );
         }
         else
         {
          article_journal.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL)));
         }
-        article_authors.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_AUTHORS)));
-        article_url.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_LINK)));
+        String title = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE));
+        article_title.setText(title);
+        String authors = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_AUTHORS));
+        article_authors.setText(authors);
+        String link = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_LINK));
+        article_url.setText(link);
+        String abs = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_ABSTRACT));
+        article_content.setText(abs);
+
       }
       while(cursor.moveToNext());
     }
@@ -173,6 +174,7 @@ public class ArticleViewFragment extends Fragment
     // cause textviews to refresh in two-column view (I hope)
     //ArticleViewFragment articleViewFrag = (ArticleViewFragment) getFragmentManager().findFragmentById(R.id.view_fragment);
     //if (articleViewFrag != null)
+    /*
     ViewGroup artView = (ViewGroup) getActivity().findViewById(R.id.view_fragment);
     if (artView != null)
     {
@@ -180,6 +182,7 @@ public class ArticleViewFragment extends Fragment
       //LinearLayout artView = (LinearLayout) getActivity().findViewById(R.id.view_fragment);
       artView.invalidate();
     }
+    */
   }
 
   @Override
@@ -190,6 +193,5 @@ public class ArticleViewFragment extends Fragment
     // Save the current article selection in case we need to recreate the fragment
     outState.putInt(ARG_POSITION, mCurrentPosition);
   }
-
 
 }
