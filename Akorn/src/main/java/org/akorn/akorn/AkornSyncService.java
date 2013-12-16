@@ -451,7 +451,8 @@ public class AkornSyncService extends IntentService
           Elements link = article.getElementsByTag("link");
           for (Element l : link)
           {
-            values.put(ArticleTable.COLUMN_LINK,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(l.html()));
+            //values.put(ArticleTable.COLUMN_LINK,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(l.html()));
+            values.put(ArticleTable.COLUMN_LINK,"http://akorn.org");
           }
           Elements date = article.getElementsByTag("date_published");
           for (Element d : date)

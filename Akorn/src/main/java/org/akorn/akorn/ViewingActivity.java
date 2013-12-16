@@ -3,32 +3,20 @@ package org.akorn.akorn;
 import android.app.Activity;
 ;
 import android.app.ActionBar;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.BaseAdapter;
-import android.widget.CheckBox;
-import android.widget.ListAdapter;
-import android.widget.ListView;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.akorn.akorn.database.ArticleTable;
-import org.akorn.akorn.database.SearchArticleTable;
-import org.akorn.akorn.database.SearchTable;
 
 public class ViewingActivity extends Activity
         implements  NavigationDrawerFragment.NavigationDrawerCallbacks, ArticleListFragment.OnHeadlineSelectedListener
@@ -39,64 +27,83 @@ public class ViewingActivity extends Activity
   private NavigationDrawerFragment mNavigationDrawerFragment;
   private final String TAG = "AkornViewingActivity";
 
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
-    private CharSequence mTitle;
+  /**
+   * Used to store the last screen title. For use in {@link #restoreActionBar()}.
+   */
+  private CharSequence mTitle;
+  private int currentFragmentIndex = 0;
+  private int pos;
+  private int sqlid;
+  public Boolean favourite = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_view);
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.list_view);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
+      mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
+      mTitle = getTitle();
 
-        // Set up the drawer.
-        mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+      // Set up the drawer.
+      mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        // here's the phone part - the tablet's views should be set up automatically from the layout
-        if (findViewById(R.id.fragment_container) != null)
+      // here's the phone part - the tablet's views should be set up automatically from the layout
+      if (findViewById(R.id.fragment_container) != null)
+      {
+        // If we're being restored from a previous state,
+        // then we don't need to do anything and should return or else
+        // we could end up with overlapping fragments.
+        if (savedInstanceState != null)
         {
-          // If we're being restored from a previous state,
-          // then we don't need to do anything and should return or else
-          // we could end up with overlapping fragments.
-
-          if (savedInstanceState != null)
+          currentFragmentIndex = savedInstanceState.getInt("currentFragment",0);
+          if (currentFragmentIndex == 0)
           {
-            return;
+            currentFragmentIndex = 0;
+            ArticleListFragment lf = (ArticleListFragment) getFragmentManager().findFragmentByTag("list_frag");
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, lf,"list_frag");
+            transaction.addToBackStack(null);
+            transaction.commit();
           }
-
-          // create a fragment for viewing the list of articles
-          ArticleListFragment firstFragment = new ArticleListFragment();
-
-          // In case this activity was started with special instructions from an Intent,
-          // pass the Intent's extras to the fragment as arguments
-          firstFragment.setArguments(getIntent().getExtras());
-
-          // Add the fragment in the 'fragment_container' FrameLayout
-          //getFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
-          FragmentTransaction transaction = getFragmentManager().beginTransaction();
-
-          // Replace whatever is in the fragment_container view with this fragment,
-          // and add the transaction to the back stack so the user can navigate back
-          transaction.replace(R.id.fragment_container, firstFragment);
-          transaction.addToBackStack(null);
-
-          // Commit the transaction
-          transaction.commit();
-
+          else
+          {
+            currentFragmentIndex = 1;
+            ArticleViewFragment vf = (ArticleViewFragment) getFragmentManager().findFragmentByTag("view_frag");
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, vf, "view_frag");
+            transaction.addToBackStack(null);
+            transaction.commit();
+          }
+          return;
         }
 
+        // create a fragment for viewing the list of articles
+        ArticleListFragment firstFragment = new ArticleListFragment();
 
+        // In case this activity was started with special instructions from an Intent,
+        // pass the Intent's extras to the fragment as arguments
+        firstFragment.setArguments(getIntent().getExtras());
 
+        // Add the fragment in the 'fragment_container' FrameLayout
+        //getFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+        // Replace whatever is in the fragment_container view with this fragment,
+        // and add the transaction to the back stack so the user can navigate back
+        transaction.replace(R.id.fragment_container, firstFragment, "list_frag");
+        transaction.addToBackStack(null);
+
+        // Commit the transaction
+        transaction.commit();
+
+      }
     }
 
     @Override
     public void onNavigationDrawerItemSelected(int position)
     {
-      Log.i(TAG,"ViewingActivity: " + String.valueOf(position));
+      //Log.i(TAG,"ViewingActivity: " + String.valueOf(position));
     }
 
     @Override
@@ -108,16 +115,15 @@ public class ViewingActivity extends Activity
       if (articleListFrag != null)
       {
         // If article frag is available, we're in two-pane layout...
-        Log.i(TAG,"ViewingActivity (2): " + search_id);
 
         // Call a method in the ArticleFragment to update its content
         articleListFrag.refreshUi(search_id);
       }
       else
       {
-        Log.i(TAG,"ViewingActivity (1): " + search_id);
         // If the frag is not available, we're in the one-pane layout and must swap frags...
         // Create fragment and give it an argument for the selected article
+        Log.i(TAG, "Selecting search: " + search_id);
         ArticleListFragment newFragment = new ArticleListFragment();
         Bundle args = new Bundle();
         args.putString("search_id",search_id);
@@ -190,6 +196,11 @@ public class ViewingActivity extends Activity
             sendIntent.setType("text/plain");
             startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
             return true;
+          case R.id.action_favourite:
+            ArticleViewFragment vf = (ArticleViewFragment) getFragmentManager().findFragmentByTag("view_frag");
+            // set the favourite value
+            vf.toggleFavourite();
+            return true;
           case R.id.action_sync:
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             String username = prefs.getString("pref_username", "");
@@ -233,6 +244,9 @@ public class ViewingActivity extends Activity
       {
         // If the frag is not available, we're in the one-pane layout and must swap frags...
         // Create fragment and give it an argument for the selected article
+        pos = position;
+        sqlid = sql_article_id;
+        currentFragmentIndex = 1;
         ArticleViewFragment newFragment = new ArticleViewFragment();
         Bundle args = new Bundle();
         args.putInt(ArticleViewFragment.ARG_POSITION, position);
@@ -242,11 +256,34 @@ public class ViewingActivity extends Activity
 
         // Replace whatever is in the fragment_container view with this fragment,
         // and add the transaction to the back stack so the user can navigate back
-        transaction.replace(R.id.fragment_container, newFragment);
+        transaction.replace(R.id.fragment_container, newFragment,"view_frag");
         transaction.addToBackStack(null);
 
         // Commit the transaction
         transaction.commit();
       }
     }
+
+  protected void onSaveInstanceState(Bundle bundle)
+  {
+    super.onSaveInstanceState(bundle);
+    bundle.putInt("currentFragment", currentFragmentIndex);
+    bundle.putInt("position", pos);
+    bundle.putInt("sql_article_id", sqlid);
+  }
+
+  /*
+    This re-sets the article fragment index to 0 if currently 1, the idea being that if it's one and back
+    has just been pressed then it means that someone was looking at an article and has just pressed back
+    to return to the list...
+   */
+  @Override
+  public void onBackPressed()
+  {
+    if (currentFragmentIndex == 1)
+    {
+      currentFragmentIndex = 0;
+    }
+    super.onBackPressed();
+  }
 }

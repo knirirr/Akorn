@@ -16,6 +16,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_share">Share</string>
     <string name="action_website">Website</string>
+    <string name="action_favourite">Add to favourites</string>
     <string name="send_to">Share article</string>
 
     <!-- preferences -->

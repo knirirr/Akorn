@@ -7,9 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
@@ -29,6 +26,7 @@ public class ArticleListFragment extends ListFragment
   private String searchId = "";
   private SimpleCursorAdapter mCursorAdapter;
   private Cursor cursor = null;
+  final static String ARG_FRAG = "fragName";
 
   // The container Activity must implement this interface so the frag can deliver messages
   public interface OnHeadlineSelectedListener
@@ -44,7 +42,7 @@ public class ArticleListFragment extends ListFragment
     try
     {
       searchId = getArguments().getString("search_id","");
-      Log.e(TAG,"Got search_id: " + searchId);
+      //Log.e(TAG,"Got search_id: " + searchId);
     }
     catch (Exception e)
     {
@@ -52,12 +50,23 @@ public class ArticleListFragment extends ListFragment
     }
   }
 
+  /*
   @Override
   public void onActivityCreated(Bundle savedInstanceState)
   {
     super.onActivityCreated(savedInstanceState);
     mCursorAdapter = getList(searchId);
     setListAdapter(mCursorAdapter);
+  }
+  */
+
+  @Override
+  public void onViewCreated(View view, Bundle savedInstanceState)
+  {
+    Log.i(TAG, "Called onViewCreated");
+    Log.i(TAG,"SEARCH_ID: " + searchId);
+    super.onViewCreated(view,savedInstanceState);
+    refreshUi(searchId);
   }
 
   @Override
@@ -98,7 +107,7 @@ public class ArticleListFragment extends ListFragment
     // local sqlite id or the remote one)
     Cursor data = (Cursor) getListView().getItemAtPosition(position);
     int sql_article_id = data.getInt(data.getColumnIndex(ArticleTable.COLUMN_ID));
-    Log.i("AKORN", "The ID selected was: " + String.valueOf(sql_article_id));
+    //Log.i("AKORN", "The ID selected was: " + String.valueOf(sql_article_id));
 
     // Notify the parent activity of selected item
     //mCallback.onArticleSelected(position);
@@ -110,22 +119,15 @@ public class ArticleListFragment extends ListFragment
 
   public void refreshUi(String search_id)
   {
-    Log.i(TAG,"ArticleListFragment: " + search_id);
+    //Log.i(TAG,"ArticleListFragment: " + search_id);
     searchId = search_id;
     mCursorAdapter = getList(search_id);
     mCursorAdapter.notifyDataSetChanged();
     setListAdapter(mCursorAdapter);
-    /*
-    ListView lv = getListView();
-    Log.i(TAG, "LV: " + lv.toString());
-    lv.setAdapter(mCursorAdapter);
-    lv.invalidateViews();
-    lv.invalidate();
-    */
   }
 
   // add a getList() method
-  private SimpleCursorAdapter getList(String search_id)
+  private ArticleCursorAdapter getList(String search_id)
   {
     //int layout = android.R.layout.simple_list_item_activated_1;
     int layout = R.layout.article_title;
@@ -134,7 +136,6 @@ public class ArticleListFragment extends ListFragment
     String[] selectArgs = null;
     if (search_id == null || search_id.isEmpty())
     {
-      //Log.i(TAG, "SEARCH_ID is NULL!");
       uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
       selectArgs = new String[]{ArticleTable.COLUMN_ID,
                                 ArticleTable.COLUMN_TITLE,
@@ -144,7 +145,6 @@ public class ArticleListFragment extends ListFragment
     }
     else
     {
-      //Log.i(TAG, "SEARCH_ID is: " + search_id);
       uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches/articles/" + search_id);
     }
     cursor = getActivity().getContentResolver().query(uri,
@@ -181,8 +181,24 @@ public class ArticleListFragment extends ListFragment
       mWordListItems); //,                        // An integer array of view IDs in the row layout
       //0);                                    // Flags (usually none are needed)
 
-
     return mCursorAdapter;
   }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState)
+  {
+    super.onSaveInstanceState(outState);
+
+    // Save the current article selection in case we need to recreate the fragment
+    outState.putString(ARG_FRAG,"list_frag");
+  }
+
+  @Override
+  public void onDestroy()
+  {
+    super.onDestroy();
+  }
+
+
 
 }

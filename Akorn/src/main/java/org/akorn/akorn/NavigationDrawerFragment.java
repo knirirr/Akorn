@@ -328,6 +328,15 @@ public class NavigationDrawerFragment extends Fragment
         {
           //Toast.makeText(getActivity(), "Failed to clear the menu.", Toast.LENGTH_SHORT).show();
         }
+        if (menu.findItem(R.id.action_favourite) != null)
+        {
+          MenuItem item = menu.findItem(R.id.action_favourite);
+          item.setVisible(false);
+        }
+        else
+        {
+          //Toast.makeText(getActivity(), "Failed to clear the menu.", Toast.LENGTH_SHORT).show();
+        }
       }
     }
 

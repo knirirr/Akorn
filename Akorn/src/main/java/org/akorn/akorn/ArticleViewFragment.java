@@ -1,6 +1,8 @@
 package org.akorn.akorn;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.akorn.akorn.contentprovider.AkornContentProvider;
 import org.akorn.akorn.database.ArticleTable;
 
 import java.text.ParseException;
@@ -29,7 +32,10 @@ public class ArticleViewFragment extends Fragment
 {
   final static String ARG_POSITION = "position";
   final static String ARG_ID = "id";
+  final static String ARG_FRAG = "fragName";
   final static String TAG = "AkornArticleViewFragment";
+  private String article_id;
+  private int favourite;
   int mCurrentPosition = -1;
   int mSqlId = 0;
 
@@ -45,11 +51,20 @@ public class ArticleViewFragment extends Fragment
     if (savedInstanceState != null)
     {
       mCurrentPosition = savedInstanceState.getInt(ARG_POSITION);
+      mSqlId = savedInstanceState.getInt(ARG_ID);
+      //Log.i(TAG, "onCreateView: " + String.valueOf(mCurrentPosition) + ", " + String.valueOf(mSqlId));
     }
 
     // Inflate the layout for this fragment
     LinearLayout article = (LinearLayout) inflater.inflate(R.layout.article_view, container, false);
     return article;
+  }
+
+  @Override
+  public void onActivityCreated(Bundle savedInstanceState)
+  {
+    super.onActivityCreated(savedInstanceState);
+    updateArticleView(mCurrentPosition,mSqlId);
   }
 
   @Override
@@ -73,6 +88,7 @@ public class ArticleViewFragment extends Fragment
       updateArticleView(mCurrentPosition,mSqlId);
     }
   }
+
   @Override
   public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
   {
@@ -94,6 +110,17 @@ public class ArticleViewFragment extends Fragment
     {
       //Toast.makeText(getActivity(), "Failed to clear the menu.", Toast.LENGTH_SHORT).show();
     }
+
+  }
+
+  @Override
+  public void onPrepareOptionsMenu(Menu menu)
+  {
+    if (favourite == 1)
+    {
+      MenuItem item = menu.findItem(R.id.action_favourite);
+      item.setIcon(android.R.drawable.star_big_on);
+    }
   }
 
 
@@ -111,7 +138,6 @@ public class ArticleViewFragment extends Fragment
 
     article_content.setMovementMethod(new ScrollingMovementMethod()); // make textview scrollable
 
-    Log.i(TAG, "Title(1): " + article_title.getText().toString());
 
     //article.setText(Article.Articles[position]);
     // rather than the above, load the correct article text
@@ -126,10 +152,11 @@ public class ArticleViewFragment extends Fragment
             ArticleTable.COLUMN_JOURNAL,
             ArticleTable.COLUMN_AUTHORS,
             ArticleTable.COLUMN_DATE,
-            ArticleTable.COLUMN_LINK
+            ArticleTable.COLUMN_LINK,
+            ArticleTable.COLUMN_FAVOURITE,
+            ArticleTable.COLUMN_ARTICLE_ID
         }, // need title in order to share
         null, null, null);
-    //Log.i("AKORN", "Cursor: " + cursor.getColumnNames().toString());
     if (cursor.moveToFirst())
     {
       do
@@ -142,7 +169,6 @@ public class ArticleViewFragment extends Fragment
           showdate = new SimpleDateFormat(myFormatString, Locale.ENGLISH).parse(
             cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_DATE))
           );
-          Log.i(TAG, "Got date: " + showdate);
         }
         catch (ParseException e)
         {
@@ -165,6 +191,9 @@ public class ArticleViewFragment extends Fragment
         article_url.setText(link);
         String abs = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_ABSTRACT));
         article_content.setText(abs);
+        favourite = cursor.getInt(cursor.getColumnIndex(ArticleTable.COLUMN_FAVOURITE));
+        article_id = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_ARTICLE_ID));
+        this.getActivity().invalidateOptionsMenu();
 
       }
       while(cursor.moveToNext());
@@ -189,9 +218,42 @@ public class ArticleViewFragment extends Fragment
   public void onSaveInstanceState(Bundle outState)
   {
     super.onSaveInstanceState(outState);
-
     // Save the current article selection in case we need to recreate the fragment
     outState.putInt(ARG_POSITION, mCurrentPosition);
+    outState.putInt(ARG_ID, mSqlId);
+    outState.putString(ARG_FRAG,"view_frag");
+  }
+
+  @Override
+  public void onAttach(Activity activity)
+  {
+    super.onAttach(activity);
+  }
+
+  @Override
+  public void onDestroy()
+  {
+    super.onDestroy();
+  }
+
+  public void toggleFavourite()
+  {
+    if (favourite == 0)
+    {
+      Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches_articles_save/" + article_id);
+      ContentValues values = new ContentValues();
+      values.put("article_id",article_id);
+      values.put("search_id","searches_articles");
+      getActivity().getContentResolver().insert(uri, values);
+      favourite = 1;
+    }
+    else
+    {
+      Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches_articles_delete/" + article_id);
+      getActivity().getContentResolver().delete(uri, null, null);
+      favourite = 0;
+    }
+    this.getActivity().invalidateOptionsMenu();
   }
 
 }

@@ -234,12 +234,12 @@ public class AkornContentProvider extends ContentProvider
         try
         {
           sqlDB.execSQL("INSERT INTO searches_articles VALUES('saved_articles','" + uri.getLastPathSegment() + "')");
+          sqlDB.execSQL("UPDATE articles SET favourite = 1 where article_id ='" + uri.getLastPathSegment() + "'");
         }
         catch (Exception e)
         {
-          Log.e(TAG, "Insert failed: " + e.toString());
+          Log.e(TAG, "Update failed: " + e.toString());
         }
-        sqlDB.execSQL("UPDATE articles SET favourite = 1 where article_id ='" + uri.getLastPathSegment() + "'");
         break;
       default:
         throw new IllegalArgumentException("Unknown URI: " + uri);
