@@ -238,6 +238,7 @@ public class ArticleViewFragment extends Fragment
 
   public void toggleFavourite()
   {
+    Log.i(TAG, "Toggling favourite: " + String.valueOf(favourite));
     if (favourite == 0)
     {
       Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches_articles_save/" + article_id);
@@ -254,6 +255,7 @@ public class ArticleViewFragment extends Fragment
       favourite = 0;
     }
     this.getActivity().invalidateOptionsMenu();
+    Log.i(TAG, "Toggled favourite: " + String.valueOf(favourite));
   }
 
 }

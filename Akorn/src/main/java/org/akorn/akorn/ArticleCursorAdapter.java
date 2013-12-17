@@ -37,17 +37,14 @@ public class ArticleCursorAdapter extends SimpleCursorAdapter
   @Override
   public void bindView(View row, Context cont, Cursor cursor)
   {
+    super.bindView(row, cont, cursor);
 
-    //Log.i(TAG, "CURSOR: " + DatabaseUtils.dumpCursorToString(cursor));
-    context = cont;
-    super.bindView(row, context, cursor);
     TextView title = (TextView) row.findViewById(R.id.article_title);
     title.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE)));
     title.invalidate();
     TextView journal = (TextView) row.findViewById(R.id.article_journal);
     journal.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL)));
     journal.invalidate();
-    /*
     try
     {
       int favourite = cursor.getInt(cursor.getColumnIndex(ArticleTable.COLUMN_FAVOURITE));
@@ -61,6 +58,5 @@ public class ArticleCursorAdapter extends SimpleCursorAdapter
     {
       Log.e(TAG, "Row colour setting fail: " + e.toString());
     }
-    */
   }
 }

@@ -114,6 +114,7 @@ public class AkornContentProvider extends ContentProvider
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_ID + ", " +
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_TITLE + ", " +
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_JOURNAL + ", " +
+            ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_FAVOURITE + ", " +
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_ARTICLE_ID +
             " FROM " + ArticleTable.TABLE_ARTICLES + " INNER JOIN " +
             SearchArticleTable.TABLE_SEARCHES_ARTICLES +
@@ -203,7 +204,7 @@ public class AkornContentProvider extends ContentProvider
       case ARTICLES:
         try
         {
-          sqlDB.insertWithOnConflict(ArticleTable.TABLE_ARTICLES, null, values,sqlDB.CONFLICT_REPLACE);
+          sqlDB.insertWithOnConflict(ArticleTable.TABLE_ARTICLES, null, values,sqlDB.CONFLICT_IGNORE);
         }
         catch (Exception e)
         {
@@ -234,6 +235,13 @@ public class AkornContentProvider extends ContentProvider
         try
         {
           sqlDB.execSQL("INSERT INTO searches_articles VALUES('saved_articles','" + uri.getLastPathSegment() + "')");
+        }
+        catch (Exception e)
+        {
+          Log.e(TAG, "Insert failed: " + e.toString());
+        }
+        try
+        {
           sqlDB.execSQL("UPDATE articles SET favourite = 1 where article_id ='" + uri.getLastPathSegment() + "'");
         }
         catch (Exception e)

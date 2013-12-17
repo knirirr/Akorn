@@ -14,7 +14,6 @@ import android.widget.Toast;
 import org.akorn.akorn.contentprovider.AkornContentProvider;
 import org.akorn.akorn.database.ArticleTable;
 
-import java.net.URI;
 
 /**
  * Created by milo on 04/11/2013.
@@ -27,6 +26,11 @@ public class ArticleListFragment extends ListFragment
   private SimpleCursorAdapter mCursorAdapter;
   private Cursor cursor = null;
   final static String ARG_FRAG = "fragName";
+  private final static String[] selectArgs = new String[]{ArticleTable.COLUMN_ID,
+                                                          ArticleTable.COLUMN_TITLE,
+                                                          ArticleTable.COLUMN_JOURNAL,
+                                                          ArticleTable.COLUMN_ARTICLE_ID,
+                                                          ArticleTable.COLUMN_FAVOURITE};
 
   // The container Activity must implement this interface so the frag can deliver messages
   public interface OnHeadlineSelectedListener
@@ -63,8 +67,8 @@ public class ArticleListFragment extends ListFragment
   @Override
   public void onViewCreated(View view, Bundle savedInstanceState)
   {
-    Log.i(TAG, "Called onViewCreated");
-    Log.i(TAG,"SEARCH_ID: " + searchId);
+    //Log.i(TAG, "Called onViewCreated");
+    //Log.i(TAG,"SEARCH_ID: " + searchId);
     super.onViewCreated(view,savedInstanceState);
     refreshUi(searchId);
   }
@@ -126,33 +130,31 @@ public class ArticleListFragment extends ListFragment
     setListAdapter(mCursorAdapter);
   }
 
-  // add a getList() method
+  // create the database cursor
   private ArticleCursorAdapter getList(String search_id)
   {
     //int layout = android.R.layout.simple_list_item_activated_1;
     int layout = R.layout.article_title;
 
     Uri uri = null;
-    String[] selectArgs = null;
+
     if (search_id == null || search_id.isEmpty())
     {
       uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
-      selectArgs = new String[]{ArticleTable.COLUMN_ID,
-                                ArticleTable.COLUMN_TITLE,
-                                ArticleTable.COLUMN_JOURNAL,
-                                ArticleTable.COLUMN_ARTICLE_ID,
-                                ArticleTable.COLUMN_FAVOURITE};
     }
     else
     {
+      /*
+        This search uses a custom SQL string and not the selectArgs, therefore if something extra is required
+        one should alter the SEARCHES_ARTICLES_ID case in the query section of the contentprovider.
+       */
       uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches/articles/" + search_id);
     }
     cursor = getActivity().getContentResolver().query(uri,
                    selectArgs,
                    null,
                    null,
-                   null
-      );
+                   null);
 
     if (cursor == null)
     {
