@@ -40,6 +40,7 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
@@ -48,6 +49,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -397,13 +399,21 @@ public class AkornSyncService extends IntentService
 
       try
       {
-        Document doc = Jsoup.connect(articleUrl).get();
+        StringBuilder content = new StringBuilder();
+        java.net.URL xmlPage = new java.net.URL(articleUrl);
+        URLConnection connection = xmlPage.openConnection();
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String inputLine;
+        while ((inputLine = in.readLine()) != null)
+        {
+          content.append(inputLine + "\n");
+        }
+        Document doc = Jsoup.parse(content.toString(), "", Parser.xmlParser());
         Elements articles = doc.getElementsByTag("article");
         ContentValues values;
         ContentValues joinValues;
         for (Element article : articles)
         {
-          //Log.i(TAG, "ELEMENT: " + article.toString());
           values = new ContentValues();
           joinValues = new ContentValues();
           joinValues.put(SearchArticleTable.COLUMN_SEARCH_ID,key);
@@ -451,8 +461,7 @@ public class AkornSyncService extends IntentService
           Elements link = article.getElementsByTag("link");
           for (Element l : link)
           {
-            //values.put(ArticleTable.COLUMN_LINK,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(l.html()));
-            values.put(ArticleTable.COLUMN_LINK,"http://akorn.org");
+            values.put(ArticleTable.COLUMN_LINK,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(l.html()));
           }
           Elements date = article.getElementsByTag("date_published");
           for (Element d : date)
