@@ -53,6 +53,11 @@ public class ArticleCursorAdapter extends SimpleCursorAdapter
         row.setBackgroundColor(cont.getResources().getColor(R.color.pale_green));
         row.invalidate();
       }
+      else
+      {
+        row.setBackgroundColor(cont.getResources().getColor(R.color.white));
+        row.invalidate();
+      }
     }
     catch (Exception e)
     {
