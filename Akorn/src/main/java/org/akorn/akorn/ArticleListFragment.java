@@ -138,7 +138,7 @@ public class ArticleListFragment extends ListFragment
 
     Uri uri = null;
 
-    if (search_id == null || search_id.isEmpty())
+    if (search_id == null || search_id.isEmpty() || search_id.equals("all_articles"))
     {
       uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
     }

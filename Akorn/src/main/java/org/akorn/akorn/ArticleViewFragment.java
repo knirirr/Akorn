@@ -136,9 +136,6 @@ public class ArticleViewFragment extends Fragment
     TextView article_authors = (TextView) getActivity().findViewById(R.id.article_authors);
     TextView article_url = (TextView) getActivity().findViewById(R.id.article_url);
 
-    article_content.setMovementMethod(new ScrollingMovementMethod()); // make textview scrollable
-
-
     //article.setText(Article.Articles[position]);
     // rather than the above, load the correct article text
     Uri uri = Uri.parse("content://org.akorn.akorn.contentprovider/articles" + "/" + sql_article_id);
