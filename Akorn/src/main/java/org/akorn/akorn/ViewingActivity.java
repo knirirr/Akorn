@@ -197,9 +197,16 @@ public class ViewingActivity extends Activity
             startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
             return true;
           case R.id.action_favourite:
-            ArticleViewFragment vf = (ArticleViewFragment) getFragmentManager().findFragmentByTag("view_frag");
-            // set the favourite value
+            // The view fragment must be located by a different tag depending whether it's already on screen
+            // (two-column layout), or not.
+            ArticleViewFragment vf = (ArticleViewFragment) getFragmentManager().findFragmentById(R.id.view_fragment);
+            if (vf == null)
+            {
+              vf = (ArticleViewFragment) getFragmentManager().findFragmentByTag("view_frag");
+              // set the favourite value
+            }
             vf.toggleFavourite();
+
             return true;
           case R.id.action_sync:
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);

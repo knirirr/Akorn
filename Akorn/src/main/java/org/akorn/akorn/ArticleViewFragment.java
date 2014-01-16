@@ -131,10 +131,10 @@ public class ArticleViewFragment extends Fragment
 
     // content, title &c. all textviews
     TextView article_content = (TextView) getActivity().findViewById(R.id.article_content);
-    TextView article_title = (TextView) getActivity().findViewById(R.id.article_title);
-    TextView article_journal = (TextView) getActivity().findViewById(R.id.article_journal);
     TextView article_authors = (TextView) getActivity().findViewById(R.id.article_authors);
     TextView article_url = (TextView) getActivity().findViewById(R.id.article_url);
+    TextView title_of_article = (TextView) getActivity().findViewById(R.id.title_of_article);
+    TextView journal_of_article = (TextView) getActivity().findViewById(R.id.journal_of_article);
 
     //article.setText(Article.Articles[position]);
     // rather than the above, load the correct article text
@@ -174,14 +174,13 @@ public class ArticleViewFragment extends Fragment
         if (showdate != null)
         {
           String journal = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL));
-          article_journal.setText(journal + ", " + showdate.toString() );
+          journal_of_article.setText(journal + ", " + showdate.toString() );
         }
         else
         {
-         article_journal.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL)));
+         journal_of_article.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL)));
         }
-        String title = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE));
-        article_title.setText(title);
+        title_of_article.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE)));
         String authors = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_AUTHORS));
         article_authors.setText(authors);
         String link = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_LINK));
