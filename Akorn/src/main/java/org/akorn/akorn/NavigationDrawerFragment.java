@@ -142,8 +142,6 @@ public class NavigationDrawerFragment extends Fragment
           selectItem(position,search_id);
         }
       });
-
-
       return mDrawerListView;
     }
 

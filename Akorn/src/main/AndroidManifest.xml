@@ -37,7 +37,7 @@
             android:icon="@drawable/ic_launcher"
             android:label="@string/service_name">
         </service>
-    </application>
+     </application>
 
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
 
