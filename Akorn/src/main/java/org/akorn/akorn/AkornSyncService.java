@@ -282,6 +282,14 @@ public class AkornSyncService extends IntentService
       // all the keys of the array must be collected and iterated over in order to pull out the arrays
       // of search terms. Then, these will have to be crammed into the database somehow
       JSONArray namearray=jObject.names();
+
+      // namearray may in fact be empty at this point...
+      if (namearray == null)
+      {
+        mHandler.post(new ToastRunnable(getString(R.string.nosearches)));
+        return;
+      }
+
       for (int h=0; h < namearray.length(); h++)
       {
         JSONArray jArray = jObject.getJSONArray(namearray.getString(h));

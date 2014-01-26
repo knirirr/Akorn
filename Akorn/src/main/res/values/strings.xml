@@ -34,5 +34,6 @@
     <string name="syncFail">Article sync failed!</string>
     <string name="syncFinish">Finished syncing with Akorn server!</string>
     <string name="in_progress">Sync service is already running!</string>
+    <string name="nosearches">You have no saved searches on the Akorn server.</string>
 
 </resources>
