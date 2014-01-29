@@ -18,6 +18,7 @@
     <string name="action_website">Website</string>
     <string name="action_favourite">Add to favourites</string>
     <string name="send_to">Share article</string>
+    <string name="action_filters">Edit filters</string>
 
     <!-- preferences -->
     <string name="pref_username">Email</string>

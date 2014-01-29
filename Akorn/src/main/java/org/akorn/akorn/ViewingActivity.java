@@ -227,6 +227,10 @@ public class ViewingActivity extends Activity
             //i.putExtra("KEY1", "Value to be used by the sync service");
             this.startService(i);
             return true;
+          case R.id.action_filters:
+            actionIntent = new Intent(this, FilterActivity.class);
+            startActivity(actionIntent);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
