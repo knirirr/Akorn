@@ -35,70 +35,84 @@ public class ViewingActivity extends Activity
   private int pos;
   private int sqlid;
   public Boolean favourite = false;
+  SharedPreferences prefs;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
+  @Override
+  protected void onCreate(Bundle savedInstanceState)
+  {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.list_view);
+
+    mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
+    mTitle = getTitle();
+    prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    Boolean hasAccount = prefs.getBoolean("has_account", true); // should be set to false
+    /*
+      SharedPreferences.Editor editor = settings.edit();
+      //Some test characters for the blacklist
+      mBlackListChars = "a,g,t,h,f";
+      editor.putString("character_blacklist", mBlackListChars);
+     */
+
+    // Set up the drawer.
+    mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
+
+    // here's the phone part - the tablet's views should be set up automatically from the layout
+    if (findViewById(R.id.fragment_container) != null)
     {
-      super.onCreate(savedInstanceState);
-      setContentView(R.layout.list_view);
-
-      mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
-      mTitle = getTitle();
-
-      // Set up the drawer.
-      mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
-
-      // here's the phone part - the tablet's views should be set up automatically from the layout
-      if (findViewById(R.id.fragment_container) != null)
+      // If we're being restored from a previous state,
+      // then we don't need to do anything and should return or else
+      // we could end up with overlapping fragments.
+      if (savedInstanceState != null)
       {
-        // If we're being restored from a previous state,
-        // then we don't need to do anything and should return or else
-        // we could end up with overlapping fragments.
-        if (savedInstanceState != null)
+        currentFragmentIndex = savedInstanceState.getInt("currentFragment",0);
+        if (currentFragmentIndex == 0)
         {
-          currentFragmentIndex = savedInstanceState.getInt("currentFragment",0);
-          if (currentFragmentIndex == 0)
-          {
-            currentFragmentIndex = 0;
-            ArticleListFragment lf = (ArticleListFragment) getFragmentManager().findFragmentByTag("list_frag");
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container, lf,"list_frag");
-            transaction.addToBackStack(null);
-            transaction.commit();
-          }
-          else
-          {
-            currentFragmentIndex = 1;
-            ArticleViewFragment vf = (ArticleViewFragment) getFragmentManager().findFragmentByTag("view_frag");
-            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container, vf, "view_frag");
-            transaction.addToBackStack(null);
-            transaction.commit();
-          }
-          return;
+          currentFragmentIndex = 0;
+          ArticleListFragment lf = (ArticleListFragment) getFragmentManager().findFragmentByTag("list_frag");
+          FragmentTransaction transaction = getFragmentManager().beginTransaction();
+          transaction.replace(R.id.fragment_container, lf,"list_frag");
+          transaction.addToBackStack(null);
+          transaction.commit();
         }
-
-        // create a fragment for viewing the list of articles
-        ArticleListFragment firstFragment = new ArticleListFragment();
-
-        // In case this activity was started with special instructions from an Intent,
-        // pass the Intent's extras to the fragment as arguments
-        firstFragment.setArguments(getIntent().getExtras());
-
-        // Add the fragment in the 'fragment_container' FrameLayout
-        //getFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-
-        // Replace whatever is in the fragment_container view with this fragment,
-        // and add the transaction to the back stack so the user can navigate back
-        transaction.replace(R.id.fragment_container, firstFragment, "list_frag");
-        transaction.addToBackStack(null);
-
-        // Commit the transaction
-        transaction.commit();
-
+        else
+        {
+          currentFragmentIndex = 1;
+          ArticleViewFragment vf = (ArticleViewFragment) getFragmentManager().findFragmentByTag("view_frag");
+          FragmentTransaction transaction = getFragmentManager().beginTransaction();
+          transaction.replace(R.id.fragment_container, vf, "view_frag");
+          transaction.addToBackStack(null);
+          transaction.commit();
+        }
+        return;
       }
+
+      // create a fragment for viewing the list of articles
+      ArticleListFragment firstFragment = new ArticleListFragment();
+
+      // In case this activity was started with special instructions from an Intent,
+      // pass the Intent's extras to the fragment as arguments
+      firstFragment.setArguments(getIntent().getExtras());
+
+      // Add the fragment in the 'fragment_container' FrameLayout
+      //getFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
+      FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+      // Replace whatever is in the fragment_container view with this fragment,
+      // and add the transaction to the back stack so the user can navigate back
+      transaction.replace(R.id.fragment_container, firstFragment, "list_frag");
+      transaction.addToBackStack(null);
+
+      // Commit the transaction
+      transaction.commit();
+
     }
+  }
+
+  public void onResume(Bundle savedInstanceState)
+  {
+    prefs = PreferenceManager.getDefaultSharedPreferences(this);
+  }
 
     @Override
     public void onNavigationDrawerItemSelected(int position)
@@ -209,14 +223,27 @@ public class ViewingActivity extends Activity
 
             return true;
           case R.id.action_sync:
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+            //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             String username = prefs.getString("pref_username", "");
             String password = prefs.getString("pref_password", "");
+            String password_confirm = prefs.getString("pref_password_confirm", "");
+            Boolean hasAccount = prefs.getBoolean("has_account",false);
+            if (!hasAccount)
+            {
+              //Toast.makeText(this, "You'd be directed to account creation at this point", Toast.LENGTH_SHORT).show();
+              Intent createActivity = new Intent(this, CreateAccountActivity.class);
+              startActivity(createActivity);
+              return true;
+            }
+            // username, password or confirmation missing
             if (username.isEmpty() || password.isEmpty())
             {
               Toast.makeText(this, getString(R.string.please_configure), Toast.LENGTH_SHORT).show();
+              Intent settingsActivity = new Intent(this, SettingsActivity.class);
+              startActivity(settingsActivity);
               return true;
             }
+            // sync already running
             if (AkornSyncService.isRunning == true)
             {
               Toast.makeText(this, getString(R.string.in_progress), Toast.LENGTH_SHORT).show();

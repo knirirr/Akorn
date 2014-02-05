@@ -22,9 +22,12 @@
 
     <!-- preferences -->
     <string name="pref_username">Email</string>
-    <string name="pref_username_summary">Login email address for your account on the Akorn website</string>
+    <string name="pref_username_summary">Login email address for your account on the Akorn website; a new account will be created if you don\'t have one.</string>
     <string name="pref_password">Password</string>
-    <string name="pref_password_summary">Password for the above user account</string>
+    <string name="pref_password_summary">Password for the above user account.</string>
+    <string name="pref_password_confirm">Password confirmation</string>
+    <string name="pref_password_confirm_summary">Please type your password again.</string>
+    <string name="account_prefs">Account</string>
 
     <!-- SyncService -->
     <string name="service_name">AcornSyncService</string>
@@ -36,5 +39,10 @@
     <string name="syncFinish">Finished syncing with Akorn server!</string>
     <string name="in_progress">Sync service is already running!</string>
     <string name="nosearches">You have no saved searches on the Akorn server.</string>
+    <string name="password_mismatch">Your passwords don\'t match - please correct this and try again.</string>
+
+    <!-- ListView -->
+    <string name="empty_list_heading">No Articles</string>
+    <string name="empty_list_text">A list of articles will be shown here when a filter for which articles were found is selected from the navigation drawer to the left.</string>
 
 </resources>

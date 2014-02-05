@@ -9,5 +9,6 @@
     <color name="akorn_green">#00A16D</color>
     <color name="pale_green">#CAE7DE</color>
     <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
 
 </resources>

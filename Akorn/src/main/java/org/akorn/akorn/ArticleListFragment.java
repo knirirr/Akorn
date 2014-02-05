@@ -6,9 +6,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.akorn.akorn.contentprovider.AkornContentProvider;
@@ -54,22 +58,13 @@ public class ArticleListFragment extends ListFragment
     }
   }
 
-  /*
-  @Override
-  public void onActivityCreated(Bundle savedInstanceState)
-  {
-    super.onActivityCreated(savedInstanceState);
-    mCursorAdapter = getList(searchId);
-    setListAdapter(mCursorAdapter);
-  }
-  */
 
   @Override
   public void onViewCreated(View view, Bundle savedInstanceState)
   {
     //Log.i(TAG, "Called onViewCreated");
     //Log.i(TAG,"SEARCH_ID: " + searchId);
-    super.onViewCreated(view,savedInstanceState);
+    super.onViewCreated(view, savedInstanceState);
     refreshUi(searchId);
   }
 
@@ -77,6 +72,17 @@ public class ArticleListFragment extends ListFragment
   public void onStart()
   {
     super.onStart();
+
+    // set up an empty list message when no articles are found
+    TextView empty = new TextView(getActivity());
+    empty.setText("No articles.");
+    empty.setTextColor(getResources().getColor(R.color.black));
+    empty.setTextSize(24);
+    empty.setPadding(5,5,5,5);
+    empty.setVisibility(View.GONE);
+    empty.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+    getListView().setEmptyView(empty);
+    ((ViewGroup) getListView().getParent()).addView(empty);
 
     // When in two-pane layout, set the listview to highlight the selected list item
     // (We do this during onStart because at the point the listview is available.)
