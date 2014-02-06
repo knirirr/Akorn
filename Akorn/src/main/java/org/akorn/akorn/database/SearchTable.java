@@ -38,9 +38,9 @@ public class SearchTable
     database.execSQL("DROP TABLE IF EXISTS " + TABLE_SEARCH);
     database.execSQL(DATABASE_CREATE);
     database.execSQL("INSERT INTO " + TABLE_SEARCH +
-        " VALUES(NULL,'all_articles','All articles','All articles','','NA')");
+        " VALUES(NULL,'all_articles','All articles','All articles','All articles saved on this device','NA')");
     database.execSQL("INSERT INTO " + TABLE_SEARCH +
-        " VALUES(NULL,'saved_articles','Saved articles','Saved articles','','NA')");
+        " VALUES(NULL,'saved_articles','Saved articles','Saved articles','All articles starred on this device','NA')");
   }
 
   /*

@@ -5,11 +5,13 @@
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:baselineAligned="false"
         tools:context=".ViewingActivity">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:orientation="horizontal"
                   android:layout_width="match_parent"
+                  android:baselineAligned="false"
                   android:layout_height="match_parent">
 
     <fragment android:name="org.akorn.akorn.ArticleListFragment"

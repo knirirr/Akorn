@@ -227,7 +227,7 @@ public class ViewingActivity extends Activity
             String username = prefs.getString("pref_username", "");
             String password = prefs.getString("pref_password", "");
             String password_confirm = prefs.getString("pref_password_confirm", "");
-            Boolean hasAccount = prefs.getBoolean("has_account",false);
+            Boolean hasAccount = prefs.getBoolean("has_account",true); // should be false
             if (!hasAccount)
             {
               //Toast.makeText(this, "You'd be directed to account creation at this point", Toast.LENGTH_SHORT).show();
