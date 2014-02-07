@@ -35,10 +35,8 @@
         </activity>
         <activity
             android:name="org.akorn.akorn.CreateAccountActivity"
-            android:label="Akorn"
-            android:theme="@style/NoTitleDialog">
+            android:label="Akorn">
         </activity>
-
         <provider
             android:name=".contentprovider.AkornContentProvider"
             android:authorities="org.akorn.akorn.contentprovider"

@@ -46,7 +46,6 @@ public class ViewingActivity extends Activity
     mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
     mTitle = getTitle();
     prefs = PreferenceManager.getDefaultSharedPreferences(this);
-    Boolean hasAccount = prefs.getBoolean("has_account", true); // should be set to false
     /*
       SharedPreferences.Editor editor = settings.edit();
       //Some test characters for the blacklist
@@ -227,10 +226,17 @@ public class ViewingActivity extends Activity
             String username = prefs.getString("pref_username", "");
             String password = prefs.getString("pref_password", "");
             String password_confirm = prefs.getString("pref_password_confirm", "");
-            Boolean hasAccount = prefs.getBoolean("has_account",true); // should be false
+            Boolean hasAccount = prefs.getBoolean("has_account",false); // should be false
+            Log.i(TAG,"Has account: " + hasAccount.toString());
+            // if these are both filled in then presumably the user already has an account; this being
+            // so there is no need to send them to the account creation UI
+            if (!(username.isEmpty() && password.isEmpty()))
+            {
+              hasAccount = true;
+            }
             if (!hasAccount)
             {
-              //Toast.makeText(this, "You'd be directed to account creation at this point", Toast.LENGTH_SHORT).show();
+              Toast.makeText(this, getString(R.string.need_account), Toast.LENGTH_SHORT).show();
               Intent createActivity = new Intent(this, CreateAccountActivity.class);
               startActivity(createActivity);
               return true;

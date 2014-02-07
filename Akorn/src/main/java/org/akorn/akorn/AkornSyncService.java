@@ -193,6 +193,13 @@ public class AkornSyncService extends IntentService
           {
             session_id = bict.getValue();
             mHandler.post(new ToastRunnable(getString(R.string.loginSuccess)));
+            /*
+            A login success here means that the user has created an account successfully, and the boolean
+            which forces new account creation can therefore be turned off...
+             */
+            SharedPreferences.Editor prefEditor = prefs.edit();
+            prefEditor.putBoolean("hasAccount", true);
+            prefEditor.commit();
           }
         }
         if (session_id.equals(""))

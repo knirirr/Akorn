@@ -45,4 +45,13 @@
     <string name="empty_list_heading">No Articles</string>
     <string name="empty_list_text">A list of articles will be shown here when a filter for which articles were found is selected from the navigation drawer to the left.</string>
 
+    <!-- CreateAccount -->
+    <string name="create_title">Create New Account</string>
+    <string name="create_blurb">Akorn requires an account in order to sync with the server. You may create this by supplying your email address, password and password confirmation below.</string>
+    <string name="create_button">Create!</string>
+    <string name="need_account">An account is needed to use the Akorn app.</string>
+    <string name="account_in_progress">Account creation is already in progress!</string>
+    <string name="create_success">Account creation successful!</string>
+
+
 </resources>
