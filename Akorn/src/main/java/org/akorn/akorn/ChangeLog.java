@@ -136,13 +136,13 @@ public class ChangeLog {
     private AlertDialog getDialog(boolean full) {
         WebView wv = new WebView(this.context);
 
-        wv.setBackgroundColor(Color.BLACK);
+        wv.setBackgroundColor(Color.WHITE);
         wv.loadDataWithBaseURL(null, this.getLog(full), "text/html", "UTF-8",
                 null);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(
                 new ContextThemeWrapper(
-                        this.context, android.R.style.Theme_Dialog));
+                        this.context, android.R.style.Theme_DeviceDefault_Light_Dialog));
         builder.setTitle(
                 context.getResources().getString(
                         full ? R.string.changelog_full_title
