@@ -42,6 +42,7 @@ public class AkornContentProvider extends ContentProvider
   private static final int CLEANUP_ARTICLES = 45;
   private static final int SEARCHES_ARTICLES_SAVE = 50;
   private static final int SEARCHES_ARTICLES_DELETE = 55;
+  private static final int PURGE_ARTICLES = 60;
 
 
   private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -56,6 +57,7 @@ public class AkornContentProvider extends ContentProvider
     sURIMatcher.addURI(AUTHORITY, "cleanup/articles", CLEANUP_ARTICLES);
     sURIMatcher.addURI(AUTHORITY, "searches_articles_save/*", SEARCHES_ARTICLES_SAVE);
     sURIMatcher.addURI(AUTHORITY, "searches_articles_delete/*", SEARCHES_ARTICLES_DELETE);
+    sURIMatcher.addURI(AUTHORITY, "purge_articles", PURGE_ARTICLES);
   }
 
   @Override
@@ -281,6 +283,29 @@ public class AkornContentProvider extends ContentProvider
         catch (Exception e)
         {
           Log.e(TAG,"Cleanup failed!");
+        }
+        break;
+      case PURGE_ARTICLES:
+        Log.i(TAG,"Cleaning up non-saved articles.");
+        try
+        {
+          sqlDB.execSQL("DELETE FROM " + ArticleTable.TABLE_ARTICLES + " WHERE " + ArticleTable.COLUMN_ARTICLE_ID
+              + " NOT IN (SELECT ARTICLE_ID FROM " + SearchArticleTable.TABLE_SEARCHES_ARTICLES + " WHERE "
+              + SearchArticleTable.COLUMN_SEARCH_ID + " = 'saved_articles'"
+              + ")");
+        }
+        catch (Exception e)
+        {
+          Log.e(TAG,"Non-saved article cleanup failed!");
+        }
+        try
+        {
+          sqlDB.execSQL("DELETE FROM " + SearchArticleTable.TABLE_SEARCHES_ARTICLES + " WHERE "
+            + SearchArticleTable.COLUMN_SEARCH_ID + " != 'saved_articles'");
+        }
+        catch (Exception e)
+        {
+          Log.e(TAG,"Article/search table cleanup failed!");
         }
         break;
       case SEARCHES_ARTICLES_DELETE:

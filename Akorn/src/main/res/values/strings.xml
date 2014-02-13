@@ -47,11 +47,22 @@
 
     <!-- CreateAccount -->
     <string name="create_title">Create New Account</string>
-    <string name="create_blurb">Akorn requires an account in order to sync with the server. You may create this by supplying your email address, password and password confirmation below.</string>
+    <string name="create_blurb">Akorn requires an account in order to sync with the server. You may create this by supplying your email address, password and password confirmation below.\n\nIf you\'ve already got an account then please click on \'settings\' below and enter your username and password in the main settings.</string>
     <string name="create_button">Create!</string>
+    <string name="goto_settings_button">Settings</string>
     <string name="need_account">An account is needed to use the Akorn app.</string>
     <string name="account_in_progress">Account creation is already in progress!</string>
     <string name="create_success">Account creation successful!</string>
+    <string name="create_fail">Account creation failed!</string>
+    <string name="create_service_name">AkornCreateAccountService</string>
+    <string name="failed_because">An account could not be created because:</string>
+
+    <!-- ChangeLog -->
+    <string name="action_changelog">Changelog</string>
+    <string name="changelog_full_title">Change Log</string>
+    <string name="changelog_title">What\'s New</string>
+    <string name="changelog_ok_button">OK</string>
+    <string name="changelog_show_full">more...</string>
 
 
 </resources>

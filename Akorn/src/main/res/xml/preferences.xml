@@ -20,4 +20,16 @@
         </EditTextPreference>
 
     </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Server"
+        android:key="pref_server_settings">
+
+        <ListPreference
+                android:title="Choose the Akorn server"
+                android:key="server_pref"
+                android:defaultValue="2"
+                android:entries="@array/server_pref_array"
+                android:entryValues="@array/server_pref_values" />
+    </PreferenceCategory>
 </PreferenceScreen>

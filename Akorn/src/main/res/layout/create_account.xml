@@ -3,7 +3,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:paddingBottom="10dp">
 
     <TextView
             android:layout_width="wrap_content"
@@ -22,7 +23,8 @@
             android:id="@+id/blurb"
             android:layout_gravity="center_horizontal"
             android:padding="2dp"
-            android:gravity="center_vertical|center_horizontal"/>
+            android:gravity="center_vertical|center_horizontal"
+            android:paddingBottom="5dp"/>
 
     <EditText
             android:layout_width="match_parent"
@@ -31,7 +33,7 @@
             android:ems="10"
             android:id="@+id/email"
             android:layout_gravity="right"
-            android:hint="you@example.org"
+            android:hint="email address"
             android:paddingTop="2dp"/>
 
     <EditText
@@ -61,4 +63,14 @@
             android:id="@+id/submit"
             android:onClick="submitRequest"
             android:layout_gravity="center_horizontal"/>
+
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/goto_settings_button"
+            android:id="@+id/gotoSettings"
+            android:onClick="gotoSettings"
+            android:layout_gravity="center_horizontal"
+            />
+
 </LinearLayout>

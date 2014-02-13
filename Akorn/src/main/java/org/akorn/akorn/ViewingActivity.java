@@ -46,12 +46,6 @@ public class ViewingActivity extends Activity
     mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
     mTitle = getTitle();
     prefs = PreferenceManager.getDefaultSharedPreferences(this);
-    /*
-      SharedPreferences.Editor editor = settings.edit();
-      //Some test characters for the blacklist
-      mBlackListChars = "a,g,t,h,f";
-      editor.putString("character_blacklist", mBlackListChars);
-     */
 
     // Set up the drawer.
     mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
@@ -104,6 +98,11 @@ public class ViewingActivity extends Activity
 
       // Commit the transaction
       transaction.commit();
+
+      // show changelog
+      ChangeLog cl = new ChangeLog(this);
+      if (cl.firstRun())
+        cl.getLogDialog().show();
 
     }
   }
@@ -186,6 +185,10 @@ public class ViewingActivity extends Activity
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId())
         {
+          case R.id.action_changelog:
+            ChangeLog cl = new ChangeLog(this);
+            cl.getFullLogDialog().show();
+            return true;
           case R.id.action_website:
             Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("http://akorn.org"));
             startActivity(viewIntent);
@@ -226,11 +229,11 @@ public class ViewingActivity extends Activity
             String username = prefs.getString("pref_username", "");
             String password = prefs.getString("pref_password", "");
             String password_confirm = prefs.getString("pref_password_confirm", "");
-            Boolean hasAccount = prefs.getBoolean("has_account",false); // should be false
+            Boolean hasAccount = false; // should be false
             Log.i(TAG,"Has account: " + hasAccount.toString());
             // if these are both filled in then presumably the user already has an account; this being
             // so there is no need to send them to the account creation UI
-            if (!(username.isEmpty() && password.isEmpty()))
+            if (!username.isEmpty() && !password.isEmpty())
             {
               hasAccount = true;
             }

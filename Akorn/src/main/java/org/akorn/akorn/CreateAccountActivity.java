@@ -39,8 +39,16 @@ public class CreateAccountActivity extends Activity
     i.putExtra("password", password.getText().toString());
     i.putExtra("password_confirmation", password_confirmation.getText().toString());
 
-    this.startService(i);
+    if (CreateAccountService.isRunning == false)
+    {
+      this.startService(i);
+    }
     return;
+  }
 
+  public void gotoSettings(View view)
+  {
+    Intent i = new Intent(this, SettingsActivity.class);
+    this.startActivity(i);
   }
 }

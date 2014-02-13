@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <style type='text/css'>
+      a            { color:#a0a0e0 }
+      div.title    {
+          color:#C0F0C0;
+          font-size:1.2em;
+          font-weight:bold;
+          margin-top:1em;
+          margin-bottom:0.5em;
+          text-align:center }
+      div.subtitle {
+          color:#C0F0C0;
+          font-size:0.8em;
+          margin-bottom:1em;
+          text-align:center }
+      div.freetext { color:#F0F0F0 }
+      div.list     { color:#C0C0F0 }
+    </style>
+  </head>
+  <body>
+$ 0.2.2-alpha
+  % Version 0.2.2-alpha
+  _ 2014-02-13
+    * Account creation now works.
+    * Syncing bug fixed.
+$ 0.2.1-alpha
+  % Version 0.2.1-alpha
+  _ 2014-02-12
+  _ Incorporated <a href="http://code.google.com/p/android-change-log/">changelog</a> by Karsten Priegnitz.
+
+$ 0.1
+  % Version 0.1
+  _ (pre-alpha, not working)
+$ END_OF_CHANGE_LOG
+  </body>
+</html>

@@ -7,6 +7,10 @@
         android:title="@string/action_website"
         android:orderInCategory="50"
         android:showAsAction="never" />
+    <item android:id="@+id/action_changelog"
+        android:title="@string/action_changelog"
+        android:orderInCategory="20"
+        android:showAsAction="never" />
     <item android:id="@+id/action_sync"
           android:title="@string/action_sync"
           android:icon="@drawable/ic_menu_refresh"

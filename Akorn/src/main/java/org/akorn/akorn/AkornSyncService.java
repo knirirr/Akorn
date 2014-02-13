@@ -67,6 +67,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 public class AkornSyncService extends IntentService
 {
   public static final String URL = "http://akorn.org/api/";
+  public static final String DEVURL = "http://akorn.org:8000/api/";
   private static final String TAG = "AkornSyncService";
   private Handler mHandler;
   private CookieStore cookiestore;
@@ -138,7 +139,10 @@ public class AkornSyncService extends IntentService
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     String username = prefs.getString("pref_username", "");
     String password = prefs.getString("pref_password", "");
+    String server = prefs.getString("server_pref","prod");
     String session_id = "";
+
+    Log.i(TAG, "Server settings: " + server);
 
     // store the values from each successful search result in a hash in order to
     // make getting the articles easier later
@@ -148,8 +152,18 @@ public class AkornSyncService extends IntentService
       First, get the session id for use later
      */
     DefaultHttpClient client = new DefaultHttpClient();
-    HttpPost post = new HttpPost(URL + "login");
-
+    String tempurl = "";
+    if (server.equals("prod"))
+    {
+      mHandler.post(new ToastRunnable("Using production url (port 80)."));
+      tempurl = URL;
+    }
+    else
+    {
+      mHandler.post(new ToastRunnable("Using development url (port 8000)."));
+      tempurl = DEVURL;
+    }
+    HttpPost post = new HttpPost(tempurl + "login");
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("username",username));
     params.add(new BasicNameValuePair("password",password));
@@ -230,6 +244,7 @@ public class AkornSyncService extends IntentService
     catch (Exception e)
     {
       hasFailed = true;
+      mHandler.post(new ToastRunnable(getString(R.string.syncFail)));
       e.printStackTrace();
       return;
     }
@@ -238,7 +253,8 @@ public class AkornSyncService extends IntentService
      */
     HttpContext localContext = new BasicHttpContext();
     localContext.setAttribute(ClientContext.COOKIE_STORE, cookiestore); // use cookie store grabbed above
-    HttpGet httpGet = new HttpGet(URL + "searches");
+    //HttpGet httpGet = new HttpGet(URL + "searches");
+    HttpGet httpGet = new HttpGet(tempurl + "searches");
     InputStream inputStream = null;
     String jsonResult;
     try
@@ -294,6 +310,11 @@ public class AkornSyncService extends IntentService
       if (namearray == null)
       {
         mHandler.post(new ToastRunnable(getString(R.string.nosearches)));
+        // clean out all articles not marked as starred
+        Log.i(TAG,"No searches, cleaning up...");
+        Uri cleanup = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/purge_articles");
+        getContentResolver().delete(cleanup,null,null);
+        Log.i(TAG,"Done!");
         return;
       }
 
@@ -409,7 +430,8 @@ public class AkornSyncService extends IntentService
     {
       String key = entry.getKey();
       String value = entry.getValue();
-      String articleUrl = URL + "articles.xml?" + value.replace(" ","%20");
+      //String articleUrl = URL + "articles.xml?" + value.replace(" ","%20");
+      String articleUrl = tempurl + "articles.xml?" + value.replace(" ","%20");
       Log.i(TAG,"URL: " + articleUrl);
 
       try

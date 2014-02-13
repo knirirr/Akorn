@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.akorn.akorn"
     android:installLocation="auto"
-    android:versionCode="15"
-    android:versionName="0.2.0-alpha" >
+    android:versionCode="17"
+    android:versionName="0.2.2-alpha" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -46,6 +46,11 @@
             android:name="AkornSyncService"
             android:icon="@drawable/ic_launcher"
             android:label="@string/service_name">
+        </service>
+        <service
+            android:name="CreateAccountService"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/create_service_name">
         </service>
      </application>
 

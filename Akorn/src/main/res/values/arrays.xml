@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="server_pref_array">
+        <item>Production (port 80)</item>
+        <item>Development (port 8000)</item>
+    </string-array>
+
+    <string-array name="server_pref_values">
+        <item>prod</item>
+        <item>dev</item>
+    </string-array>
+</resources>
