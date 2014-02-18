@@ -12,6 +12,7 @@ import android.util.Log;
 import org.akorn.akorn.Article;
 import org.akorn.akorn.database.AkornDatabaseHelper;
 import org.akorn.akorn.database.ArticleTable;
+import org.akorn.akorn.database.JournalsTable;
 import org.akorn.akorn.database.SearchArticleTable;
 import org.akorn.akorn.database.SearchTable;
 
@@ -43,6 +44,9 @@ public class AkornContentProvider extends ContentProvider
   private static final int SEARCHES_ARTICLES_SAVE = 50;
   private static final int SEARCHES_ARTICLES_DELETE = 55;
   private static final int PURGE_ARTICLES = 60;
+  private static final int JOURNALS = 65;
+  private static final int PURGE_JOURNALS = 70;
+  private static final int SEARCHES_FILTER = 75;
 
 
   private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -58,6 +62,9 @@ public class AkornContentProvider extends ContentProvider
     sURIMatcher.addURI(AUTHORITY, "searches_articles_save/*", SEARCHES_ARTICLES_SAVE);
     sURIMatcher.addURI(AUTHORITY, "searches_articles_delete/*", SEARCHES_ARTICLES_DELETE);
     sURIMatcher.addURI(AUTHORITY, "purge_articles", PURGE_ARTICLES);
+    sURIMatcher.addURI(AUTHORITY, "journals", JOURNALS);
+    sURIMatcher.addURI(AUTHORITY, "purge_journals", PURGE_JOURNALS);
+    sURIMatcher.addURI(AUTHORITY, "searches_filter", SEARCHES_FILTER);
   }
 
   @Override
@@ -111,6 +118,27 @@ public class AkornContentProvider extends ContentProvider
         getContext().getContentResolver().notifyChange(uri, null);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
+        /*
+        This one is probably a dreadful hack, but having set up the SEARCHES filter so that I could do a group
+        concat, I now find that inserting a simple WHERE clause isn't possible (well, I can't immediately see how).
+        So, I've used the same rawQuery here, adding the WHERE.
+         */
+      case SEARCHES_FILTER:
+         queryBuilder.setTables(SearchTable.TABLE_SEARCH);
+        cursor = database.getReadableDatabase().rawQuery(
+            "SELECT " + SearchTable.COLUMN_ID + ", " +
+            SearchTable.COLUMN_SEARCH_ID + ", " +
+            "group_concat(" + SearchTable.COLUMN_FULL + ", \" | \") AS " + SearchTable.COLUMN_FULL + ", " +
+            "group_concat(" + SearchTable.COLUMN_TYPE + ", \" | \") AS " + SearchTable.COLUMN_TYPE + ", " +
+            "group_concat(" + SearchTable.COLUMN_TEXT+ ", \" | \") AS " + SearchTable.COLUMN_TEXT +
+            " FROM " + SearchTable.TABLE_SEARCH +
+            " WHERE " + SearchTable.COLUMN_ID + " > 2 " +
+            " GROUP BY " + SearchTable.COLUMN_SEARCH_ID +
+            " ORDER BY " + SearchTable.COLUMN_ID
+            , null);
+        getContext().getContentResolver().notifyChange(uri, null);
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return cursor;
       case SEARCHES_ARTICLES_ID:
         cursor = database.getReadableDatabase().rawQuery("SELECT DISTINCT " +
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_ID + ", " +
@@ -154,7 +182,12 @@ public class AkornContentProvider extends ContentProvider
         SearchTable.COLUMN_TEXT,
         SearchTable.COLUMN_FULL,
         SearchTable.COLUMN_TYPE,
-        SearchTable.COLUMN_SEARCH_ID
+        SearchTable.COLUMN_SEARCH_ID,
+        JournalsTable.COLUMN_JOURNAL_ID,
+        JournalsTable.COLUMN_FULL,
+        JournalsTable.COLUMN_ID,
+        JournalsTable.COLUMN_TEXT,
+        JournalsTable.COLUMN_TYPE
     };
 
     if (projection != null)
@@ -251,8 +284,19 @@ public class AkornContentProvider extends ContentProvider
           Log.e(TAG, "Update failed: " + e.toString());
         }
         break;
+      case JOURNALS:
+        try
+        {
+          Log.i(TAG,"Actually inserted something this time: " + values.toString());
+          sqlDB.insertWithOnConflict(JournalsTable.TABLE_JOURNALS, null, values, sqlDB.CONFLICT_IGNORE);
+        }
+        catch (Exception e)
+        {
+          Log.e(TAG, "Insert failed: " + e.toString());
+        }
+        break;
       default:
-        throw new IllegalArgumentException("Unknown URI: " + uri);
+        throw new IllegalArgumentException("FRC, Unknown URI: " + uri);
     }
     getContext().getContentResolver().notifyChange(uri, null);
     return uri;
@@ -267,11 +311,25 @@ public class AkornContentProvider extends ContentProvider
     {
       case SEARCHES:
         Log.i(TAG,"Purging search table!");
-        //sqlDB.delete(SearchTable.TABLE_SEARCH, null, null);
-        // reset IDs. Probably not necessary, but might as well be done
-        //sqlDB.execSQL("DELETE FROM SQLITE_SEQUENCE WHERE NAME = '" + SearchTable.TABLE_SEARCH + "'");
         SearchTable.onCreate(sqlDB);
         Log.i(TAG,"Purged!");
+        break;
+      case SEARCHES_ID:
+        try
+        {
+          sqlDB.execSQL("DELETE FROM " + SearchTable.TABLE_SEARCH +
+            " WHERE " + SearchTable.COLUMN_SEARCH_ID + "="
+            + uri.getLastPathSegment());
+          sqlDB.execSQL("DELETE FROM " + SearchArticleTable.TABLE_SEARCHES_ARTICLES+
+            " WHERE " + SearchArticleTable.COLUMN_SEARCH_ID + "="
+            + uri.getLastPathSegment());
+          sqlDB.execSQL("DELETE FROM " + ArticleTable.TABLE_ARTICLES + " WHERE " + ArticleTable.COLUMN_ARTICLE_ID
+            + " NOT IN (SELECT ARTICLE_ID FROM " + SearchArticleTable.TABLE_SEARCHES_ARTICLES + ")");
+        }
+        catch (Exception e)
+        {
+          Log.e(TAG, "SEARCHES_ID: " + e.toString());
+        }
         break;
       case CLEANUP_ARTICLES:
         Log.i(TAG,"Cleaning up orphaned articles.");
@@ -308,6 +366,17 @@ public class AkornContentProvider extends ContentProvider
           Log.e(TAG,"Article/search table cleanup failed!");
         }
         break;
+      case PURGE_JOURNALS:
+        Log.i(TAG,"Clearing journals table.");
+        try
+        {
+          JournalsTable.onCreate(sqlDB);
+          Log.i(TAG, "Journals table purged!");
+        }
+        catch (Exception e)
+        {
+          Log.e(TAG, "Couldn't clear journals table!");
+        }
       case SEARCHES_ARTICLES_DELETE:
         sqlDB.execSQL("DELETE FROM searches_articles where article_id = '" + uri.getLastPathSegment() + "'");
         sqlDB.execSQL("UPDATE articles SET favourite = 0 where article_id ='" + uri.getLastPathSegment() + "'");

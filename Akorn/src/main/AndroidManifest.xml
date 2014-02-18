@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.akorn.akorn"
     android:installLocation="auto"
-    android:versionCode="18"
-    android:versionName="0.2.2-alpha" >
+    android:versionCode="19"
+    android:versionName="0.2.3-alpha" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -51,6 +51,11 @@
             android:name="CreateAccountService"
             android:icon="@drawable/ic_launcher"
             android:label="@string/create_service_name">
+        </service>
+        <service
+            android:name="SearchFilterService"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/filter_service_name">
         </service>
      </application>
 

@@ -4,9 +4,31 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-    <TextView
-            android:text="Placeholder Text"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"/>
 
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/filter_title"
+            android:id="@+id/filter_title"
+            android:layout_gravity="center_horizontal"
+            android:padding="5sp"
+            android:textSize="22sp"
+            android:textStyle="bold"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/filter_text"
+            android:id="@+id/filter_text"
+            android:layout_gravity="center_horizontal"
+            android:padding="5sp"
+            android:textAlignment="center"/>
+
+    <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/filter_list"
+            android:layout_gravity="center_horizontal"/>
 </LinearLayout>

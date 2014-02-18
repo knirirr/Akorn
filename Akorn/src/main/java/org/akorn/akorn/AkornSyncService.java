@@ -18,6 +18,7 @@ import android.widget.Toast;
 import org.akorn.akorn.contentprovider.AkornContentProvider;
 import org.akorn.akorn.database.ArticleTable;
 import org.akorn.akorn.database.SearchArticleTable;
+import org.akorn.akorn.database.JournalsTable;
 import org.akorn.akorn.database.SearchTable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -253,7 +254,6 @@ public class AkornSyncService extends IntentService
      */
     HttpContext localContext = new BasicHttpContext();
     localContext.setAttribute(ClientContext.COOKIE_STORE, cookiestore); // use cookie store grabbed above
-    //HttpGet httpGet = new HttpGet(URL + "searches");
     HttpGet httpGet = new HttpGet(tempurl + "searches");
     InputStream inputStream = null;
     String jsonResult;
@@ -526,7 +526,81 @@ public class AkornSyncService extends IntentService
     Uri cleanup = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/cleanup/articles");
     getContentResolver().delete(cleanup,null,null);
 
-    // a notification is needed here as well...
+    /*
+    As if that weren't enough, we now require the information on all the journals available
+    on the server, in order that filters can be set up.
+     */
+    httpGet = new HttpGet(tempurl + "journals");
+    inputStream = null;
+    try
+    {
+      HttpResponse response = client.execute(httpGet, localContext);
+      HttpEntity entity = response.getEntity();
+      inputStream = entity.getContent();
+
+      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"), 8);
+      StringBuilder sb = new StringBuilder();
+
+      String line = null;
+      while ((line = reader.readLine()) != null)
+      {
+        sb.append(line + "\n");
+      }
+      jsonResult = sb.toString();
+      //Log.i(TAG, jsonResult);
+
+      // make some JSON out of that string
+      try
+      {
+        JSONArray jArray =  new JSONArray(jsonResult);
+        Log.i(TAG, "Journals found: " + jArray.length());
+        // if jArray.length() > 0, purge journals
+        // like searches, purge the journals, as a rather poor means of making sure that journals which
+        // are deleted from the server don't end up hanging around in the database on devices
+        if (jArray.length() > 0)
+        {
+          //
+          cleanup = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/purge_journals");
+          getContentResolver().delete(cleanup,null,null);
+          // get individual journal info.
+          Uri jUri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/journals");
+          for(int i = 0; i < jArray.length(); i++)
+          {
+            JSONObject jData = jArray.getJSONObject(i);
+            String journal_id = jData.getString("id");
+            String text = jData.getString("text");
+            String full = jData.getString("full");
+            String type = jData.getString("type");
+            // use "full" for the display name when listing journals
+            //Log.i(TAG,"Journal: " + journal_id + ", " + text + ", " + full + ", " + type);
+            ContentValues values = new ContentValues();
+            values.put(JournalsTable.COLUMN_JOURNAL_ID,journal_id);
+            values.put(JournalsTable.COLUMN_TEXT,text);
+            values.put(JournalsTable.COLUMN_FULL,full);
+            values.put(JournalsTable.COLUMN_TYPE,type);
+            getContentResolver().insert(jUri, values);
+          }
+        }
+      }
+      catch (Exception e)
+      {
+        Log.e(TAG, "Couldn't parse list of journals: " + e.toString());
+      }
+    }
+    catch (IOException e)
+    {
+      Log.i(TAG, "Error getting search info: " + e.toString());
+      hasFailed = true;
+      return;
+    }
+    finally
+    {
+      try{ if(inputStream != null)inputStream.close(); }
+      catch(Exception squish){
+      // make sure it's closed
+      }
+    }
+    // finally, if we have at last finished, the user can be notified
     mHandler.post(new ToastRunnable(getString(R.string.syncFinish)));
     Log.i(TAG, "FINISH");
   }

@@ -19,6 +19,7 @@
     <string name="action_favourite">Add to favourites</string>
     <string name="send_to">Share article</string>
     <string name="action_filters">Edit filters</string>
+    <string name="action_add">Add</string>
 
     <!-- preferences -->
     <string name="pref_username">Email</string>
@@ -62,7 +63,17 @@
     <string name="changelog_full_title">Change Log</string>
     <string name="changelog_title">What\'s New</string>
     <string name="changelog_ok_button">OK</string>
-    <string name="changelog_show_full">more...</string>
+    <string name="changelog_show_full">more&#8230;</string>
+
+    <!-- FilterActivity -->
+    <string name="filter_title">Searches</string>
+    <string name="filter_text">You may add new search filters or delete existing ones here. Eventually, this text will display useful and helpful information rather than this vague, space-filling waffle. Any suggestions for how to liven this up would be gratefully received.</string>
+    <string name="confirmDelete">Would you like to delete this search?</string>
+    <string name="yesButton">Yes</string>
+    <string name="noButton">No</string>
+    <string name="filter_service_name">AkornSearchFilterService</string>
+    <string name="delete_fail">Failed to delete search!</string>
+    <string name="delete_win">Search deleted successfully.</string>
 
 
 </resources>

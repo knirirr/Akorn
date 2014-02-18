@@ -11,7 +11,7 @@ import android.util.Log;
 public class AkornDatabaseHelper extends SQLiteOpenHelper
 {
   private static final String DATABASE_NAME = "akorn.db";
-  private static final int DATABASE_VERSION = 4;
+  private static final int DATABASE_VERSION = 5;
 
   public AkornDatabaseHelper(Context context)
   {
