@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -93,6 +94,14 @@ public class AkornSyncService extends IntentService
     mHandler = new Handler();
     //mHandler.post(new ToastRunnable(getString(R.string.startString)));
     return super.onStartCommand(intent,flags,startId);
+  }
+
+  private void sendMessage()
+  {
+    Intent intent = new Intent("filters-changed");
+    // add data
+    intent.putExtra("message", "Filters have changed!");
+    LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
   }
 
   @Deprecated // must do something about this eventually
@@ -208,13 +217,6 @@ public class AkornSyncService extends IntentService
           {
             session_id = bict.getValue();
             mHandler.post(new ToastRunnable(getString(R.string.loginSuccess)));
-            /*
-            A login success here means that the user has created an account successfully, and the boolean
-            which forces new account creation can therefore be turned off...
-             */
-            SharedPreferences.Editor prefEditor = prefs.edit();
-            prefEditor.putBoolean("hasAccount", true);
-            prefEditor.commit();
           }
         }
         if (session_id.equals(""))
@@ -602,6 +604,7 @@ public class AkornSyncService extends IntentService
     }
     // finally, if we have at last finished, the user can be notified
     mHandler.post(new ToastRunnable(getString(R.string.syncFinish)));
+    sendMessage();
     Log.i(TAG, "FINISH");
   }
 

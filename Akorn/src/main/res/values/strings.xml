@@ -29,6 +29,7 @@
     <string name="pref_password_confirm">Password confirmation</string>
     <string name="pref_password_confirm_summary">Please type your password again.</string>
     <string name="account_prefs">Account</string>
+    <string name="prod_or_dev">This setting should only be needed by developers and can usually be left as the default.</string>
 
     <!-- SyncService -->
     <string name="service_name">AcornSyncService</string>

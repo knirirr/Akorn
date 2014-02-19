@@ -3,25 +3,32 @@ package org.akorn.akorn;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.akorn.akorn.contentprovider.AkornContentProvider;
 import org.akorn.akorn.database.SearchTable;
+
+import java.io.Serializable;
 
 /**
  * Created by milo on 29/01/2014.
@@ -61,8 +68,38 @@ public class FilterActivity extends Activity
         }
       }
     });
-
   }
+
+  @Override
+  public void onResume()
+  {
+    super.onResume();
+    LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("filters-changed"));
+  }
+
+  // handler for received Intents for the "my-event" event
+  private BroadcastReceiver mMessageReceiver = new BroadcastReceiver()
+  {
+    @Override
+    public void onReceive(Context context, Intent intent)
+    {
+      // Extract data included in the Intent
+      String message = intent.getStringExtra("message");
+      Log.d(TAG, "Got message: " + message);
+      ListView listView = (ListView) FilterActivity.this.findViewById(R.id.filter_list);
+      mCursorAdapter = getList();
+      listView.setAdapter(mCursorAdapter);
+      listView.invalidateViews();
+    }
+  };
+
+  @Override
+  protected void onPause() {
+    // Unregister since the activity is not visible
+    LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+    super.onPause();
+  }
+
 
   /*
   An item in the list has been selected...
@@ -210,4 +247,6 @@ public class FilterActivity extends Activity
         0);
     return mCursorAdapter;
   }
+
+
 }

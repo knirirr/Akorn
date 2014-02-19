@@ -37,7 +37,7 @@ public class AkornContentProvider extends ContentProvider
   private static final int ARTICLES = 10;
   private static final int ARTICLES_ID = 15;
   private static final int SEARCHES = 25;
-  private static final int SEARCHES_ID = 30;
+  private static final int SEARCH_ID = 30;
   private static final int SEARCHES_ARTICLES = 35;
   private static final int SEARCHES_ARTICLES_ID = 40;
   private static final int CLEANUP_ARTICLES = 45;
@@ -55,7 +55,7 @@ public class AkornContentProvider extends ContentProvider
     sURIMatcher.addURI(AUTHORITY, "articles", ARTICLES);
     sURIMatcher.addURI(AUTHORITY, "articles/#", ARTICLES_ID);
     sURIMatcher.addURI(AUTHORITY, "searches", SEARCHES);
-    sURIMatcher.addURI(AUTHORITY, "searches/#", SEARCHES_ID);
+    sURIMatcher.addURI(AUTHORITY, "search/*", SEARCH_ID);
     sURIMatcher.addURI(AUTHORITY, "searches/articles", SEARCHES_ARTICLES);
     sURIMatcher.addURI(AUTHORITY, "searches/articles/*", SEARCHES_ARTICLES_ID);
     sURIMatcher.addURI(AUTHORITY, "cleanup/articles", CLEANUP_ARTICLES);
@@ -287,7 +287,7 @@ public class AkornContentProvider extends ContentProvider
       case JOURNALS:
         try
         {
-          Log.i(TAG,"Actually inserted something this time: " + values.toString());
+          //Log.i(TAG,"Actually inserted something this time: " + values.toString());
           sqlDB.insertWithOnConflict(JournalsTable.TABLE_JOURNALS, null, values, sqlDB.CONFLICT_IGNORE);
         }
         catch (Exception e)
@@ -314,21 +314,21 @@ public class AkornContentProvider extends ContentProvider
         SearchTable.onCreate(sqlDB);
         Log.i(TAG,"Purged!");
         break;
-      case SEARCHES_ID:
+      case SEARCH_ID:
         try
         {
           sqlDB.execSQL("DELETE FROM " + SearchTable.TABLE_SEARCH +
-            " WHERE " + SearchTable.COLUMN_SEARCH_ID + "="
-            + uri.getLastPathSegment());
+            " WHERE " + SearchTable.COLUMN_SEARCH_ID + " = '"
+            + uri.getLastPathSegment() + "'");
           sqlDB.execSQL("DELETE FROM " + SearchArticleTable.TABLE_SEARCHES_ARTICLES+
-            " WHERE " + SearchArticleTable.COLUMN_SEARCH_ID + "="
-            + uri.getLastPathSegment());
+            " WHERE " + SearchArticleTable.COLUMN_SEARCH_ID + " = '"
+            + uri.getLastPathSegment() + "'");
           sqlDB.execSQL("DELETE FROM " + ArticleTable.TABLE_ARTICLES + " WHERE " + ArticleTable.COLUMN_ARTICLE_ID
             + " NOT IN (SELECT ARTICLE_ID FROM " + SearchArticleTable.TABLE_SEARCHES_ARTICLES + ")");
         }
         catch (Exception e)
         {
-          Log.e(TAG, "SEARCHES_ID: " + e.toString());
+          Log.e(TAG, "SEARCH_ID: " + e.toString());
         }
         break;
       case CLEANUP_ARTICLES:
@@ -377,6 +377,7 @@ public class AkornContentProvider extends ContentProvider
         {
           Log.e(TAG, "Couldn't clear journals table!");
         }
+        break;
       case SEARCHES_ARTICLES_DELETE:
         sqlDB.execSQL("DELETE FROM searches_articles where article_id = '" + uri.getLastPathSegment() + "'");
         sqlDB.execSQL("UPDATE articles SET favourite = 0 where article_id ='" + uri.getLastPathSegment() + "'");

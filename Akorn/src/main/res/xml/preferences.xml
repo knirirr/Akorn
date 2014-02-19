@@ -26,7 +26,8 @@
         android:key="pref_server_settings">
 
         <ListPreference
-                android:title="Choose the Akorn server"
+                android:title="Server port"
+                android:summary="@string/prod_or_dev"
                 android:key="server_pref"
                 android:defaultValue="2"
                 android:entries="@array/server_pref_array"
