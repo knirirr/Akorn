@@ -178,7 +178,9 @@ public class SearchFilterService extends IntentService
       {
         // create a new search
         mHandler.post(new ToastRunnable("A search would be created here."));
-        CreateSearch();
+        String ftype = prefs.getString("ftype","journal");
+        String jtext = prefs.getString("jtext", "Nature");
+        CreateSearch(ftype,jtext);
         // created by a new dialog activity
       }
       else
@@ -230,9 +232,41 @@ public class SearchFilterService extends IntentService
 
   }
 
-  public void CreateSearch()
+  public void CreateSearch(String ftype, String jtext)
   {
 
+    DefaultHttpClient client = new DefaultHttpClient();
+    HttpContext localContext = new BasicHttpContext();
+    localContext.setAttribute(ClientContext.COOKIE_STORE, cookiestore);
+    mHandler.post(new ToastRunnable("I haven't written this bit of the code yet."));
+    // it looks like grabbing the journal's ID based on the journal's name will be needed here. What fun!
+    /*
+    HttpGet httpGet = new HttpGet(tempurl + "searches?query" + search_id);
+    try
+    {
+      HttpResponse response = client.execute(httpGet,localContext);
+      int statusCode = response.getStatusLine().getStatusCode();
+      if (statusCode == 204)
+      {
+        Log.e(TAG, "Deleted search " + search_id + " from server.");
+        // now delete the search from the local database, as well as the associated articles
+        Uri cleanup = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/search/" + search_id);
+        getContentResolver().delete(cleanup,null,null);
+        // made it!
+        mHandler.post(new ToastRunnable(getString(R.string.delete_win)));
+      }
+      else
+      {
+        Log.e(TAG, "FRC, status code: " + String.valueOf(statusCode));
+        mHandler.post(new ToastRunnable(getString(R.string.delete_fail)));
+      }
+    }
+    catch (Exception e)
+    {
+      Log.e(TAG, "Oh noes! " + e.toString());
+      mHandler.post(new ToastRunnable(getString(R.string.delete_fail)));
+    }
+    */
   }
 
   @Override

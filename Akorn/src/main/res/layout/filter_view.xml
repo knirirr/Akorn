@@ -26,6 +26,30 @@
             android:padding="5sp"
             android:textAlignment="center"/>
 
+    <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+        <AutoCompleteTextView
+                android:id="@+id/autocomplete_box"
+                android:layout_alignParentLeft="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_toLeftOf="@+id/add_filter_button"
+                android:layout_alignParentEnd="false"
+                android:layout_alignParentStart="false"
+                android:layout_alignBaseline="@+id/add_filter_button"/>
+        <Button
+                android:id="@+id/add_filter_button"
+                android:layout_alignParentRight="true"
+                android:onClick="addFilter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_filter"
+                android:minWidth="20sp"
+                />
+    </RelativeLayout>
+
     <ListView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

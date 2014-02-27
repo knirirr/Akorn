@@ -3,6 +3,7 @@
     <string name="not_working">Not working yet!</string>
     <string name="sharing_text">Shared from the Akorn Android app.</string>
     <string name="database_error">Database error!</string>
+    <string name="shared_by">Shared from Akorn:</string>
 
     <string name="app_name">Akorn</string>
     <string name="title_section1">Search type 1</string>
@@ -67,14 +68,19 @@
     <string name="changelog_show_full">more&#8230;</string>
 
     <!-- FilterActivity -->
-    <string name="filter_title">Searches</string>
+    <string name="filter_title">Filters</string>
     <string name="filter_text">You may add new search filters or delete existing ones here. Eventually, this text will display useful and helpful information rather than this vague, space-filling waffle. Any suggestions for how to liven this up would be gratefully received.</string>
-    <string name="confirmDelete">Would you like to delete this search?</string>
+    <string name="confirmDelete">Would you like to delete this filter?</string>
     <string name="yesButton">Yes</string>
     <string name="noButton">No</string>
     <string name="filter_service_name">AkornSearchFilterService</string>
-    <string name="delete_fail">Failed to delete search!</string>
-    <string name="delete_win">Search deleted successfully.</string>
+    <string name="delete_fail">Failed to delete filter!</string>
+    <string name="delete_win">Filter deleted successfully.</string>
+    <string name="add_filter">Add</string>
+    <string name="submit_or_not">Create this filter?</string>
+    <string name="no_filter_created">Filter not created!</string>
+    <string name="pick_a_type">Please select either keyword or journal title for this filter.</string>
+    <string name="not_empty_please">Please type a journal or keyword before submitting.</string>
 
 
 </resources>

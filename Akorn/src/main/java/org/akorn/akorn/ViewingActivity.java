@@ -4,16 +4,21 @@ import android.app.Activity;
 ;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
 
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -109,14 +114,30 @@ public class ViewingActivity extends Activity
 
   public void onResume(Bundle savedInstanceState)
   {
+    super.onResume();
     prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("filters-changed"));
   }
 
+  // handler for received Intents for the "my-event" event
+  private BroadcastReceiver mMessageReceiver = new BroadcastReceiver()
+  {
     @Override
-    public void onNavigationDrawerItemSelected(int position)
+    public void onReceive(Context context, Intent intent)
     {
-      //Log.i(TAG,"ViewingActivity: " + String.valueOf(position));
+      // Extract data included in the Intent
+      String message = intent.getStringExtra("message");
+      Log.d(TAG, "Got message: " + message);
+      ListView listView = (ListView) findViewById(R.id.list_fragment);
+      listView.invalidateViews();
     }
+  };
+
+  @Override
+  public void onNavigationDrawerItemSelected(int position)
+  {
+    //Log.i(TAG,"ViewingActivity: " + String.valueOf(position));
+  }
 
     @Override
     public void updateSearchId(String search_id)
@@ -200,15 +221,21 @@ public class ViewingActivity extends Activity
             return true;
           case R.id.action_share:
             //Toast.makeText(this, "Sharing action!", Toast.LENGTH_SHORT).show();
+            TextView title = (TextView) findViewById(R.id.title_of_article);
+            TextView authors = (TextView) findViewById(R.id.article_authors);
+            TextView journal = (TextView) findViewById(R.id.journal_of_article);
+            TextView url = (TextView) findViewById(R.id.article_url);
             TextView content = (TextView) findViewById(R.id.article_content);
-            TextView title = (TextView) findViewById(R.id.article_title);
-            String text_to_send = content.getText().toString();
+            String text_to_send = content.getText().toString()
+                + "\n\n" + authors.getText().toString()
+                + "\n\n" + journal.getText().toString()
+                + "\n\n" + url.getText().toString();
             text_to_send = text_to_send + "\n\n" + getString(R.string.sharing_text); // make this optional
             // perhaps the URL should be added in here
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
             sendIntent.putExtra(Intent.EXTRA_TEXT, text_to_send);
-            sendIntent.putExtra(Intent.EXTRA_SUBJECT, title.getText().toString());// add the article title if an email
+            sendIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.shared_by) + " " + title.getText().toString());// add the article title if an email
             sendIntent.setType("text/plain");
             startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.send_to)));
             return true;

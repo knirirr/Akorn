@@ -12,23 +12,25 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ListAdapter;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import org.akorn.akorn.contentprovider.AkornContentProvider;
+import org.akorn.akorn.database.JournalsTable;
 import org.akorn.akorn.database.SearchTable;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by milo on 29/01/2014.
@@ -36,7 +38,11 @@ import java.io.Serializable;
 public class FilterActivity extends Activity
 {
   ActionBar actionBar;
+  AutoCompleteTextView autoComplete;
+  String ftype;
+  String journal;
   private SimpleCursorAdapter mCursorAdapter;
+  private SimpleCursorAdapter mDropDownAdapter;
   private String searchId;
   private static String TAG = "Akorn";
 
@@ -68,6 +74,24 @@ public class FilterActivity extends Activity
         }
       }
     });
+
+    /*
+    List adapter for drop-down textedit
+     */
+    Cursor ddCursor = getDropDown();
+    ArrayList<String> journals = new ArrayList<String>();
+    for(ddCursor.moveToFirst(); ddCursor.moveToNext(); ddCursor.isAfterLast())
+    {
+      journals.add(ddCursor.getString(ddCursor.getColumnIndex(JournalsTable.COLUMN_FULL)));
+    }
+    // convert to String[]
+    String[] journalsString = (String[]) journals.toArray(new String[journals.size()]);
+    ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, journalsString);
+    autoComplete = (AutoCompleteTextView) findViewById(R.id.autocomplete_box);
+    autoComplete.setAdapter(adapter);
+    autoComplete.setDropDownWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+
+
   }
 
   @Override
@@ -198,7 +222,92 @@ public class FilterActivity extends Activity
     return super.onOptionsItemSelected(item);
   }
 
+  /*
+  This will add a filter to the local database and also sync it to the server
+   */
+  public void addFilter(View view)
+  {
+    ftype = "";
+    journal = "";
+    AutoCompleteTextView acView = (AutoCompleteTextView) findViewById(R.id.autocomplete_box);
+    journal = acView.getText().toString();
+    if (journal.isEmpty())
+    {
+      Toast.makeText(getApplicationContext(), getString(R.string.not_empty_please), Toast.LENGTH_SHORT).show();
+      return;
+    }
+    final CharSequence[] items = { "Journal title", "Keyword" };
 
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder.setTitle(R.string.submit_or_not);
+    builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener()
+    {
+      public void onClick(DialogInterface dialog, int item)
+      {
+        //Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
+        if (item == 0)
+        {
+          ftype = "journal";
+        }
+        else
+        {
+          ftype = "keyword";
+        }
+      }
+    });
+    builder.setPositiveButton(getString(R.string.yesButton), new DialogInterface.OnClickListener()
+    {
+      public void onClick(DialogInterface dialog, int id)
+      {
+        //Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_SHORT).show();
+        // cancel if no type has been selected
+        if (ftype.isEmpty())
+        {
+          Toast.makeText(getApplicationContext(), getString(R.string.pick_a_type), Toast.LENGTH_SHORT).show();
+          return; //
+        }
+        // Start the SearchFilterService running now, with instructions to create a filter
+        Intent i = new Intent(FilterActivity.this, SearchFilterService.class);
+        i.putExtra("search_id", "new");
+        i.putExtra("ftype",ftype);
+        i.putExtra("jtext",journal);
+        if (SearchFilterService.isRunning == false)
+        {
+          FilterActivity.this.startService(i);
+        }
+        return;
+      }
+    });
+    builder.setNegativeButton(getString(R.string.noButton), new DialogInterface.OnClickListener()
+    {
+      public void onClick(DialogInterface dialog, int id)
+      {
+        Toast.makeText(getApplicationContext(), getString(R.string.no_filter_created), Toast.LENGTH_SHORT).show();
+      }
+    });
+
+    AlertDialog alert = builder.create();
+    alert.show();
+  }
+
+  private Cursor getDropDown()
+  {
+    Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/journals");
+    String[] orderBy = { String.valueOf(JournalsTable.COLUMN_ID) };
+    Cursor cursor = getContentResolver().query(uri,
+        new String[]
+            {
+                JournalsTable.COLUMN_ID,
+                JournalsTable.COLUMN_FULL
+            },
+        null, orderBy, null);
+    if (cursor == null)
+    {
+      Log.i(TAG, "FRC! Cursor is null in FilterActivityFragment!");
+      Toast.makeText(this, getString(R.string.database_error), Toast.LENGTH_SHORT).show();
+    }
+    return cursor;
+  }
 
   private SimpleCursorAdapter getList()
   {
@@ -221,7 +330,7 @@ public class FilterActivity extends Activity
 
     if (cursor == null)
     {
-      Log.i(TAG, "FRC! Cursor is null in NavigationDrawerFragment!");
+      Log.i(TAG, "FRC! Cursor is null in FilterActivityFragment!");
       Toast.makeText(this, getString(R.string.database_error), Toast.LENGTH_SHORT).show();
     }
     // Defines a list of columns to retrieve from the Cursor and load into an output row

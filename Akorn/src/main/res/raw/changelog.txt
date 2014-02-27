@@ -19,6 +19,21 @@
     </style>
   </head>
   <body>
+$ 0.2.7-alpha
+  % Version 0.2.7-alpha
+  _ 2014-02-27
+    * Some success moving towards filter creation.
+    * "No articles" display bug may be fixed - please test and report back!
+$ 0.2.6-alpha
+  % Version 0.2.6-alpha
+  _ 2014-02-24
+    * Articles now only share one copy of the abstract.
+    * "No articles" display bug may be fixed - please test!
+$ 0.2.5-alpha
+  % Version 0.2.5-alpha
+  _ 2014-02-21
+    * Crash on article sharing now fixed.
+    * "No articles" display bug may be fixed - please test!
 $ 0.2.4-alpha
   % Version 0.2.4-alpha
   _ 2014-02-19
