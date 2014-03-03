@@ -105,20 +105,10 @@ public class AkornContentProvider extends ContentProvider
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
       case JOURNALS:
-        /*
-        This crashes with:
-         Caused by: java.lang.IllegalArgumentException: Cannot bind argument at index 1 because the index is out of range.  The statement has 0 parameters.
-         ...on the queryBuilder
-         */
-        /*
         queryBuilder.setTables(JournalsTable.TABLE_JOURNALS);
         cursor = queryBuilder.query(database.getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder);
         getContext().getContentResolver().notifyChange(uri, null);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
-        */
-        cursor = database.getReadableDatabase().rawQuery("SELECT " + JournalsTable.COLUMN_ID
-            + ", " + JournalsTable.COLUMN_FULL
-        + " FROM " + JournalsTable.TABLE_JOURNALS, null);
         return cursor;
       case SEARCHES:
         queryBuilder.setTables(SearchTable.TABLE_SEARCH);

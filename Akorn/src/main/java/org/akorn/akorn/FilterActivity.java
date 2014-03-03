@@ -45,6 +45,8 @@ public class FilterActivity extends Activity
   private SimpleCursorAdapter mDropDownAdapter;
   private String searchId;
   private static String TAG = "Akorn";
+  String[] journalsString;
+  String[] journalIdsString;
 
   @Override
   protected void onCreate(Bundle savedInstanceState)
@@ -77,20 +79,42 @@ public class FilterActivity extends Activity
 
     /*
     List adapter for drop-down textedit
+    There are two arrays created here; one holds the journal names that the user sees and the other holds
+    the Akorn server's journal IDs. These latter will be sent back to the server to create a new search.
      */
     Cursor ddCursor = getDropDown();
     ArrayList<String> journals = new ArrayList<String>();
+    ArrayList<String> journalIds = new ArrayList<String>();
     for(ddCursor.moveToFirst(); ddCursor.moveToNext(); ddCursor.isAfterLast())
     {
+      journalIds.add(ddCursor.getString(ddCursor.getColumnIndex(JournalsTable.COLUMN_JOURNAL_ID)));
       journals.add(ddCursor.getString(ddCursor.getColumnIndex(JournalsTable.COLUMN_FULL)));
     }
     // convert to String[]
-    String[] journalsString = (String[]) journals.toArray(new String[journals.size()]);
+    journalsString = (String[]) journals.toArray(new String[journals.size()]);
+    journalIdsString = (String[]) journalIds.toArray(new String[journalIds.size()]);
     ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, journalsString);
     autoComplete = (AutoCompleteTextView) findViewById(R.id.autocomplete_box);
     autoComplete.setAdapter(adapter);
     autoComplete.setDropDownWidth(ViewGroup.LayoutParams.MATCH_PARENT);
-
+    autoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener()
+    {
+      @Override
+      public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id)
+      {
+        /*
+        It looks like this isn't going to work. Instead, a query could be performed at this point to
+        get the journal ID based on the name, assuming that journal names are going to be unique...
+        Another alternative might be to created a hash using the id and name, and look the hash up with the
+        name at this point, before the user gets chance to edit the text.
+         */
+        Toast.makeText(getApplicationContext(), "Picked something from the list.", Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "VALUES: " + String.valueOf(position) + ", " + String.valueOf(id));
+        Log.i(TAG, "Selected position: " + String.valueOf(id));
+        Log.i(TAG, "Journal name: " + journalsString[position]);
+        Log.i(TAG, "Journal id: " + journalIdsString[position]);
+      }
+    });
 
   }
 
@@ -293,14 +317,13 @@ public class FilterActivity extends Activity
   private Cursor getDropDown()
   {
     Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/journals");
-    String[] orderBy = { String.valueOf(JournalsTable.COLUMN_ID) };
     Cursor cursor = getContentResolver().query(uri,
         new String[]
             {
-                JournalsTable.COLUMN_ID,
+                JournalsTable.COLUMN_JOURNAL_ID,
                 JournalsTable.COLUMN_FULL
             },
-        null, orderBy, null);
+        null, null, null);
     if (cursor == null)
     {
       Log.i(TAG, "FRC! Cursor is null in FilterActivityFragment!");
