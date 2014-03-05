@@ -97,25 +97,6 @@ public class FilterActivity extends Activity
     autoComplete = (AutoCompleteTextView) findViewById(R.id.autocomplete_box);
     autoComplete.setAdapter(adapter);
     autoComplete.setDropDownWidth(ViewGroup.LayoutParams.MATCH_PARENT);
-    autoComplete.setOnItemClickListener(new AdapterView.OnItemClickListener()
-    {
-      @Override
-      public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id)
-      {
-        /*
-        It looks like this isn't going to work. Instead, a query could be performed at this point to
-        get the journal ID based on the name, assuming that journal names are going to be unique...
-        Another alternative might be to created a hash using the id and name, and look the hash up with the
-        name at this point, before the user gets chance to edit the text.
-         */
-        Toast.makeText(getApplicationContext(), "Picked something from the list.", Toast.LENGTH_SHORT).show();
-        Log.i(TAG, "VALUES: " + String.valueOf(position) + ", " + String.valueOf(id));
-        Log.i(TAG, "Selected position: " + String.valueOf(id));
-        Log.i(TAG, "Journal name: " + journalsString[position]);
-        Log.i(TAG, "Journal id: " + journalIdsString[position]);
-      }
-    });
-
   }
 
   @Override
@@ -206,14 +187,6 @@ public class FilterActivity extends Activity
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         break;
-      case R.id.action_add:
-        Intent i = new Intent(FilterActivity.this, SearchFilterService.class);
-        i.putExtra("search_id", "new");
-        if (SearchFilterService.isRunning == false)
-        {
-          FilterActivity.this.startService(i);
-        }
-        return true;
       case R.id.action_website:
         Intent viewIntent = new Intent("android.intent.action.VIEW", Uri.parse("http://akorn.org"));
         startActivity(viewIntent);
@@ -268,7 +241,6 @@ public class FilterActivity extends Activity
     {
       public void onClick(DialogInterface dialog, int item)
       {
-        //Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();
         if (item == 0)
         {
           ftype = "journal";
@@ -283,8 +255,6 @@ public class FilterActivity extends Activity
     {
       public void onClick(DialogInterface dialog, int id)
       {
-        //Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_SHORT).show();
-        // cancel if no type has been selected
         if (ftype.isEmpty())
         {
           Toast.makeText(getApplicationContext(), getString(R.string.pick_a_type), Toast.LENGTH_SHORT).show();
@@ -295,6 +265,9 @@ public class FilterActivity extends Activity
         i.putExtra("search_id", "new");
         i.putExtra("ftype",ftype);
         i.putExtra("jtext",journal);
+        String jid = getJournalId(journal);
+        i.putExtra("jid",jid);
+        Log.i(TAG, "PUT JOURNAL ID: " + jid);
         if (SearchFilterService.isRunning == false)
         {
           FilterActivity.this.startService(i);
@@ -314,6 +287,42 @@ public class FilterActivity extends Activity
     alert.show();
   }
 
+  /*
+  Having got a journal name from the drop down box we need to get its ID to send to the Akorn server. As the
+  box only holds names (it is only an array adapter, not a cursor adapter) another database call is required
+  to get the ID associated with that name. Assuming, of course, that there are no duplicate journal names in
+  the database.
+   */
+  public String getJournalId(String journal)
+  {
+    Log.i(TAG, "Value passed to getJournalId: " + journal);
+    Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/journals");
+    String finalResult = "";
+    Cursor cursor = getContentResolver().query(uri,
+        new String[]
+            {
+                JournalsTable.COLUMN_JOURNAL_ID
+            },
+        JournalsTable.COLUMN_FULL + " = ?",
+        new String[] { journal },
+        null);
+    if (cursor == null)
+    {
+      Log.i(TAG, "FRC! Cursor is null in FilterActivityFragment!");
+      Toast.makeText(this, getString(R.string.database_error), Toast.LENGTH_SHORT).show();
+    }
+    while (cursor.moveToNext())
+    {
+      finalResult = cursor.getString(cursor.getColumnIndex(JournalsTable.COLUMN_JOURNAL_ID));
+      Log.i(TAG, "FinalResult: " + finalResult);
+    }
+    return finalResult;
+  }
+
+  /*
+  This query provides the list of journals necessary to fill up the array which is used for the
+  drop down autocomplete box's array adapter.
+   */
   private Cursor getDropDown()
   {
     Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/journals");
@@ -323,7 +332,9 @@ public class FilterActivity extends Activity
                 JournalsTable.COLUMN_JOURNAL_ID,
                 JournalsTable.COLUMN_FULL
             },
-        null, null, null);
+        null,
+        null,
+        null);
     if (cursor == null)
     {
       Log.i(TAG, "FRC! Cursor is null in FilterActivityFragment!");
@@ -332,6 +343,10 @@ public class FilterActivity extends Activity
     return cursor;
   }
 
+  /*
+  This is the query which gets the user's existing searches in order to populate the main list
+  thereof on the lower part of the screen.
+   */
   private SimpleCursorAdapter getList()
   {
     Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches_filter");

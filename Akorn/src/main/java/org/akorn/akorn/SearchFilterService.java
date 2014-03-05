@@ -23,10 +23,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -76,6 +80,8 @@ public class SearchFilterService extends IntentService
     String server = prefs.getString("server_pref","prod");
     String username = prefs.getString("pref_username", "");
     String password = prefs.getString("pref_password", "");
+
+
     String session_id = "";
     if (server.equals("prod"))
     {
@@ -87,7 +93,6 @@ public class SearchFilterService extends IntentService
     }
     isRunning = true;
     Log.i(TAG, "Started!");
-
 
     // log in as it seems the cooking must be obtained again here
     DefaultHttpClient client = new DefaultHttpClient();
@@ -128,8 +133,10 @@ public class SearchFilterService extends IntentService
         List<Cookie> cookiejar = cookiestore.getCookies();
         for (Cookie bict : cookiejar)
         {
+          /*
           Log.i(TAG,"Name: " + bict.getName());
           Log.i(TAG,"Value: " + bict.getValue());
+          */
           if (bict.getName().equals("sessionid"))
           {
             session_id = bict.getValue();
@@ -178,9 +185,10 @@ public class SearchFilterService extends IntentService
       {
         // create a new search
         mHandler.post(new ToastRunnable("A search would be created here."));
-        String ftype = prefs.getString("ftype","journal");
-        String jtext = prefs.getString("jtext", "Nature");
-        CreateSearch(ftype,jtext);
+        String ftype = intent.getStringExtra("ftype");
+        String jtext = intent.getStringExtra("jtext");
+        String jid = intent.getStringExtra("jid");
+        CreateSearch(ftype,jtext,jid);
         // created by a new dialog activity
       }
       else
@@ -232,41 +240,85 @@ public class SearchFilterService extends IntentService
 
   }
 
-  public void CreateSearch(String ftype, String jtext)
+  public void CreateSearch(String ftype, String jtext, String jid)
   {
 
     DefaultHttpClient client = new DefaultHttpClient();
     HttpContext localContext = new BasicHttpContext();
     localContext.setAttribute(ClientContext.COOKIE_STORE, cookiestore);
-    mHandler.post(new ToastRunnable("I haven't written this bit of the code yet."));
-    // it looks like grabbing the journal's ID based on the journal's name will be needed here. What fun!
+    Log.i(TAG, "FTYPE: " + ftype);
+    Log.i(TAG, "JTEXT: " + jtext);
+    Log.i(TAG, "JID: " + jid);
     /*
-    HttpGet httpGet = new HttpGet(tempurl + "searches?query" + search_id);
+    Create Search endpoint (*)
+    $ curl -vX POST -d "query=<json>" http://akorn.org/api/searches
+
+    The JSON representation of the saved search should be of the same form as that returned by GET requests to the same endpoint.
+    Success
+    Status: 200
+    Body: {"query_id": "<query_id>"} 
+    {"bd20075c-e1ef-4b54-aec4-fadb9a6f5e4e": [{"text": "PLoS ONE", "full":
+"PLoS ONE", "type": "journal", "id":
+"8b05225aac657bd955fd49e2819d3609"}]}
+
+     */
+    //mHandler.post(new ToastRunnable("I haven't written this bit of the code yet."));
+
+    /*
+    String json = "";
+    if (ftype.equals("keyword"))
+    {
+      json = "'%7B\"text\": \"" + jtext + "\", \"full\": \"" + jtext + "\", \"type\": \"" + ftype + "\"%7D'";
+    }
+    else
+    {
+      json = "'%7B\"text\": \"" + jtext + "\", \"full\": \"" + jtext + "\", \"type\": \"" + ftype + "\", \"id\": \"" + jid + "\"%7D'";
+    }
+    Log.i(TAG, "JSON: " + json);
+    */
+    JSONObject json = new JSONObject();
     try
     {
-      HttpResponse response = client.execute(httpGet,localContext);
-      int statusCode = response.getStatusLine().getStatusCode();
-      if (statusCode == 204)
+      json.put("text", jtext);
+      json.put("full", jtext);
+      json.put("type", ftype);
+      if (!jid.isEmpty())
       {
-        Log.e(TAG, "Deleted search " + search_id + " from server.");
+        json.put("jid",jid);
+      }
+    }
+    catch (Exception e)
+    {
+      Log.e(TAG, "Couldn't create JSON: " + e.toString());
+    }
+    //HttpPost httpPost = new HttpPost(tempurl + "searches?query=" + json);
+    HttpPost httpPost = new HttpPost(tempurl + "searches");
+
+    try
+    {
+      StringEntity se = new StringEntity( "JSON: " + json.toString());
+      Log.i(TAG, "StringEntitiy: " + se.toString());
+      se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+      httpPost.setEntity(se);
+
+      HttpResponse response = client.execute(httpPost,localContext);
+      int statusCode = response.getStatusLine().getStatusCode();
+      if (statusCode == 200)
+      {
         // now delete the search from the local database, as well as the associated articles
-        Uri cleanup = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/search/" + search_id);
-        getContentResolver().delete(cleanup,null,null);
-        // made it!
-        mHandler.post(new ToastRunnable(getString(R.string.delete_win)));
+        mHandler.post(new ToastRunnable("Holy crap, it worked!"));
       }
       else
       {
         Log.e(TAG, "FRC, status code: " + String.valueOf(statusCode));
-        mHandler.post(new ToastRunnable(getString(R.string.delete_fail)));
+        mHandler.post(new ToastRunnable("FRC, it failed!"));
       }
     }
     catch (Exception e)
     {
       Log.e(TAG, "Oh noes! " + e.toString());
-      mHandler.post(new ToastRunnable(getString(R.string.delete_fail)));
+      mHandler.post(new ToastRunnable("Exception, FRC!"));
     }
-    */
   }
 
   @Override
