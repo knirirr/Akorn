@@ -164,11 +164,12 @@ public class ArticleListFragment extends ListFragment
        */
       uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches/articles/" + search_id);
     }
+    String orderBy =  String.valueOf(ArticleTable.COLUMN_DATE) + " DESC";
     cursor = getActivity().getContentResolver().query(uri,
                    selectArgs,
                    null,
                    null,
-                   null);
+                   orderBy);
 
     if (cursor == null)
     {
