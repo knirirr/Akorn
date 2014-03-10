@@ -19,6 +19,13 @@
     </style>
   </head>
   <body>
+$ 0.2.8-alpha
+  % Version 0.2.8-alpha
+  _ 2014-03-07
+    * Filters still can't be created (400 from server).
+    * Journal syncing broken (can't parse string returned by server).
+    * Crash bug when entering filter creation activity should be fixed.
+    * "No articles" display bug may be fixed - please test and report back!
 $ 0.2.7-alpha
   % Version 0.2.7-alpha
   _ 2014-02-27

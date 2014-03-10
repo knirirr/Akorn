@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -12,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -77,6 +79,7 @@ public class AkornSyncService extends IntentService
   private NotificationManager notificationManager;
   private Bitmap icon;
   private Notification noti;
+  private int notificationId;
 
   public AkornSyncService()
   {
@@ -128,7 +131,8 @@ public class AkornSyncService extends IntentService
 
     // Hide the notification after its selected
     noti.flags |= Notification.FLAG_AUTO_CANCEL;
-    notificationManager.notify(1, noti);
+    notificationManager.notify(1000, noti);
+    notificationManager.cancel(2000);
     super.onDestroy();
   }
 
@@ -140,11 +144,24 @@ public class AkornSyncService extends IntentService
      */
     isRunning = true;
 
+
+
     // bitmap for notification icon
     icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_launcher);
 
     // the notification service is essential
     notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+    // http://stackoverflow.com/questions/5061760/how-does-one-animate-the-android-sync-status-icon
+    // a nice sync message, I hope
+    Notification twirler = new NotificationCompat.Builder(getApplicationContext())
+        .setContentTitle(getString(R.string.app_name))
+        .setContentText(getString(R.string.background_sync))
+        .setSmallIcon(android.R.drawable.ic_popup_sync)
+        .setWhen(System.currentTimeMillis())
+        .setOngoing(true)
+        .build();
+    notificationManager.notify(2000, twirler);
 
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     String username = prefs.getString("pref_username", "");
@@ -626,5 +643,4 @@ public class AkornSyncService extends IntentService
       Toast.makeText(getApplicationContext(), mText, Toast.LENGTH_SHORT).show();
     }
   }
-
 }

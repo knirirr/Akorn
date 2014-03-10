@@ -1,19 +1,14 @@
 package org.akorn.akorn;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.graphics.Color;
-import android.net.Uri;
 import android.util.Log;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-import org.akorn.akorn.contentprovider.AkornContentProvider;
 import org.akorn.akorn.database.ArticleTable;
+
 
 import java.util.ArrayList;
 

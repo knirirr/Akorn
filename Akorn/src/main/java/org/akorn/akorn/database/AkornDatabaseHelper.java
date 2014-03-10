@@ -11,7 +11,7 @@ import android.util.Log;
 public class AkornDatabaseHelper extends SQLiteOpenHelper
 {
   private static final String DATABASE_NAME = "akorn.db";
-  private static final int DATABASE_VERSION = 5;
+  private static final int DATABASE_VERSION = 6;
 
   public AkornDatabaseHelper(Context context)
   {
@@ -34,6 +34,7 @@ public class AkornDatabaseHelper extends SQLiteOpenHelper
     ArticleTable.onUpgrade(database, oldVersion, newVersion);
     SearchArticleTable.onUpgrade(database, oldVersion, newVersion);
     SearchTable.onUpgrade(database, oldVersion, newVersion);
+    JournalsTable.onUpgrade(database, oldVersion, newVersion);
   }
 
 }

@@ -43,6 +43,7 @@
     <string name="in_progress">Sync service is already running!</string>
     <string name="nosearches">You have no saved searches on the Akorn server.</string>
     <string name="password_mismatch">Your passwords don\'t match - please correct this and try again.</string>
+    <string name="background_sync">Syncing with the Akorn server...</string>
 
     <!-- ListView -->
     <string name="empty_list_heading">No Articles</string>
@@ -81,6 +82,9 @@
     <string name="no_filter_created">Filter not created!</string>
     <string name="pick_a_type">Please select either keyword or journal title for this filter.</string>
     <string name="not_empty_please">Please type a journal or keyword before submitting.</string>
+    <string name="creating_new_journal_filter">Creating new journal filter...</string>
+    <string name="creating_new_keyword_filter">Creating new keyword filter...</string>
+    <string name="deleting_filter">Deleting filter...</string>
 
 
 </resources>

@@ -7,9 +7,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -57,6 +57,15 @@ public class ArticleListFragment extends ListFragment
       Log.e(TAG,"Couldn't get search_id: " + e.toString());
     }
   }
+
+  /*
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+  {
+    ListView list = (ListView) inflater.inflate(R.layout.pinned_section, container);
+    return list;
+  }
+  */
 
 
   @Override

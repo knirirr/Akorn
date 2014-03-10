@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.akorn.akorn"
     android:installLocation="auto"
-    android:versionCode="25"
-    android:versionName="0.2.7-alpha" >
+    android:versionCode="26"
+    android:versionName="0.2.8alpha" >
 
     <uses-sdk
         android:minSdkVersion="14"

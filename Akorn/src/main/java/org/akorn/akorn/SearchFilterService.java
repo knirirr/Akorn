@@ -1,6 +1,8 @@
 package org.akorn.akorn;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -8,6 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -34,6 +37,7 @@ import org.json.JSONObject;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +54,7 @@ public class SearchFilterService extends IntentService
   public static final String URL = "http://akorn.org/api/";
   public static final String DEVURL = "http://akorn.org:8000/api/";
   private Handler mHandler;
+  private NotificationManager notificationManager;
 
   public SearchFilterService()
   {
@@ -94,7 +99,46 @@ public class SearchFilterService extends IntentService
     isRunning = true;
     Log.i(TAG, "Started!");
 
-    // log in as it seems the cooking must be obtained again here
+    // stuff passed in via the intent - needed as some information must go into the
+    // notification which will be created next
+    String search_id = intent.getStringExtra("search_id");
+    String ftype = intent.getStringExtra("ftype");
+    String jtext = intent.getStringExtra("jtext");
+    String jid = intent.getStringExtra("jid");
+    String notificationMessage = getString(R.string.background_sync); // default if correct message not set
+
+    if (search_id.equals("new"))
+    {
+      if (ftype.equals("journal"))
+      {
+        notificationMessage = getString(R.string.creating_new_journal_filter);
+      }
+      else if (ftype.equals("keyword"))
+      {
+       notificationMessage = getString(R.string.creating_new_keyword_filter);
+      }
+    }
+    else
+    {
+      notificationMessage = getString(R.string.deleting_filter);
+    }
+
+
+    // http://stackoverflow.com/questions/5061760/how-does-one-animate-the-android-sync-status-icon
+    // a nice sync message, I hope
+    notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+    Notification twirler = new NotificationCompat.Builder(getApplicationContext())
+        .setContentTitle(getString(R.string.app_name))
+        .setContentText(notificationMessage)
+        .setSmallIcon(android.R.drawable.ic_popup_sync)
+        .setWhen(System.currentTimeMillis())
+        .setOngoing(true)
+        .build();
+    notificationManager.notify(2001, twirler);
+
+
+
+    // log in as it seems the cookies must be obtained again here
     DefaultHttpClient client = new DefaultHttpClient();
     HttpPost post = new HttpPost(tempurl + "login");
     List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -180,14 +224,14 @@ public class SearchFilterService extends IntentService
 
     try
     {
-      String search_id = intent.getStringExtra("search_id");
+      //String search_id = intent.getStringExtra("search_id");
       if (search_id.equals("new"))
       {
         // create a new search
         mHandler.post(new ToastRunnable("A search would be created here."));
-        String ftype = intent.getStringExtra("ftype");
-        String jtext = intent.getStringExtra("jtext");
-        String jid = intent.getStringExtra("jid");
+        //String ftype = intent.getStringExtra("ftype");
+        //String jtext = intent.getStringExtra("jtext");
+        //String jid = intent.getStringExtra("jid");
         CreateSearch(ftype,jtext,jid);
         // created by a new dialog activity
       }
@@ -291,12 +335,27 @@ public class SearchFilterService extends IntentService
     {
       Log.e(TAG, "Couldn't create JSON: " + e.toString());
     }
-    //HttpPost httpPost = new HttpPost(tempurl + "searches?query=" + json);
+
+    JSONObject topJson = new JSONObject();
+    try
+    {
+      topJson.put("query", json);
+    }
+    catch (Exception e)
+    {
+      Log.e(TAG, "Couldn't create second JSON: " + e.toString());
+    }
+
+    //HttpPost httpPost = new HttpPost(tempurl + "searches?query=" + URLEncoder.encode(json.toString()));
+    //Log.i(TAG, "URLEncoded: " + URLEncoder.encode(json.toString()));
+    //HttpPost httpPost = new HttpPost(tempurl + "searches?query=" + json.toString());
+    //Log.i(TAG, "JSON: " + json.toString());
     HttpPost httpPost = new HttpPost(tempurl + "searches");
 
     try
     {
-      StringEntity se = new StringEntity( "JSON: " + json.toString());
+      Log.i(TAG, "JSON: " + topJson.toString());
+      StringEntity se = new StringEntity( "JSON: " + topJson.toString());
       Log.i(TAG, "StringEntitiy: " + se.toString());
       se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
       httpPost.setEntity(se);
@@ -305,7 +364,6 @@ public class SearchFilterService extends IntentService
       int statusCode = response.getStatusLine().getStatusCode();
       if (statusCode == 200)
       {
-        // now delete the search from the local database, as well as the associated articles
         mHandler.post(new ToastRunnable("Holy crap, it worked!"));
       }
       else
@@ -326,6 +384,7 @@ public class SearchFilterService extends IntentService
   {
     isRunning = false;
     Log.i(TAG, "Finished!");
+    notificationManager.cancel(2001);
     super.onDestroy();
   }
 
