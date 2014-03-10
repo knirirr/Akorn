@@ -34,6 +34,7 @@ public class ArticleListFragment extends ListFragment
                                                           ArticleTable.COLUMN_TITLE,
                                                           ArticleTable.COLUMN_JOURNAL,
                                                           ArticleTable.COLUMN_ARTICLE_ID,
+                                                          ArticleTable.COLUMN_DATE,
                                                           ArticleTable.COLUMN_FAVOURITE};
 
   // The container Activity must implement this interface so the frag can deliver messages
@@ -126,10 +127,8 @@ public class ArticleListFragment extends ListFragment
     // local sqlite id or the remote one)
     Cursor data = (Cursor) getListView().getItemAtPosition(position);
     int sql_article_id = data.getInt(data.getColumnIndex(ArticleTable.COLUMN_ID));
-    //Log.i("AKORN", "The ID selected was: " + String.valueOf(sql_article_id));
 
     // Notify the parent activity of selected item
-    //mCallback.onArticleSelected(position);
     mCallback.onArticleSelected(position,sql_article_id);
 
     // Set the item as checked to be highlighted when in two-pane layout
@@ -183,6 +182,7 @@ public class ArticleListFragment extends ListFragment
     {
       ArticleTable.COLUMN_TITLE,
       ArticleTable.COLUMN_JOURNAL
+      // might need COLUMN_DATE here...
     };
 
     // Defines a list of View IDs that will receive the Cursor columns for each row

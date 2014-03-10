@@ -522,7 +522,9 @@ public class AkornSyncService extends IntentService
           Elements date = article.getElementsByTag("date_published");
           for (Element d : date)
           {
-            values.put(ArticleTable.COLUMN_DATE,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(d.html()));
+            String[] dateTime = org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(d.html()).split("T");
+            values.put(ArticleTable.COLUMN_DATE,dateTime[0]);
+            values.put(ArticleTable.COLUMN_TIME,dateTime[1]);
           }
           Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
           values.put(ArticleTable.COLUMN_READ,0);

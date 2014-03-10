@@ -22,6 +22,7 @@ public class ArticleTable
   public static final String COLUMN_ABSTRACT = "abstract";
   public static final String COLUMN_AUTHORS = "authors";
   public static final String COLUMN_DATE = "date_published";
+  public static final String COLUMN_TIME = "time_published";
   public static final String COLUMN_READ = "read";
   public static final String COLUMN_FAVOURITE = "favourite";
   // date published needed here
@@ -38,6 +39,7 @@ public class ArticleTable
       + COLUMN_ABSTRACT + " text not null, " // must be null if I web scrape rather than get XML
       + COLUMN_AUTHORS + " text not null, "
       + COLUMN_DATE + " text not null, "
+      + COLUMN_TIME + " text not null, "
       + COLUMN_READ + " integer not null, "
       + COLUMN_FAVOURITE + " integer not null"
       + ");";
