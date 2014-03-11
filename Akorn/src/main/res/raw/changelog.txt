@@ -19,6 +19,11 @@
     </style>
   </head>
   <body>
+$ 0.2.9-alpha
+  % Version 0.2.9-alpha
+  _ 2014-03-11
+    * Problems from 0.2.9 still apply.
+    * An animated syncing notification has been added.
 $ 0.2.8-alpha
   % Version 0.2.8-alpha
   _ 2014-03-07
