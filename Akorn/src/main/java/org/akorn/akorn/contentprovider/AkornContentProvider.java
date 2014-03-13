@@ -78,7 +78,6 @@ public class AkornContentProvider extends ContentProvider
   @Override
   public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder)
   {
-
     //Log.i(TAG, "URI: " + uri.getPath());
     //Log.i(TAG, "LAST: " + uri.getLastPathSegment());
     SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
@@ -151,7 +150,8 @@ public class AkornContentProvider extends ContentProvider
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_TITLE + ", " +
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_JOURNAL + ", " +
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_FAVOURITE + ", " +
-            ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_ARTICLE_ID +
+            ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_ARTICLE_ID + ", " +
+            ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_DATE +
             " FROM " + ArticleTable.TABLE_ARTICLES + " INNER JOIN " +
             SearchArticleTable.TABLE_SEARCHES_ARTICLES +
             " ON " +

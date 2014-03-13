@@ -20,10 +20,6 @@ import android.widget.TextView;
 import org.akorn.akorn.contentprovider.AkornContentProvider;
 import org.akorn.akorn.database.ArticleTable;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Created by milo on 04/11/2013.
@@ -149,6 +145,7 @@ public class ArticleViewFragment extends Fragment
             ArticleTable.COLUMN_JOURNAL,
             ArticleTable.COLUMN_AUTHORS,
             ArticleTable.COLUMN_DATE,
+            ArticleTable.COLUMN_TIME,
             ArticleTable.COLUMN_LINK,
             ArticleTable.COLUMN_FAVOURITE,
             ArticleTable.COLUMN_ARTICLE_ID
@@ -158,28 +155,10 @@ public class ArticleViewFragment extends Fragment
     {
       do
       {
-        //article.setText(abs.replaceAll("[\n\r]", " "));
-        String myFormatString = "yyyy-MM-d'T'h:m:s";
-        Date showdate = null;
-        try
-        {
-          showdate = new SimpleDateFormat(myFormatString, Locale.ENGLISH).parse(
-            cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_DATE))
-          );
-        }
-        catch (ParseException e)
-        {
-          Log.e(TAG,"Can't parse date: " + cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_DATE)));
-        }
-        if (showdate != null)
-        {
-          String journal = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL));
-          journal_of_article.setText(journal + ", " + showdate.toString() );
-        }
-        else
-        {
-         journal_of_article.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL)));
-        }
+        String journal = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL));
+        String jdate = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_DATE));
+        String jtime = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TIME));
+        journal_of_article.setText(journal + ", " + jdate + " " + jtime);
         title_of_article.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE)));
         String authors = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_AUTHORS));
         article_authors.setText(authors);

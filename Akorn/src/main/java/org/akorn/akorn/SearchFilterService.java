@@ -49,6 +49,7 @@ public class SearchFilterService extends IntentService
 {
   public static boolean isRunning = false;
   private static String TAG = "AkornSearchFilterService";
+  private static int MAGIC_NUMBER = 2001;
   private String tempurl;
   private CookieStore cookiestore;
   public static final String URL = "http://akorn.org/api/";
@@ -134,7 +135,7 @@ public class SearchFilterService extends IntentService
         .setWhen(System.currentTimeMillis())
         .setOngoing(true)
         .build();
-    notificationManager.notify(2001, twirler);
+    notificationManager.notify(MAGIC_NUMBER, twirler);
 
 
 
@@ -384,7 +385,7 @@ public class SearchFilterService extends IntentService
   {
     isRunning = false;
     Log.i(TAG, "Finished!");
-    notificationManager.cancel(2001);
+    notificationManager.cancel(MAGIC_NUMBER);
     super.onDestroy();
   }
 

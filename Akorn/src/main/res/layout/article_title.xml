@@ -5,11 +5,19 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
+    <TextView android:id="@+id/article_date"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="@color/akorn_green"
+              android:textAppearance="?android:attr/textAppearanceSmall"
+              android:textColor="@android:color/white"
+              android:gravity="left"
+              android:paddingLeft="4dp"/>
+
     <TextView android:id="@+id/article_title"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:layout_marginLeft="?android:attr/listPreferredItemPaddingLeft"
-              android:layout_marginTop="8dip"
               android:textStyle="bold"
               android:textAppearance="?android:attr/textAppearanceListItemSmall"
             />
@@ -20,5 +28,7 @@
               android:layout_marginRight="?android:attr/listPreferredItemPaddingRight"
               android:textAppearance="?android:attr/textAppearanceSmall"
               android:gravity="right"/>
+
+
 
 </LinearLayout>

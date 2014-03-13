@@ -73,6 +73,7 @@ public class AkornSyncService extends IntentService
   public static final String URL = "http://akorn.org/api/";
   public static final String DEVURL = "http://akorn.org:8000/api/";
   private static final String TAG = "AkornSyncService";
+  private static final int MAGIC_NUMBER = 2000;
   private Handler mHandler;
   private CookieStore cookiestore;
   private Map<String,String> searchresults;
@@ -132,7 +133,7 @@ public class AkornSyncService extends IntentService
     // Hide the notification after its selected
     noti.flags |= Notification.FLAG_AUTO_CANCEL;
     notificationManager.notify(1000, noti);
-    notificationManager.cancel(2000);
+    notificationManager.cancel(MAGIC_NUMBER);
     super.onDestroy();
   }
 
@@ -143,8 +144,6 @@ public class AkornSyncService extends IntentService
       and password, for the app won't start this service unless both are defined.
      */
     isRunning = true;
-
-
 
     // bitmap for notification icon
     icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_launcher);
@@ -161,7 +160,7 @@ public class AkornSyncService extends IntentService
         .setWhen(System.currentTimeMillis())
         .setOngoing(true)
         .build();
-    notificationManager.notify(2000, twirler);
+    notificationManager.notify(MAGIC_NUMBER, twirler);
 
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     String username = prefs.getString("pref_username", "");

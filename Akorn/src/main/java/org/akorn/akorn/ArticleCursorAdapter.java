@@ -10,12 +10,13 @@ import android.widget.TextView;
 import org.akorn.akorn.database.ArticleTable;
 
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by milo on 12/12/2013.
  */
-public class ArticleCursorAdapter extends SimpleCursorAdapter
+public class ArticleCursorAdapter extends SimpleCursorAdapter //implements PinnedSectionListView.PinnedSectionListAdapter
 {
   private Cursor c;
   private Context context;
@@ -35,11 +36,28 @@ public class ArticleCursorAdapter extends SimpleCursorAdapter
     super.bindView(row, cont, cursor);
 
     TextView title = (TextView) row.findViewById(R.id.article_title);
-    title.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE)));
+    String titleString = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE));
+    title.setText(titleString);
     title.invalidate();
     TextView journal = (TextView) row.findViewById(R.id.article_journal);
     journal.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL)));
     journal.invalidate();
+    TextView date = (TextView) row.findViewById(R.id.article_date);
+    String dateString = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_DATE));
+    date.setText(dateString);
+    date.invalidate();
+
+    // attempt to hide date if it has already been seen
+    if (ArticleListFragment.headedArticles.contains(titleString))
+    {
+      date.setVisibility(TextView.VISIBLE);
+    }
+    else
+    {
+      date.setVisibility(TextView.GONE);
+    }
+
+    // set background colour for favourite articles
     try
     {
       int favourite = cursor.getInt(cursor.getColumnIndex(ArticleTable.COLUMN_FAVOURITE));
@@ -59,4 +77,12 @@ public class ArticleCursorAdapter extends SimpleCursorAdapter
       Log.e(TAG, "Row colour setting fail: " + e.toString());
     }
   }
+
+  /*
+  @Override
+  public boolean isItemViewTypePinned(int viewType)
+  {
+    return viewType == 1;
+  }
+  */
 }

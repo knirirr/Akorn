@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -17,6 +16,8 @@ import android.widget.Toast;
 
 import org.akorn.akorn.contentprovider.AkornContentProvider;
 import org.akorn.akorn.database.ArticleTable;
+
+import java.util.ArrayList;
 
 
 /**
@@ -29,7 +30,10 @@ public class ArticleListFragment extends ListFragment
   private String searchId = "";
   private SimpleCursorAdapter mCursorAdapter;
   private Cursor cursor = null;
+  private Cursor hCursor = null;
   final static String ARG_FRAG = "fragName";
+  public static ArrayList<String> headedArticles;
+  private ArrayList<String> seenDates;
   private final static String[] selectArgs = new String[]{ArticleTable.COLUMN_ID,
                                                           ArticleTable.COLUMN_TITLE,
                                                           ArticleTable.COLUMN_JOURNAL,
@@ -57,17 +61,18 @@ public class ArticleListFragment extends ListFragment
     {
       Log.e(TAG,"Couldn't get search_id: " + e.toString());
     }
+    headedArticles = new ArrayList<String>();
+    seenDates = new ArrayList<String>();
   }
 
   /*
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
   {
-    ListView list = (ListView) inflater.inflate(R.layout.pinned_section, container);
+    View list = inflater.inflate(R.layout.pinned_section, container);
     return list;
   }
   */
-
 
   @Override
   public void onViewCreated(View view, Bundle savedInstanceState)
@@ -139,6 +144,7 @@ public class ArticleListFragment extends ListFragment
   {
     //Log.i(TAG,"ArticleListFragment: " + search_id);
     searchId = search_id;
+    setHeaders(search_id);
     mCursorAdapter = getList(search_id);
     mCursorAdapter.notifyDataSetChanged();
     setListAdapter(mCursorAdapter);
@@ -147,7 +153,6 @@ public class ArticleListFragment extends ListFragment
   // create the database cursor
   private ArticleCursorAdapter getList(String search_id)
   {
-    //int layout = android.R.layout.simple_list_item_activated_1;
     int layout = R.layout.article_title;
 
     Uri uri = null;
@@ -158,10 +163,6 @@ public class ArticleListFragment extends ListFragment
     }
     else
     {
-      /*
-        This search uses a custom SQL string and not the selectArgs, therefore if something extra is required
-        one should alter the SEARCHES_ARTICLES_ID case in the query section of the contentprovider.
-       */
       uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches/articles/" + search_id);
     }
     String orderBy =  String.valueOf(ArticleTable.COLUMN_DATE) + " DESC";
@@ -182,12 +183,12 @@ public class ArticleListFragment extends ListFragment
     String[] mWordListColumns =
     {
       ArticleTable.COLUMN_TITLE,
-      ArticleTable.COLUMN_JOURNAL
-      // might need COLUMN_DATE here...
+      ArticleTable.COLUMN_JOURNAL,
+      ArticleTable.COLUMN_DATE
     };
 
     // Defines a list of View IDs that will receive the Cursor columns for each row
-    int[] mWordListItems = { R.id.article_title, R.id.article_journal};
+    int[] mWordListItems = { R.id.article_title, R.id.article_journal, R.id.article_date};
 
     // Creates a new SimpleCursorAdapter
     //SimpleCursorAdapter mCursorAdapter = new SimpleCursorAdapter(
@@ -200,6 +201,57 @@ public class ArticleListFragment extends ListFragment
       //0);                                    // Flags (usually none are needed)
 
     return mCursorAdapter;
+  }
+
+  /*
+  Something about this function causes:
+  W/CursorWrapperInner( 1886): Cursor finalized without prior close()
+   */
+  private void setHeaders(String search_id)
+  {
+    Uri uri = null;
+
+    if (search_id == null || search_id.isEmpty() || search_id.equals("all_articles"))
+    {
+      uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
+    }
+    else
+    {
+      uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches/articles/" + search_id);
+    }
+    String orderBy =  String.valueOf(ArticleTable.COLUMN_DATE) + " DESC";
+    hCursor = getActivity().getContentResolver().query(uri,
+                   selectArgs,
+                   null,
+                   null,
+                   orderBy);
+
+    if (hCursor == null)
+    {
+      Log.i(TAG, "FRC! Cursor is null when trying to set headers!");
+      Toast.makeText(getActivity(), getString(R.string.database_error), Toast.LENGTH_SHORT).show();
+    }
+
+    // before setting up the adapter we need a couple of arrays to determine which articles should have
+    // section headings by date.
+    seenDates.clear();
+    headedArticles.clear();
+    while (hCursor.moveToNext())
+    {
+      String titleString = hCursor.getString(hCursor.getColumnIndex(ArticleTable.COLUMN_TITLE));
+      String dateString = hCursor.getString(hCursor.getColumnIndex(ArticleTable.COLUMN_DATE));
+      if (seenDates.contains(dateString))
+      {
+        //Log.i(TAG, "Alreadyseen: " + dateString);
+      }
+      else
+      {
+        headedArticles.add(titleString);
+        seenDates.add(dateString);
+        //Log.i(TAG, "Added article: " + titleString);
+      }
+    }
+    hCursor.close();
   }
 
   @Override
