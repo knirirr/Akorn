@@ -33,6 +33,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -329,7 +330,11 @@ public class SearchFilterService extends IntentService
       json.put("type", ftype);
       if (!jid.isEmpty())
       {
-        json.put("jid",jid);
+        json.put("id",jid);
+      }
+      else
+      {
+        json.put("id",jtext);
       }
     }
     catch (Exception e)
@@ -337,29 +342,37 @@ public class SearchFilterService extends IntentService
       Log.e(TAG, "Couldn't create JSON: " + e.toString());
     }
 
+    JSONArray submission = new JSONArray();
+    submission.put(json);
     JSONObject topJson = new JSONObject();
     try
     {
-      topJson.put("query", json);
+      topJson.put("query", submission);
     }
     catch (Exception e)
     {
       Log.e(TAG, "Couldn't create second JSON: " + e.toString());
     }
 
-    //HttpPost httpPost = new HttpPost(tempurl + "searches?query=" + URLEncoder.encode(json.toString()));
-    //Log.i(TAG, "URLEncoded: " + URLEncoder.encode(json.toString()));
+    //HttpPost httpPost = new HttpPost(tempurl + "searches?query=" + URLEncoder.encode(topJson.toString()));
+    Log.i(TAG, "URLUnencoded: " + tempurl + "searches?query=" + submission.toString());
+    Log.i(TAG, "URLEncoded: " + tempurl + "searches?query=" + java.net.URLEncoder.encode(submission.toString()));
+    HttpPost httpPost = new HttpPost(tempurl + "searches?query=" + java.net.URLEncoder.encode(submission.toString()));
     //HttpPost httpPost = new HttpPost(tempurl + "searches?query=" + json.toString());
     //Log.i(TAG, "JSON: " + json.toString());
-    HttpPost httpPost = new HttpPost(tempurl + "searches");
+    //HttpPost httpPost = new HttpPost(tempurl + "searches?query=");
 
     try
     {
-      Log.i(TAG, "JSON: " + topJson.toString());
-      StringEntity se = new StringEntity( "JSON: " + topJson.toString());
+      /*
+      //Log.i(TAG, "JSON: " + topJson.toString());http://codelikethis.tumblr.com/rss
+      //StringEntity se = new StringEntity( "JSON: " + topJson.toString());
+      Log.i(TAG, "JSON: " + json.toString());
+      StringEntity se = new StringEntity( "JSON: " + json.toString());
       Log.i(TAG, "StringEntitiy: " + se.toString());
       se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
       httpPost.setEntity(se);
+      */
 
       HttpResponse response = client.execute(httpPost,localContext);
       int statusCode = response.getStatusLine().getStatusCode();

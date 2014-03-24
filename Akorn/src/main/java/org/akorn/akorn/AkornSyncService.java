@@ -167,6 +167,7 @@ public class AkornSyncService extends IntentService
     String password = prefs.getString("pref_password", "");
     String server = prefs.getString("server_pref","prod");
     String session_id = "";
+    Log.i(TAG,"SERVER: " + server);
 
     Log.i(TAG, "Server settings: " + server);
 
@@ -443,7 +444,13 @@ public class AkornSyncService extends IntentService
       ...oh, it's a pipe!
      */
 
+    // these are here to take note of which articles are seen or not, so that section headers are set
+    // on syncing. These replicate the code that is run in the ArticleListFragment when the user selects
+    // a filter from the NavigationDrawer
+    ArticleListFragment.seenDates.clear();
+    ArticleListFragment.headedArticles.clear();
     Log.i(TAG, "START");
+
     for (Map.Entry<String,String> entry : searchresults.entrySet())
     {
       String key = entry.getKey();
@@ -467,6 +474,8 @@ public class AkornSyncService extends IntentService
         Elements articles = doc.getElementsByTag("article");
         ContentValues values;
         ContentValues joinValues;
+        String titleString = "wibble";
+        String dateString = "wibble";
         for (Element article : articles)
         {
           values = new ContentValues();
@@ -506,7 +515,8 @@ public class AkornSyncService extends IntentService
           Elements title = article.getElementsByTag("title");
           for (Element t : title)
           {
-            values.put(ArticleTable.COLUMN_TITLE,org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(t.html()));
+            titleString = org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(t.html());
+            values.put(ArticleTable.COLUMN_TITLE,titleString);
           }
           Elements waffle = article.getElementsByTag("abstract");
           for (Element w : waffle)
@@ -522,9 +532,28 @@ public class AkornSyncService extends IntentService
           for (Element d : date)
           {
             String[] dateTime = org.apache.commons.lang3.StringEscapeUtils.unescapeHtml4(d.html()).split("T");
+            dateString = dateTime[0];
             values.put(ArticleTable.COLUMN_DATE,dateTime[0]);
             values.put(ArticleTable.COLUMN_TIME,dateTime[1]);
           }
+          /*
+           Set up section headers...
+          */
+          if (ArticleListFragment.seenDates.contains(dateString))
+          {
+            //Log.i(TAG, "Alreadyseen: " + dateString);
+          }
+          else
+          {
+            ArticleListFragment.headedArticles.add(titleString);
+            ArticleListFragment.seenDates.add(dateString);
+            //Log.i(TAG, "Added article: " + titleString);
+          }
+
+
+          /*
+          Insert articles into the database
+           */
           Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles");
           values.put(ArticleTable.COLUMN_READ,0);
           values.put(ArticleTable.COLUMN_FAVOURITE,0);

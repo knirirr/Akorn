@@ -18,7 +18,16 @@
             android:inputType="textPassword"
             android:defaultValue="">
         </EditTextPreference>
+    </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="Viewing"
+        android:key="pref_key_viewing">
+        <CheckBoxPreference
+                android:key="pref_authors"
+                android:title="@string/pref_authors"
+                android:summary="@string/pref_authors_summ"
+                android:defaultValue="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -29,7 +38,7 @@
                 android:title="Server port"
                 android:summary="@string/prod_or_dev"
                 android:key="server_pref"
-                android:defaultValue="2"
+                android:defaultValue="prod"
                 android:entries="@array/server_pref_array"
                 android:entryValues="@array/server_pref_values" />
     </PreferenceCategory>

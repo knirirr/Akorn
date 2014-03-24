@@ -33,12 +33,13 @@ public class ArticleListFragment extends ListFragment
   private Cursor hCursor = null;
   final static String ARG_FRAG = "fragName";
   public static ArrayList<String> headedArticles;
-  private ArrayList<String> seenDates;
+  public static ArrayList<String> seenDates;
   private final static String[] selectArgs = new String[]{ArticleTable.COLUMN_ID,
                                                           ArticleTable.COLUMN_TITLE,
                                                           ArticleTable.COLUMN_JOURNAL,
                                                           ArticleTable.COLUMN_ARTICLE_ID,
                                                           ArticleTable.COLUMN_DATE,
+                                                          ArticleTable.COLUMN_AUTHORS,
                                                           ArticleTable.COLUMN_FAVOURITE};
 
   // The container Activity must implement this interface so the frag can deliver messages
@@ -184,11 +185,13 @@ public class ArticleListFragment extends ListFragment
     {
       ArticleTable.COLUMN_TITLE,
       ArticleTable.COLUMN_JOURNAL,
+      ArticleTable.COLUMN_AUTHORS,
       ArticleTable.COLUMN_DATE
     };
 
     // Defines a list of View IDs that will receive the Cursor columns for each row
-    int[] mWordListItems = { R.id.article_title, R.id.article_journal, R.id.article_date};
+    int[] mWordListItems = { R.id.article_title, R.id.article_journal, R.id.article_authors, R.id.article_date};
+    //int[] mWordListItems = { R.id.article_title, R.id.article_journal, R.id.article_date};
 
     // Creates a new SimpleCursorAdapter
     //SimpleCursorAdapter mCursorAdapter = new SimpleCursorAdapter(

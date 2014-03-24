@@ -19,6 +19,12 @@
     </style>
   </head>
   <body>
+$ 0.2.11-alpha
+  % Version 0.2.10-alpha
+  _ 2014-03-11
+    * Journal syncing now fixed, but filters still can't be created.
+    * Date headers in the article list can now be seen from the moment of syncing.
+    * There's an option to show author names in the article list.
 $ 0.2.10-alpha
   % Version 0.2.10-alpha
   _ 2014-03-11

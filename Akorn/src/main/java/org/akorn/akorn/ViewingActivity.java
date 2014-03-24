@@ -40,7 +40,9 @@ public class ViewingActivity extends Activity
   private int pos;
   private int sqlid;
   public Boolean favourite = false;
+  public static Boolean show_authors;
   SharedPreferences prefs;
+  SharedPreferences.OnSharedPreferenceChangeListener listener;
 
   @Override
   protected void onCreate(Bundle savedInstanceState)
@@ -48,9 +50,18 @@ public class ViewingActivity extends Activity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.list_view);
 
+    prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    show_authors = prefs.getBoolean("pref_authors",false);
+    Log.i(TAG,"Showing authors: " + show_authors.toString());
+    listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+      public void onSharedPreferenceChanged(SharedPreferences prefs, String pref_authors) {
+        show_authors = prefs.getBoolean("pref_authors",false);
+      }
+    };
+    prefs.registerOnSharedPreferenceChangeListener(listener);
+
     mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
     mTitle = getTitle();
-    prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
     // Set up the drawer.
     mNavigationDrawerFragment.setUp(R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
@@ -116,6 +127,8 @@ public class ViewingActivity extends Activity
   {
     super.onResume();
     prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    show_authors = prefs.getBoolean("pref_authors",false);
+    Log.i(TAG,"Showing authors (onResume): " + show_authors.toString());
     LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("filters-changed"));
   }
 
@@ -252,7 +265,6 @@ public class ViewingActivity extends Activity
 
             return true;
           case R.id.action_sync:
-            //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             String username = prefs.getString("pref_username", "");
             String password = prefs.getString("pref_password", "");
             String password_confirm = prefs.getString("pref_password_confirm", "");

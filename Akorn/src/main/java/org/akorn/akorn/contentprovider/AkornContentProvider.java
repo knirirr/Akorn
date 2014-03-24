@@ -151,6 +151,7 @@ public class AkornContentProvider extends ContentProvider
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_JOURNAL + ", " +
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_FAVOURITE + ", " +
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_ARTICLE_ID + ", " +
+            ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_AUTHORS + ", " +
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_DATE +
             " FROM " + ArticleTable.TABLE_ARTICLES + " INNER JOIN " +
             SearchArticleTable.TABLE_SEARCHES_ARTICLES +

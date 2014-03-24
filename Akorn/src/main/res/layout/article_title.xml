@@ -22,11 +22,19 @@
               android:textAppearance="?android:attr/textAppearanceListItemSmall"
             />
 
+    <TextView android:id="@+id/article_authors"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginRight="?android:attr/listPreferredItemPaddingRight"
+              android:textAppearance="?android:attr/textAppearanceSmall"
+              android:gravity="right"/>
+
     <TextView android:id="@+id/article_journal"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:layout_marginRight="?android:attr/listPreferredItemPaddingRight"
               android:textAppearance="?android:attr/textAppearanceSmall"
+              android:textStyle="italic"
               android:gravity="right"/>
 
 

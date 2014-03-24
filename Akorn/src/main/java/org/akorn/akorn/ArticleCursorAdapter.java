@@ -39,9 +39,15 @@ public class ArticleCursorAdapter extends SimpleCursorAdapter //implements Pinne
     String titleString = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_TITLE));
     title.setText(titleString);
     title.invalidate();
+
     TextView journal = (TextView) row.findViewById(R.id.article_journal);
     journal.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_JOURNAL)));
     journal.invalidate();
+
+    TextView authors = (TextView) row.findViewById(R.id.article_authors);
+    authors.setText(cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_AUTHORS)));
+    authors.invalidate();
+
     TextView date = (TextView) row.findViewById(R.id.article_date);
     String dateString = cursor.getString(cursor.getColumnIndex(ArticleTable.COLUMN_DATE));
     date.setText(dateString);
@@ -55,6 +61,16 @@ public class ArticleCursorAdapter extends SimpleCursorAdapter //implements Pinne
     else
     {
       date.setVisibility(TextView.GONE);
+    }
+
+    // hide date unless show authors has been selected
+    if (ViewingActivity.show_authors == true)
+    {
+      authors.setVisibility(TextView.VISIBLE);
+    }
+    else
+    {
+      authors.setVisibility(TextView.GONE);
     }
 
     // set background colour for favourite articles
