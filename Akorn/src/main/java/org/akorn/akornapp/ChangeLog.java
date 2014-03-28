@@ -12,7 +12,7 @@
  * @author: Karsten Priegnitz
  * @see: http://code.google.com/p/android-change-log/
  */
-package org.akorn.akorn;
+package org.akorn.akornapp;
 
 import java.io.BufferedReader;
 import java.io.IOException;

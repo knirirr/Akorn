@@ -1,4 +1,4 @@
-package org.akorn.akorn.contentprovider;
+package org.akorn.akornapp.contentprovider;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -9,12 +9,11 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
 
-import org.akorn.akorn.Article;
-import org.akorn.akorn.database.AkornDatabaseHelper;
-import org.akorn.akorn.database.ArticleTable;
-import org.akorn.akorn.database.JournalsTable;
-import org.akorn.akorn.database.SearchArticleTable;
-import org.akorn.akorn.database.SearchTable;
+import org.akorn.akornapp.database.AkornDatabaseHelper;
+import org.akorn.akornapp.database.ArticleTable;
+import org.akorn.akornapp.database.JournalsTable;
+import org.akorn.akornapp.database.SearchArticleTable;
+import org.akorn.akornapp.database.SearchTable;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -27,7 +26,7 @@ public class AkornContentProvider extends ContentProvider
 
   private AkornDatabaseHelper database;
 
-  public static final String AUTHORITY = "org.akorn.akorn.contentprovider";
+  public static final String AUTHORITY = "org.akorn.akornapp.contentprovider";
   public static final String TAG = "AkornContentProvider";
 
   /*

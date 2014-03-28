@@ -1,4 +1,4 @@
-package org.akorn.akorn;
+package org.akorn.akornapp;
 
 import android.app.Activity;
 ;
@@ -286,29 +286,8 @@ public class ViewingActivity extends Activity
 
             return true;
           case R.id.action_sync:
-            String username = prefs.getString("pref_username", "");
-            String password = prefs.getString("pref_password", "");
-            String password_confirm = prefs.getString("pref_password_confirm", "");
-            Boolean hasAccount = false; // should be false
-            // if these are both filled in then presumably the user already has an account; this being
-            // so there is no need to send them to the account creation UI
-            if (!username.isEmpty() && !password.isEmpty())
+            if (checkAccount())
             {
-              hasAccount = true;
-            }
-            if (!hasAccount)
-            {
-              Toast.makeText(this, getString(R.string.need_account), Toast.LENGTH_SHORT).show();
-              Intent createActivity = new Intent(this, CreateAccountActivity.class);
-              startActivity(createActivity);
-              return true;
-            }
-            // username, password or confirmation missing
-            if (username.isEmpty() || password.isEmpty())
-            {
-              Toast.makeText(this, getString(R.string.please_configure), Toast.LENGTH_SHORT).show();
-              Intent settingsActivity = new Intent(this, SettingsActivity.class);
-              startActivity(settingsActivity);
               return true;
             }
             // sync already running
@@ -323,6 +302,10 @@ public class ViewingActivity extends Activity
             this.startService(i);
             return true;
           case R.id.action_filters:
+            if (checkAccount())
+            {
+              return true;
+            }
             actionIntent = new Intent(this, FilterActivity.class);
             startActivity(actionIntent);
             return true;
@@ -400,5 +383,35 @@ public class ViewingActivity extends Activity
       currentFragmentIndex = 0;
     }
     super.onBackPressed();
+  }
+
+  private Boolean checkAccount()
+  {
+    String username = prefs.getString("pref_username", "");
+    String password = prefs.getString("pref_password", "");
+    String password_confirm = prefs.getString("pref_password_confirm", "");
+    Boolean hasAccount = false; // should be false
+    // if these are both filled in then presumably the user already has an account; this being
+    // so there is no need to send them to the account creation UI
+    if (!username.isEmpty() && !password.isEmpty())
+    {
+      hasAccount = true;
+    }
+    if (!hasAccount)
+    {
+      Toast.makeText(this, getString(R.string.need_account), Toast.LENGTH_SHORT).show();
+      Intent createActivity = new Intent(this, CreateAccountActivity.class);
+      startActivity(createActivity);
+      return true;
+    }
+    // username, password or confirmation missing
+    if (username.isEmpty() || password.isEmpty())
+    {
+      Toast.makeText(this, getString(R.string.please_configure), Toast.LENGTH_SHORT).show();
+      Intent settingsActivity = new Intent(this, SettingsActivity.class);
+      startActivity(settingsActivity);
+      return true;
+    }
+    return false;
   }
 }

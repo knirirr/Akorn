@@ -1,4 +1,4 @@
-package org.akorn.akorn;
+package org.akorn.akornapp;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -7,11 +7,7 @@ import android.view.View;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-import org.akorn.akorn.database.ArticleTable;
-
-
-import java.util.HashMap;
-import java.util.Map;
+import org.akorn.akornapp.database.ArticleTable;
 
 /**
  * Created by milo on 12/12/2013.

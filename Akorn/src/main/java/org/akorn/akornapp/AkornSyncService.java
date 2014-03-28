@@ -1,11 +1,10 @@
-package org.akorn.akorn;
+package org.akorn.akornapp;
 
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -18,12 +17,11 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.akorn.akorn.contentprovider.AkornContentProvider;
-import org.akorn.akorn.database.ArticleTable;
-import org.akorn.akorn.database.SearchArticleTable;
-import org.akorn.akorn.database.JournalsTable;
-import org.akorn.akorn.database.SearchTable;
-import org.apache.commons.lang3.StringUtils;
+import org.akorn.akornapp.contentprovider.AkornContentProvider;
+import org.akorn.akornapp.database.ArticleTable;
+import org.akorn.akornapp.database.SearchArticleTable;
+import org.akorn.akornapp.database.JournalsTable;
+import org.akorn.akornapp.database.SearchTable;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -52,17 +50,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 
 /**

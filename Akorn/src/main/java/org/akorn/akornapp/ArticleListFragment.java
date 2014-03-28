@@ -1,4 +1,4 @@
-package org.akorn.akorn;
+package org.akorn.akornapp;
 
 import android.app.ListFragment;
 import android.app.Activity;
@@ -14,8 +14,8 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.akorn.akorn.contentprovider.AkornContentProvider;
-import org.akorn.akorn.database.ArticleTable;
+import org.akorn.akornapp.contentprovider.AkornContentProvider;
+import org.akorn.akornapp.database.ArticleTable;
 
 import java.util.ArrayList;
 

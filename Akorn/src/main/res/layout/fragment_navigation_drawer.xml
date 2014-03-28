@@ -6,4 +6,4 @@
     android:divider="@android:color/transparent"
     android:dividerHeight="0dp"
     android:background="#FFFFFF"
-    tools:context="org.akorn.akorn.NavigationDrawerFragment" />
+    tools:context="org.akorn.akornapp.NavigationDrawerFragment" />

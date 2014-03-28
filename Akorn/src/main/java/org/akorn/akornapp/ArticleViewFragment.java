@@ -1,4 +1,4 @@
-package org.akorn.akorn;
+package org.akorn.akornapp;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -6,7 +6,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,8 +16,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.akorn.akorn.contentprovider.AkornContentProvider;
-import org.akorn.akorn.database.ArticleTable;
+import org.akorn.akornapp.contentprovider.AkornContentProvider;
+import org.akorn.akornapp.database.ArticleTable;
 
 
 /**

@@ -1,4 +1,4 @@
-package org.akorn.akorn;
+package org.akorn.akornapp;
 
 /**
  * Created by milo on 04/11/2013.

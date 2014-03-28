@@ -1,4 +1,4 @@
-package org.akorn.akorn;
+package org.akorn.akornapp;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;

@@ -1,4 +1,4 @@
-package org.akorn.akorn;
+package org.akorn.akornapp;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -26,9 +26,9 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
-import org.akorn.akorn.contentprovider.AkornContentProvider;
-import org.akorn.akorn.database.JournalsTable;
-import org.akorn.akorn.database.SearchTable;
+import org.akorn.akornapp.contentprovider.AkornContentProvider;
+import org.akorn.akornapp.database.JournalsTable;
+import org.akorn.akornapp.database.SearchTable;
 
 import java.util.ArrayList;
 

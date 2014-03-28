@@ -1,9 +1,8 @@
-package org.akorn.akorn;
+package org.akorn.akornapp;
 
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -23,20 +22,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
-import org.akorn.akorn.contentprovider.AkornContentProvider;
-import org.akorn.akorn.database.SearchTable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import org.akorn.akornapp.contentprovider.AkornContentProvider;
+import org.akorn.akornapp.database.SearchTable;
 
 
 /**

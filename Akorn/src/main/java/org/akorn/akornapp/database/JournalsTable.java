@@ -1,4 +1,4 @@
-package org.akorn.akorn.database;
+package org.akorn.akornapp.database;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
