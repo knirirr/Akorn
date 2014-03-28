@@ -19,4 +19,8 @@
           android:title="@string/action_filters"
           android:icon="@drawable/ic_menu_find"
           android:showAsAction="ifRoom" />
+    <item android:id="@+id/action_about"
+          android:title="@string/action_about"
+          android:icon="@android:drawable/ic_menu_info_details"
+          android:showAsAction="never" />
 </menu>

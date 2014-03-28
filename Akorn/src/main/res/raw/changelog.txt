@@ -19,77 +19,10 @@
     </style>
   </head>
   <body>
-$ 0.2.14-alpha
-  % Version 0.2.14-alpha
+$ 0.3.0-beta
+  % Version 0.3.0-beta
   _ 2014-04-28
-    * Final alpha release before public beta.
-    * Fixed database-related crash on new install.
-    * Added first-run tooltip to indicate how to create a new account.
-    * Filter button now hidden when navigation drawer open.
-$ 0.2.12-alpha
-  % Version 0.2.12-alpha
-  _ 2014-04-26
-    * Filter creation is finally fixed!
-$ 0.2.11-alpha
-  % Version 0.2.10-alpha
-  _ 2014-04-23
-    * Journal syncing now fixed, but filters still can't be created.
-    * Date headers in the article list can now be seen from the moment of syncing.
-    * There's an option to show author names in the article list.
-$ 0.2.10-alpha
-  % Version 0.2.10-alpha
-  _ 2014-03-11
-    * Problems from 0.2.8-alpha still apply.
-    * Articles are now organised by date, with headers. Performance may be poor, but it works visually.
-$ 0.2.9-alpha
-  % Version 0.2.9-alpha
-  _ 2014-03-11
-    * Problems from 0.2.8-alpha still apply.
-    * An animated syncing notification has been added.
-$ 0.2.8-alpha
-  % Version 0.2.8-alpha
-  _ 2014-03-07
-    * Filters still can't be created (400 from server).
-    * Journal syncing broken (can't parse string returned by server).
-    * Crash bug when entering filter creation activity should be fixed.
-    * "No articles" display bug may be fixed - please test and report back!
-$ 0.2.7-alpha
-  % Version 0.2.7-alpha
-  _ 2014-02-27
-    * Some success moving towards filter creation.
-    * "No articles" display bug may be fixed - please test and report back!
-$ 0.2.6-alpha
-  % Version 0.2.6-alpha
-  _ 2014-02-24
-    * Articles now only share one copy of the abstract.
-    * "No articles" display bug may be fixed - please test!
-$ 0.2.5-alpha
-  % Version 0.2.5-alpha
-  _ 2014-02-21
-    * Crash on article sharing now fixed.
-    * "No articles" display bug may be fixed - please test!
-$ 0.2.4-alpha
-  % Version 0.2.4-alpha
-  _ 2014-02-19
-    * Filter deletion now works!
-$ 0.2.3-alpha
-  % Version 0.2.3-alpha
-  _ 2014-02-18
-    * Some progress has been made on filter deletion...
-    * ...but it doesn't work yet.
-$ 0.2.2-alpha
-  % Version 0.2.2-alpha
-  _ 2014-02-13
-    * Account creation now works.
-    * Syncing bug fixed.
-$ 0.2.1-alpha
-  % Version 0.2.1-alpha
-  _ 2014-02-12
-  _ Incorporated <a href="http://code.google.com/p/android-change-log/">changelog</a> by Karsten Priegnitz.
-
-$ 0.1
-  % Version 0.1
-  _ (pre-alpha, not working)
+    * First public beta!
 $ END_OF_CHANGE_LOG
   </body>
 </html>

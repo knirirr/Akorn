@@ -21,6 +21,9 @@
     <string name="send_to">Share article</string>
     <string name="action_filters">Edit filters</string>
     <string name="action_add">Add</string>
+    <string name="action_about">About</string>
+    <string name="about">Copyright 2014 http://akorn.org.\n\nDeveloped at the Oxford e-Research Centre.\n\nIncorporates Android Changelog by Karsten Priegnitz (http://code.google.com/p/android-change-log/).</string>
+    <string name="about_title">About</string>
 
     <!-- preferences -->
     <string name="pref_username">Email</string>

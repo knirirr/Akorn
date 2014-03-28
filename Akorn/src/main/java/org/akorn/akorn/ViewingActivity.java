@@ -326,6 +326,15 @@ public class ViewingActivity extends Activity
             actionIntent = new Intent(this, FilterActivity.class);
             startActivity(actionIntent);
             return true;
+          case R.id.action_about:
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.about_title);
+            builder.setCancelable(false);
+            builder.setMessage(R.string.about);
+            builder.setPositiveButton("OK",null);
+            AlertDialog alert = builder.create();
+            alert.show();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
