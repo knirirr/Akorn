@@ -307,10 +307,11 @@ public class NavigationDrawerFragment extends Fragment
         ListView listView = (ListView) getActivity().findViewById(R.id.navigation_drawer);
         listView.setAdapter(mCursorAdapter);
         listView.invalidateViews();
+        MenuItem item;
 
         if (menu.findItem(R.id.action_share) != null)
         {
-          MenuItem item = menu.findItem(R.id.action_share);
+          item = menu.findItem(R.id.action_share);
           item.setVisible(false);
         }
         else
@@ -319,7 +320,7 @@ public class NavigationDrawerFragment extends Fragment
         }
         if (menu.findItem(R.id.action_sync) != null)
         {
-          MenuItem item = menu.findItem(R.id.action_sync);
+          item = menu.findItem(R.id.action_sync);
           item.setVisible(false);
         }
         else
@@ -328,12 +329,17 @@ public class NavigationDrawerFragment extends Fragment
         }
         if (menu.findItem(R.id.action_favourite) != null)
         {
-          MenuItem item = menu.findItem(R.id.action_favourite);
+          item = menu.findItem(R.id.action_favourite);
           item.setVisible(false);
         }
         else
         {
           //Toast.makeText(getActivity(), "Failed to clear the menu.", Toast.LENGTH_SHORT).show();
+        }
+        if (menu.findItem(R.id.action_filters) != null)
+        {
+          item = menu.findItem(R.id.action_filters);
+          item.setVisible(false);
         }
       }
     }

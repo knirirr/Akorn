@@ -25,6 +25,7 @@ public class AkornDatabaseHelper extends SQLiteOpenHelper
     ArticleTable.onCreate(database);
     SearchArticleTable.onCreate(database);
     SearchTable.onCreate(database);
+    JournalsTable.onCreate(database);
   }
 
   @Override

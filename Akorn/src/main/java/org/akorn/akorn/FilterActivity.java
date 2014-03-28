@@ -267,7 +267,7 @@ public class FilterActivity extends Activity
         i.putExtra("jtext",journal);
         String jid = getJournalId(journal);
         i.putExtra("jid",jid);
-        Log.i(TAG, "PUT JOURNAL ID: " + jid);
+        //Log.i(TAG, "PUT JOURNAL ID: " + jid);
         if (SearchFilterService.isRunning == false)
         {
           FilterActivity.this.startService(i);
@@ -295,7 +295,7 @@ public class FilterActivity extends Activity
    */
   public String getJournalId(String journal)
   {
-    Log.i(TAG, "Value passed to getJournalId: " + journal);
+    //Log.i(TAG, "Value passed to getJournalId: " + journal);
     Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/journals");
     String finalResult = "";
     Cursor cursor = getContentResolver().query(uri,

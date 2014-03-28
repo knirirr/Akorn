@@ -3,6 +3,7 @@ package org.akorn.akorn;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import org.akorn.akorn.contentprovider.AkornContentProvider;
+import org.akorn.akorn.database.SearchTable;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -33,10 +35,15 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -230,10 +237,7 @@ public class SearchFilterService extends IntentService
       if (search_id.equals("new"))
       {
         // create a new search
-        mHandler.post(new ToastRunnable("A search would be created here."));
-        //String ftype = intent.getStringExtra("ftype");
-        //String jtext = intent.getStringExtra("jtext");
-        //String jid = intent.getStringExtra("jid");
+        //mHandler.post(new ToastRunnable("A search would be created here."));
         CreateSearch(ftype,jtext,jid);
         // created by a new dialog activity
       }
@@ -308,20 +312,6 @@ public class SearchFilterService extends IntentService
 "8b05225aac657bd955fd49e2819d3609"}]}
 
      */
-    //mHandler.post(new ToastRunnable("I haven't written this bit of the code yet."));
-
-    /*
-    String json = "";
-    if (ftype.equals("keyword"))
-    {
-      json = "'%7B\"text\": \"" + jtext + "\", \"full\": \"" + jtext + "\", \"type\": \"" + ftype + "\"%7D'";
-    }
-    else
-    {
-      json = "'%7B\"text\": \"" + jtext + "\", \"full\": \"" + jtext + "\", \"type\": \"" + ftype + "\", \"id\": \"" + jid + "\"%7D'";
-    }
-    Log.i(TAG, "JSON: " + json);
-    */
     JSONObject json = new JSONObject();
     try
     {
@@ -344,46 +334,73 @@ public class SearchFilterService extends IntentService
 
     JSONArray submission = new JSONArray();
     submission.put(json);
-    JSONObject topJson = new JSONObject();
+    Log.i(TAG, "Submission: " + submission.toString());
+
+    HttpPost httpPost = new HttpPost(tempurl + "searches");
+    List<NameValuePair> params = new ArrayList<NameValuePair>();
+    params.add(new BasicNameValuePair("query",submission.toString()));
+    Log.i(TAG, "Params: " + params.toString());
+
+    UrlEncodedFormEntity formEntity = null;
     try
     {
-      topJson.put("query", submission);
+      formEntity = new UrlEncodedFormEntity(params);
     }
-    catch (Exception e)
+    catch (UnsupportedEncodingException e)
     {
-      Log.e(TAG, "Couldn't create second JSON: " + e.toString());
+      Log.e(TAG, "Attempt to prepare URL failed.");
+      e.printStackTrace();
+      return;
     }
-
-    //HttpPost httpPost = new HttpPost(tempurl + "searches?query=" + URLEncoder.encode(topJson.toString()));
-    Log.i(TAG, "URLUnencoded: " + tempurl + "searches?query=" + submission.toString());
-    Log.i(TAG, "URLEncoded: " + tempurl + "searches?query=" + java.net.URLEncoder.encode(submission.toString()));
-    HttpPost httpPost = new HttpPost(tempurl + "searches?query=" + java.net.URLEncoder.encode(submission.toString()));
-    //HttpPost httpPost = new HttpPost(tempurl + "searches?query=" + json.toString());
-    //Log.i(TAG, "JSON: " + json.toString());
-    //HttpPost httpPost = new HttpPost(tempurl + "searches?query=");
+    Log.i(TAG, "FormEntity: " + formEntity.toString());
+    httpPost.setEntity(formEntity);
 
     try
     {
-      /*
-      //Log.i(TAG, "JSON: " + topJson.toString());http://codelikethis.tumblr.com/rss
-      //StringEntity se = new StringEntity( "JSON: " + topJson.toString());
-      Log.i(TAG, "JSON: " + json.toString());
-      StringEntity se = new StringEntity( "JSON: " + json.toString());
-      Log.i(TAG, "StringEntitiy: " + se.toString());
-      se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-      httpPost.setEntity(se);
-      */
-
       HttpResponse response = client.execute(httpPost,localContext);
+      Log.i(TAG, "Response: " + response.getStatusLine().getReasonPhrase());
       int statusCode = response.getStatusLine().getStatusCode();
       if (statusCode == 200)
       {
-        mHandler.post(new ToastRunnable("Holy crap, it worked!"));
+        mHandler.post(new ToastRunnable(getString(R.string.created_filter)));
+        /*
+        A new filter has been created here, and so it ought perhaps to be added to the list of
+        filters currently on the screen or the user might wonder what's going on
+         */
+        HttpEntity entity = response.getEntity();
+        InputStream  inputStream = entity.getContent();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"), 8);
+        StringBuilder sb = new StringBuilder();
+
+        String line = null;
+        while ((line = reader.readLine()) != null)
+        {
+          sb.append(line + "\n");
+        }
+        String jsonResult = sb.toString();
+        JSONObject jObject = new JSONObject(jsonResult);
+        String query_id = jObject.getString("query_id");
+        Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
+        ContentValues values = new ContentValues();
+        values.put(SearchTable.COLUMN_TEXT,jtext);
+        values.put(SearchTable.COLUMN_FULL,jtext);
+        values.put(SearchTable.COLUMN_TYPE,ftype);
+        values.put(SearchTable.COLUMN_SEARCH_ID,query_id);
+        if (!jid.isEmpty())
+        {
+          values.put(SearchTable.COLUMN_TERM_ID, jid);
+        }
+        else
+        {
+          values.put(SearchTable.COLUMN_TERM_ID, jtext);
+        }
+        getContentResolver().insert(uri, values);
       }
       else
       {
         Log.e(TAG, "FRC, status code: " + String.valueOf(statusCode));
-        mHandler.post(new ToastRunnable("FRC, it failed!"));
+        mHandler.post(new ToastRunnable(getString(R.string.no_filter_created)));
       }
     }
     catch (Exception e)

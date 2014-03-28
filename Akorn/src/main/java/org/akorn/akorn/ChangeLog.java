@@ -173,19 +173,20 @@ public class ChangeLog {
         return builder.create();
     }
 
-    private void updateVersionInPreferences() {
-        // save new version number to preferences
-        SharedPreferences sp = PreferenceManager
-                .getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString(VERSION_KEY, thisVersion);
-        // // on SDK-Versions > 9 you should use this:
-        // if(Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
-        // editor.commit();
-        // } else {
-        // editor.apply();
-        // }
-        editor.commit();
+    private void updateVersionInPreferences()
+    {
+      // save new version number to preferences
+      SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+
+      SharedPreferences.Editor editor = sp.edit();
+      editor.putString(VERSION_KEY, thisVersion);
+      // // on SDK-Versions > 9 you should use this:
+      // if(Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
+      // editor.commit();
+      // } else {
+      // editor.apply();
+      // }
+      editor.commit();
     }
 
     /**

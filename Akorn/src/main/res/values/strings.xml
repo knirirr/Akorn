@@ -50,6 +50,8 @@
     <!-- ListView -->
     <string name="empty_list_heading">No Articles</string>
     <string name="empty_list_text">A list of articles will be shown here when a filter for which articles were found is selected from the navigation drawer to the left.</string>
+    <string name="first_run">Please close the drawer and then tap the sync icon at the top of the screen and you will be invited to set up an account or log in to an existing account.</string>
+    <string name="welcome">Welcome to the Akorn app!</string>
 
     <!-- CreateAccount -->
     <string name="create_title">Create New Account</string>
@@ -72,7 +74,7 @@
 
     <!-- FilterActivity -->
     <string name="filter_title">Filters</string>
-    <string name="filter_text">You may add new search filters or delete existing ones here. Eventually, this text will display useful and helpful information rather than this vague, space-filling waffle. Any suggestions for how to liven this up would be gratefully received.</string>
+    <string name="filter_text">You may add new search filters or delete existing ones here. Filters may be a journal title or a keyword; start typing in the box below and titles for journals in the Akorn catalogue will autocomplete. Your existing filters (if any) will be shown at the bottom of the screen; touch one to delete it. After updating your filters you should manually re-sync to download new articles. </string>
     <string name="confirmDelete">Would you like to delete this filter?</string>
     <string name="yesButton">Yes</string>
     <string name="noButton">No</string>
@@ -87,6 +89,7 @@
     <string name="creating_new_journal_filter">Creating new journal filter...</string>
     <string name="creating_new_keyword_filter">Creating new keyword filter...</string>
     <string name="deleting_filter">Deleting filter...</string>
+    <string name="created_filter">Filter created!</string>
 
 
 </resources>

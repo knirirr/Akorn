@@ -3,6 +3,7 @@ package org.akorn.akorn;
 import android.app.Activity;
 ;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -59,6 +60,26 @@ public class ViewingActivity extends Activity
       }
     };
     prefs.registerOnSharedPreferenceChangeListener(listener);
+
+    /*
+    Show a toast on the first run of the app.
+     */
+    Boolean hasRun = prefs.getBoolean("hasRun", false); //see if it's run before, default no
+    if (!hasRun) {
+      SharedPreferences.Editor edit = prefs.edit();
+      edit.putBoolean("hasRun", true); //set to has run
+      edit.commit(); //apply
+      // Something better than this might be needed eventually, but this should do the trick for now
+      //Toast.makeText(this, getString(R.string.first_run), Toast.LENGTH_LONG).show();
+      AlertDialog.Builder builder = new AlertDialog.Builder(this);
+      builder.setTitle(R.string.welcome);
+      builder.setCancelable(false);
+      builder.setMessage(R.string.first_run);
+      builder.setPositiveButton("OK",null);
+      AlertDialog alert = builder.create();
+      alert.show();
+    }
+
 
     mNavigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager().findFragmentById(R.id.navigation_drawer);
     mTitle = getTitle();
@@ -269,7 +290,6 @@ public class ViewingActivity extends Activity
             String password = prefs.getString("pref_password", "");
             String password_confirm = prefs.getString("pref_password_confirm", "");
             Boolean hasAccount = false; // should be false
-            Log.i(TAG,"Has account: " + hasAccount.toString());
             // if these are both filled in then presumably the user already has an account; this being
             // so there is no need to send them to the account creation UI
             if (!username.isEmpty() && !password.isEmpty())

@@ -19,9 +19,20 @@
     </style>
   </head>
   <body>
+$ 0.2.14-alpha
+  % Version 0.2.14-alpha
+  _ 2014-04-28
+    * Final alpha release before public beta.
+    * Fixed database-related crash on new install.
+    * Added first-run tooltip to indicate how to create a new account.
+    * Filter button now hidden when navigation drawer open.
+$ 0.2.12-alpha
+  % Version 0.2.12-alpha
+  _ 2014-04-26
+    * Filter creation is finally fixed!
 $ 0.2.11-alpha
   % Version 0.2.10-alpha
-  _ 2014-03-11
+  _ 2014-04-23
     * Journal syncing now fixed, but filters still can't be created.
     * Date headers in the article list can now be seen from the moment of syncing.
     * There's an option to show author names in the article list.
