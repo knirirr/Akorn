@@ -57,6 +57,11 @@ public class ViewingActivity extends Activity
     listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
       public void onSharedPreferenceChanged(SharedPreferences prefs, String pref_authors) {
         show_authors = prefs.getBoolean("pref_authors",false);
+        ArticleListFragment lf = (ArticleListFragment) getFragmentManager().findFragmentByTag("list_frag");
+        if (lf != null)
+        {
+          lf.refreshUi("all_articles");
+        }
       }
     };
     prefs.registerOnSharedPreferenceChangeListener(listener);
@@ -149,7 +154,7 @@ public class ViewingActivity extends Activity
     super.onResume();
     prefs = PreferenceManager.getDefaultSharedPreferences(this);
     show_authors = prefs.getBoolean("pref_authors",false);
-    Log.i(TAG,"Showing authors (onResume): " + show_authors.toString());
+    //Log.i(TAG,"Showing authors (onResume): " + show_authors.toString());
     LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("filters-changed"));
   }
 
@@ -256,13 +261,14 @@ public class ViewingActivity extends Activity
           case R.id.action_share:
             //Toast.makeText(this, "Sharing action!", Toast.LENGTH_SHORT).show();
             TextView title = (TextView) findViewById(R.id.title_of_article);
-            TextView authors = (TextView) findViewById(R.id.article_authors);
-            TextView journal = (TextView) findViewById(R.id.journal_of_article);
+            //TextView authors = (TextView) findViewById(R.id.article_authors);
+            //TextView journal = (TextView) findViewById(R.id.journal_of_article);
             TextView url = (TextView) findViewById(R.id.article_url);
-            TextView content = (TextView) findViewById(R.id.article_content);
-            String text_to_send = content.getText().toString()
-                + "\n\n" + authors.getText().toString()
-                + "\n\n" + journal.getText().toString()
+            //TextView content = (TextView) findViewById(R.id.article_content);
+            String text_to_send = title.getText().toString()
+                //+ "\n\n" + content.getText().toString()
+                //+ "\n\n" + authors.getText().toString()
+                //+ "\n\n" + journal.getText().toString()
                 + "\n\n" + url.getText().toString();
             text_to_send = text_to_send + "\n\n" + getString(R.string.sharing_text); // make this optional
             // perhaps the URL should be added in here

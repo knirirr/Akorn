@@ -42,10 +42,11 @@ public class AkornContentProvider extends ContentProvider
   private static final int CLEANUP_ARTICLES = 45;
   private static final int SEARCHES_ARTICLES_SAVE = 50;
   private static final int SEARCHES_ARTICLES_DELETE = 55;
-  private static final int PURGE_ARTICLES = 60;
-  private static final int JOURNALS = 65;
-  private static final int PURGE_JOURNALS = 70;
-  private static final int SEARCHES_FILTER = 75;
+  private static final int ARTICLES_SEARCHES_DELETE = 60;
+  private static final int PURGE_ARTICLES = 65;
+  private static final int JOURNALS = 70;
+  private static final int PURGE_JOURNALS = 75;
+  private static final int SEARCHES_FILTER = 80;
 
 
   private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -60,6 +61,7 @@ public class AkornContentProvider extends ContentProvider
     sURIMatcher.addURI(AUTHORITY, "cleanup/articles", CLEANUP_ARTICLES);
     sURIMatcher.addURI(AUTHORITY, "searches_articles_save/*", SEARCHES_ARTICLES_SAVE);
     sURIMatcher.addURI(AUTHORITY, "searches_articles_delete/*", SEARCHES_ARTICLES_DELETE);
+    sURIMatcher.addURI(AUTHORITY, "articles_searches_delete/*", SEARCHES_ARTICLES_DELETE);
     sURIMatcher.addURI(AUTHORITY, "purge_articles", PURGE_ARTICLES);
     sURIMatcher.addURI(AUTHORITY, "journals", JOURNALS);
     sURIMatcher.addURI(AUTHORITY, "purge_journals", PURGE_JOURNALS);
@@ -388,6 +390,9 @@ public class AkornContentProvider extends ContentProvider
       case SEARCHES_ARTICLES_DELETE:
         sqlDB.execSQL("DELETE FROM searches_articles where article_id = '" + uri.getLastPathSegment() + "'");
         sqlDB.execSQL("UPDATE articles SET favourite = 0 where article_id ='" + uri.getLastPathSegment() + "'");
+        break;
+      case ARTICLES_SEARCHES_DELETE:
+        sqlDB.execSQL("DELETE FROM searches_articles where search_id = '" + uri.getLastPathSegment() + "'");
         break;
       default:
         throw new IllegalArgumentException("Unknown URI: " + uri);

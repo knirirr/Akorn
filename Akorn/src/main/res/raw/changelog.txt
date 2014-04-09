@@ -19,9 +19,14 @@
     </style>
   </head>
   <body>
+$ 0.3.1-beta
+  % Version 0.3.1-beta
+  _ 2014-04-02
+    * Shared content reduced to title and URL to make tweeting easier.
+    * A display bug when showing authors in the article listing has been fixed.
 $ 0.3.0-beta
   % Version 0.3.0-beta
-  _ 2014-04-28
+  _ 2014-03-28
     * First public beta!
 $ END_OF_CHANGE_LOG
   </body>

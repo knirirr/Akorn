@@ -133,7 +133,7 @@ public class ArticleViewFragment extends Fragment
 
     //article.setText(Article.Articles[position]);
     // rather than the above, load the correct article text
-    Uri uri = Uri.parse("content://org.akorn.akorn.contentprovider/articles" + "/" + sql_article_id);
+    Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/articles/" + sql_article_id);
     Cursor cursor = getActivity().getContentResolver().query(uri,
         new String[]
         {

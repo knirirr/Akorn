@@ -449,7 +449,7 @@ public class AkornSyncService extends IntentService
       String value = entry.getValue();
       //String articleUrl = URL + "articles.xml?" + value.replace(" ","%20");
       String articleUrl = tempurl + "articles.xml?" + value.replace(" ","%20");
-      Log.i(TAG,"URL: " + articleUrl);
+      Log.i(TAG,"Getting articles for URL: " + articleUrl);
 
       try
       {
@@ -468,6 +468,7 @@ public class AkornSyncService extends IntentService
         ContentValues joinValues;
         String titleString = "wibble";
         String dateString = "wibble";
+        Log.i(TAG, "Got content: " + content.toString());
         for (Element article : articles)
         {
           values = new ContentValues();
