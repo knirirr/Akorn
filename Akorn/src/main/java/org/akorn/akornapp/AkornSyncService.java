@@ -468,7 +468,7 @@ public class AkornSyncService extends IntentService
         ContentValues joinValues;
         String titleString = "wibble";
         String dateString = "wibble";
-        Log.i(TAG, "Got content: " + content.toString());
+        //Log.i(TAG, "Got content: " + content.toString());
         for (Element article : articles)
         {
           values = new ContentValues();

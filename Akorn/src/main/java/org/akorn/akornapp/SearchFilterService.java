@@ -307,11 +307,11 @@ public class SearchFilterService extends IntentService
     try
     {
       json.put("text", jtext);
-      json.put("full", jtext);
       json.put("type", ftype);
       if (!jid.isEmpty())
       {
         json.put("id",jid);
+        json.put("full", jtext);
       }
       else
       {
