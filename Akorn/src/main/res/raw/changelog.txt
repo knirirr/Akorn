@@ -19,6 +19,10 @@
     </style>
   </head>
   <body>
+$ 0.3.3-beta
+  % Version 0.3.3-beta
+  _ 2014-04-11
+    * Sorting order fixed when viewing articles.
 $ 0.3.2-beta
   % Version 0.3.2-beta
   _ 2014-04-09

@@ -160,7 +160,8 @@ public class AkornContentProvider extends ContentProvider
             SearchArticleTable.TABLE_SEARCHES_ARTICLES + "." + SearchArticleTable.COLUMN_ARTICLE_ID + "=" +
             ArticleTable.TABLE_ARTICLES + "." + ArticleTable.COLUMN_ARTICLE_ID +
             " WHERE " +
-            SearchArticleTable.COLUMN_SEARCH_ID + "=" + " '" + uri.getLastPathSegment() + "'"
+            SearchArticleTable.COLUMN_SEARCH_ID + "=" + " '" + uri.getLastPathSegment() + "'" +
+            " ORDER BY " + ArticleTable.COLUMN_DATE + " DESC"
         , null);
         return cursor;
       default:
