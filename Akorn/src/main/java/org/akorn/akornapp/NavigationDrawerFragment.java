@@ -2,12 +2,19 @@ package org.akorn.akornapp;
 
 import android.app.Activity;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.content.SharedPreferences;
@@ -68,6 +75,7 @@ public class NavigationDrawerFragment extends Fragment
     private boolean mUserLearnedDrawer;
 
     private static String TAG = "Akorn";
+    private String search_id;
 
     public NavigationDrawerFragment() { }
 
@@ -102,6 +110,20 @@ public class NavigationDrawerFragment extends Fragment
       getActivity().getContentResolver().registerContentObserver(searchUri, true, observer);
     }
 
+    // handler for received Intents for the "my-event" event
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver()
+    {
+      @Override
+      public void onReceive(Context context, Intent intent)
+      {
+        // Extract data included in the Intent
+        String message = intent.getStringExtra("message");
+        Log.d(TAG, "Nav drawer got message: " + message);
+        //mDrawerListView.invalidateViews();
+        refreshViews();
+      }
+    };
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -115,12 +137,16 @@ public class NavigationDrawerFragment extends Fragment
       mDrawerListView.setAdapter(mCursorAdapter);
       mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
 
+      final Context mContext = this.getActivity();
+
+      LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiver, new IntentFilter("filters-changed"));
+
+      // single press to load articles
       mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
       {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id)
         {
-          String search_id = "";
           try
           {
             Cursor c = (Cursor) mCursorAdapter.getItem(position);
@@ -133,6 +159,51 @@ public class NavigationDrawerFragment extends Fragment
           selectItem(position,search_id);
         }
       });
+
+      // long press to delete
+      mDrawerListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener()
+      {
+        public boolean onItemLongClick(AdapterView<?> arg0, View v, int index, long arg3)
+        {
+          // TODO Auto-generated method stub
+          Cursor c = (Cursor) mCursorAdapter.getItem(index);
+          search_id = c.getString(c.getColumnIndex(SearchTable.COLUMN_SEARCH_ID));
+          if (search_id.equals("all_articles") || search_id.equals("saved_articles"))
+          {
+            return true;
+          }
+          String name = c.getString(c.getColumnIndex(SearchTable.COLUMN_TEXT));
+          AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+          builder.setIcon(android.R.drawable.ic_dialog_alert);
+          builder.setMessage(getString(R.string.confirmDelete) + "\n" + name).setCancelable(false).setPositiveButton(R.string.yesButton, new DialogInterface.OnClickListener()
+          {
+            public void onClick(DialogInterface dialog, int id)
+            {
+              // delete the search with this name, meaning that one must call the SearchFilterService so that
+              // the change is sent to the server...
+              Intent i = new Intent(mContext, SearchFilterService.class);
+              i.putExtra("search_id", search_id);
+              if (SearchFilterService.isRunning == false)
+              {
+                getActivity().startService(i);
+              }
+              return;
+            }
+          }).setNegativeButton(R.string.noButton, new DialogInterface.OnClickListener()
+          {
+            public void onClick(DialogInterface dialog, int id)
+            {
+              dialog.cancel();
+            }
+          });
+          AlertDialog alert = builder.create();
+          alert.show();
+          Log.i(TAG, "Got listview item: " + search_id);
+          return true;
+        }
+      });
+
+
       return mDrawerListView;
     }
 
@@ -445,6 +516,20 @@ public class NavigationDrawerFragment extends Fragment
           mWordListItems,
           0);
     return mCursorAdapter;
+  }
+
+  public void refreshViews()
+  {
+    Log.i(TAG, "Refreshing!");
+    //mCursorAdapter.notifyDataSetChanged();
+    //mDrawerListView.invalidate();
+    /*
+    This is probably not the best way to do this, but nothing
+    else seems to work.
+     */
+    mCursorAdapter.getCursor().close();
+    mCursorAdapter = getList();
+    mDrawerListView.setAdapter(mCursorAdapter);
   }
 
 }

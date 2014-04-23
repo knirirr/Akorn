@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -12,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.akorn.akornapp.contentprovider.AkornContentProvider;
@@ -160,6 +162,7 @@ public class SearchFilterService extends IntentService
 
     try
     {
+      Log.i(TAG, "Trying to log in...");
       HttpResponse response = client.execute(post);
       int statusCode = response.getStatusLine().getStatusCode();
 
@@ -190,7 +193,7 @@ public class SearchFilterService extends IntentService
         if (session_id.equals(""))
         {
           Log.i(TAG, "Failed to get a session id");
-          mHandler.post(new ToastRunnable(getString(R.string.syncFail)));
+          mHandler.post(new ToastRunnable(getString(R.string.filterSyncFail)));
           return;
         }
       }
@@ -206,13 +209,14 @@ public class SearchFilterService extends IntentService
         Log.i(TAG,"Status (failure): " + statusCode);
         Log.i(TAG,"Response: " + response.toString());
         Log.i(TAG,"Post: " + post.toString());
-        mHandler.post(new ToastRunnable(getString(R.string.syncFail)));
+        mHandler.post(new ToastRunnable(getString(R.string.filterSyncFail)));
         return;
       }
     }
     catch (Exception e)
     {
-      mHandler.post(new ToastRunnable(getString(R.string.syncFail)));
+      Log.e(TAG, "Total login fail!");
+      mHandler.post(new ToastRunnable(getString(R.string.filterSyncFail)));
       e.printStackTrace();
       return;
     }
@@ -250,6 +254,7 @@ public class SearchFilterService extends IntentService
 
   public void DeleteSearch(String search_id)
   {
+    Log.i(TAG, "Trying to delete " + search_id);
     DefaultHttpClient client = new DefaultHttpClient();
     HttpContext localContext = new BasicHttpContext();
     localContext.setAttribute(ClientContext.COOKIE_STORE, cookiestore);
@@ -265,6 +270,8 @@ public class SearchFilterService extends IntentService
         Uri cleanup = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/search/" + search_id);
         getContentResolver().delete(cleanup,null,null);
         // made it!
+        // notify the list fragment to redraw
+        sendMessage();
         mHandler.post(new ToastRunnable(getString(R.string.delete_win)));
       }
       else
@@ -387,6 +394,7 @@ public class SearchFilterService extends IntentService
           values.put(SearchTable.COLUMN_TERM_ID, jtext);
         }
         getContentResolver().insert(uri, values);
+        sendMessage();
       }
       else
       {

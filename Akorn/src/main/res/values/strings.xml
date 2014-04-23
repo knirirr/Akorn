@@ -93,6 +93,7 @@
     <string name="creating_new_keyword_filter">Creating new keyword filter...</string>
     <string name="deleting_filter">Deleting filter...</string>
     <string name="created_filter">Filter created!</string>
+    <string name="filterSyncFail">Filter sync failed!</string>
 
 
 </resources>
