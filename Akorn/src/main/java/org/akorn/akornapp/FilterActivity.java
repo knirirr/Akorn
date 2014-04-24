@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +23,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
@@ -54,28 +57,6 @@ public class FilterActivity extends Activity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.filter_view);
 
-    ListView listView = (ListView) findViewById(R.id.filter_list);
-    mCursorAdapter = getList();
-    listView.setAdapter(mCursorAdapter);
-
-    listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-    {
-      @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-      {
-        String search_id = "";
-        try
-        {
-          Cursor c = (Cursor) mCursorAdapter.getItem(position);
-          search_id = c.getString(c.getColumnIndex(SearchTable.COLUMN_SEARCH_ID));
-          ItemClicked(search_id);
-        }
-        catch (Exception e)
-        {
-          Log.e(TAG,"CURSOR FAIL: " + e.toString());
-        }
-      }
-    });
 
     /*
     List adapter for drop-down textedit
@@ -114,11 +95,7 @@ public class FilterActivity extends Activity
     {
       // Extract data included in the Intent
       String message = intent.getStringExtra("message");
-      Log.d(TAG, "Got message: " + message);
-      ListView listView = (ListView) FilterActivity.this.findViewById(R.id.filter_list);
-      mCursorAdapter = getList();
-      listView.setAdapter(mCursorAdapter);
-      listView.invalidateViews();
+      Log.d(TAG, "FilterActivity got message: " + message);
     }
   };
 
@@ -129,39 +106,6 @@ public class FilterActivity extends Activity
     super.onPause();
   }
 
-
-  /*
-  An item in the list has been selected...
-   */
-  public void ItemClicked(String search_id)
-  {
-    searchId = search_id; // global variable to make sure I can get use it in the dialogs
-    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setIcon(android.R.drawable.ic_dialog_alert);
-    builder.setMessage(R.string.confirmDelete).setCancelable(false).setPositiveButton(R.string.yesButton, new DialogInterface.OnClickListener()
-    {
-      public void onClick(DialogInterface dialog, int id)
-      {
-        // delete the search with this name, meaning that one must call the SearchFilterService so that
-        // the change is sent to the server...
-        Intent i = new Intent(FilterActivity.this, SearchFilterService.class);
-        i.putExtra("search_id", searchId);
-        if (SearchFilterService.isRunning == false)
-        {
-          FilterActivity.this.startService(i);
-        }
-        return;
-      }
-    }).setNegativeButton(R.string.noButton, new DialogInterface.OnClickListener()
-    {
-      public void onClick(DialogInterface dialog, int id)
-      {
-        dialog.cancel();
-      }
-    });
-    AlertDialog alert = builder.create();
-    alert.show();
-  }
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu)
@@ -220,71 +164,70 @@ public class FilterActivity extends Activity
   }
 
   /*
-  This will add a filter to the local database and also sync it to the server
+    This will add a journal widget
    */
-  public void addFilter(View view)
+  public void addJournal(View view)
   {
-    ftype = "";
+    ftype = "journal";
     journal = "";
     AutoCompleteTextView acView = (AutoCompleteTextView) findViewById(R.id.autocomplete_box);
     journal = acView.getText().toString();
     if (journal.isEmpty())
     {
-      Toast.makeText(getApplicationContext(), getString(R.string.not_empty_please), Toast.LENGTH_SHORT).show();
+      Toast.makeText(getApplicationContext(), getString(R.string.not_empty_journal_please), Toast.LENGTH_SHORT).show();
       return;
     }
-    final CharSequence[] items = { "Journal title", "Keyword" };
+    String jid = getJournalId(journal);
+    // create a "widget" containing the details of this part of the filter
+    // the second parameter needs to be an AttributeSet
+    FilterWidget widget = new FilterWidget(this,null);
+    widget.setTitle(journal);
+    widget.setType(ftype);
+    LinearLayout layout = (LinearLayout) findViewById(R.id.filter_widget_area);
+    layout.addView(widget);
 
-    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setTitle(R.string.submit_or_not);
-    builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener()
-    {
-      public void onClick(DialogInterface dialog, int item)
-      {
-        if (item == 0)
-        {
-          ftype = "journal";
-        }
-        else
-        {
-          ftype = "keyword";
-        }
-      }
-    });
-    builder.setPositiveButton(getString(R.string.yesButton), new DialogInterface.OnClickListener()
-    {
-      public void onClick(DialogInterface dialog, int id)
-      {
-        if (ftype.isEmpty())
-        {
-          Toast.makeText(getApplicationContext(), getString(R.string.pick_a_type), Toast.LENGTH_SHORT).show();
-          return; //
-        }
-        // Start the SearchFilterService running now, with instructions to create a filter
-        Intent i = new Intent(FilterActivity.this, SearchFilterService.class);
-        i.putExtra("search_id", "new");
-        i.putExtra("ftype",ftype);
-        i.putExtra("jtext",journal);
-        String jid = getJournalId(journal);
-        i.putExtra("jid",jid);
-        //Log.i(TAG, "PUT JOURNAL ID: " + jid);
-        if (SearchFilterService.isRunning == false)
-        {
-          FilterActivity.this.startService(i);
-        }
-        return;
-      }
-    });
-    builder.setNegativeButton(getString(R.string.noButton), new DialogInterface.OnClickListener()
-    {
-      public void onClick(DialogInterface dialog, int id)
-      {
-        Toast.makeText(getApplicationContext(), getString(R.string.no_filter_created), Toast.LENGTH_SHORT).show();
-      }
-    });
+  }
 
-    AlertDialog alert = builder.create();
-    alert.show();
+   /*
+    This will add a keyword widget
+   */
+  public void addKeyword(View view)
+  {
+    ftype = "keyword";
+    String keyword = "";
+    EditText acView = (EditText) findViewById(R.id.keyword_box);
+    keyword = acView.getText().toString();
+    if (keyword.isEmpty())
+    {
+      Toast.makeText(getApplicationContext(), getString(R.string.not_empty_keyword_please), Toast.LENGTH_SHORT).show();
+      return;
+    }
+    // create a "widget" containing the details of this part of the filter
+    // the second parameter needs to be an AttributeSet
+    FilterWidget widget = new FilterWidget(this,null);
+    widget.setTitle(keyword);
+    widget.setType(ftype);
+    LinearLayout layout = (LinearLayout) findViewById(R.id.filter_widget_area);
+    layout.addView(widget);
+  }
+
+  /*
+    And this should find all the keyword and journal filters and send them to the server.
+    The searchFilterService code will need to be updated...
+   */
+  public void createFilter(View view)
+  {
+    Log.i(TAG,"createFilter");
+  }
+
+  /*
+    Remove all the filter widgets
+   */
+  public void clearScreen(View view)
+  {
+    Log.i(TAG,"clearScreen");
+    LinearLayout layout = (LinearLayout) findViewById(R.id.filter_widget_area);
+    layout.removeAllViews();
   }
 
   /*
@@ -314,7 +257,7 @@ public class FilterActivity extends Activity
     while (cursor.moveToNext())
     {
       finalResult = cursor.getString(cursor.getColumnIndex(JournalsTable.COLUMN_JOURNAL_ID));
-      Log.i(TAG, "FinalResult: " + finalResult);
+      //Log.i(TAG, "FinalResult: " + finalResult);
     }
     return finalResult;
   }
@@ -342,58 +285,5 @@ public class FilterActivity extends Activity
     }
     return cursor;
   }
-
-  /*
-  This is the query which gets the user's existing searches in order to populate the main list
-  thereof on the lower part of the screen.
-   */
-  private SimpleCursorAdapter getList()
-  {
-    Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches_filter");
-    // this particular syntax is effectively un-needed, as a raw query is being used
-    // in the content provider if a search of searches is used, in order that a
-    // group_concat may be used
-    // http://www.sqlite.org/lang_aggfunc.html
-    String[] orderBy = { String.valueOf(SearchTable.COLUMN_ID) };
-    Cursor cursor = getContentResolver().query(uri,
-        new String[]
-            {
-                SearchTable.COLUMN_ID,
-                SearchTable.COLUMN_SEARCH_ID,
-                SearchTable.COLUMN_FULL,
-                SearchTable.COLUMN_TYPE,
-                SearchTable.COLUMN_TEXT
-            },
-        null, orderBy , null);
-
-    if (cursor == null)
-    {
-      Log.i(TAG, "FRC! Cursor is null in FilterActivityFragment!");
-      Toast.makeText(this, getString(R.string.database_error), Toast.LENGTH_SHORT).show();
-    }
-    // Defines a list of columns to retrieve from the Cursor and load into an output row
-    String[] mWordListColumns =
-        {
-            SearchTable.COLUMN_TEXT,
-            SearchTable.COLUMN_TYPE
-        };
-
-    // Defines a list of View IDs that will receive the Cursor columns for each row
-    int[] mWordListItems = { R.id.search_full, R.id.search_type};
-
-    // layout for each of the articles in the sidebar
-    int layout = R.layout.search_title;
-
-    // Creates a new SimpleCursorAdapter to bind to the navigation drawer
-    mCursorAdapter = new SimpleCursorAdapter(
-        this,
-        layout,
-        cursor,
-        mWordListColumns,
-        mWordListItems,
-        0);
-    return mCursorAdapter;
-  }
-
 
 }

@@ -77,7 +77,7 @@
 
     <!-- FilterActivity -->
     <string name="filter_title">Filters</string>
-    <string name="filter_text">You may add new search filters or delete existing ones here. Filters may be a journal title or a keyword; start typing in the box below and titles for journals in the Akorn catalogue will autocomplete. Your existing filters (if any) will be shown at the bottom of the screen; touch one to delete it. After updating your filters you should manually re-sync to download new articles. </string>
+    <string name="filter_text">You may add new search filters (use the main sidebar to delete them by long pressing). Filters may be a journal title or a keyword entered by typing in the appropriate box below; titles for journals in the Akorn catalogue will autocomplete. Press \'Add\' to add a term and save with the button above when you are ready.</string>
     <string name="confirmDelete">Would you like to delete this filter?</string>
     <string name="yesButton">Yes</string>
     <string name="noButton">No</string>
@@ -88,7 +88,8 @@
     <string name="submit_or_not">Create this filter?</string>
     <string name="no_filter_created">Filter not created!</string>
     <string name="pick_a_type">Please select either keyword or journal title for this filter.</string>
-    <string name="not_empty_please">Please type a journal or keyword before submitting.</string>
+    <string name="not_empty_journal_please">Please type a journal name before submitting.</string>
+    <string name="not_empty_keyword_please">Please type a keyword before submitting.</string>
     <string name="creating_new_journal_filter">Creating new journal filter...</string>
     <string name="creating_new_keyword_filter">Creating new keyword filter...</string>
     <string name="deleting_filter">Deleting filter...</string>

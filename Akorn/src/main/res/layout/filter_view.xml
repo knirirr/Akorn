@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+<LinearLayout
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -26,9 +28,56 @@
             android:padding="5sp"
             android:textAlignment="center"/>
 
+      <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttons_area"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+        <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create Filter"
+                android:onClick="createFilter"
+                android:id="@+id/button"/>
+
+        <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Clear Screen"
+                android:onClick="clearScreen"
+                android:id="@+id/clear_screen"/>
+    </LinearLayout>
+
     <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
+
+         <EditText
+                android:id="@+id/keyword_box"
+                android:layout_alignParentLeft="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_toLeftOf="@+id/add_keyword_button"
+                android:layout_alignParentEnd="false"
+                android:layout_alignParentStart="false"
+                android:layout_alignBaseline="@+id/add_keyword_button"
+                android:hint="Keyword"
+                 />
+        <Button
+                android:id="@+id/add_keyword_button"
+                android:layout_alignParentRight="true"
+                android:onClick="addKeyword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_filter"
+                android:minWidth="20sp"
+                />
         <AutoCompleteTextView
                 android:id="@+id/autocomplete_box"
                 android:layout_alignParentLeft="true"
@@ -38,21 +87,30 @@
                 android:layout_toLeftOf="@+id/add_filter_button"
                 android:layout_alignParentEnd="false"
                 android:layout_alignParentStart="false"
-                android:layout_alignBaseline="@+id/add_filter_button"/>
+                android:layout_alignBaseline="@+id/add_filter_button"
+                android:hint="Journal title"
+                />
         <Button
                 android:id="@+id/add_filter_button"
                 android:layout_alignParentRight="true"
-                android:onClick="addFilter"
+                android:onClick="addJournal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/add_filter"
                 android:minWidth="20sp"
+                android:layout_below="@+id/add_keyword_button"
                 />
+
     </RelativeLayout>
 
-    <ListView
+
+
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/filter_list"
-            android:layout_gravity="center_horizontal"/>
+            android:id="@+id/filter_widget_area"
+            android:orientation="vertical">
+    </LinearLayout>
+
 </LinearLayout>
+    </ScrollView>
