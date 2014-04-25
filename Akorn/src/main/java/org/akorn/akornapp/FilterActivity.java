@@ -34,6 +34,7 @@ import org.akorn.akornapp.database.JournalsTable;
 import org.akorn.akornapp.database.SearchTable;
 
 import java.util.ArrayList;
+import java.util.logging.Filter;
 
 /**
  * Created by milo on 29/01/2014.
@@ -177,7 +178,6 @@ public class FilterActivity extends Activity
       Toast.makeText(getApplicationContext(), getString(R.string.not_empty_journal_please), Toast.LENGTH_SHORT).show();
       return;
     }
-    String jid = getJournalId(journal);
     // create a "widget" containing the details of this part of the filter
     // the second parameter needs to be an AttributeSet
     FilterWidget widget = new FilterWidget(this,null);
@@ -185,6 +185,7 @@ public class FilterActivity extends Activity
     widget.setType(ftype);
     LinearLayout layout = (LinearLayout) findViewById(R.id.filter_widget_area);
     layout.addView(widget);
+    acView.setText("");
 
   }
 
@@ -209,6 +210,7 @@ public class FilterActivity extends Activity
     widget.setType(ftype);
     LinearLayout layout = (LinearLayout) findViewById(R.id.filter_widget_area);
     layout.addView(widget);
+    acView.setText("");
   }
 
   /*
@@ -218,6 +220,40 @@ public class FilterActivity extends Activity
   public void createFilter(View view)
   {
     Log.i(TAG,"createFilter");
+    LinearLayout layout = (LinearLayout) findViewById(R.id.filter_widget_area);
+    ArrayList<FilterRequest> create = new ArrayList<FilterRequest>();
+    for (int i=0; i < layout.getChildCount(); i++)
+    {
+      FilterWidget w = (FilterWidget) layout.getChildAt(i);
+      String jid = "";
+      String title = w.getTitle();
+      String ftype = w.getType();
+      if (ftype.equals("journal"))
+      {
+        jid = getJournalId(journal);
+      }
+      // this data structure contains all the required terms for the search filter
+      // in the service these should be looped over and a query created to generate a filter
+      FilterRequest fReq = new FilterRequest();
+      fReq.jid = jid;
+      fReq.title = title;
+      fReq.ftype = ftype;
+      create.add(fReq);
+      Log.i(TAG, "For creating filter: " + jid + ", " + title + ", " + ftype);
+    }
+
+    // Create a Bundle and Put Bundle in to it
+    Bundle bundleObject = new Bundle();
+    bundleObject.putSerializable("create", create);
+
+    Intent i = new Intent(FilterActivity.this, SearchFilterService.class);
+    i.putExtra("search_id", "new");
+    i.putExtras(bundleObject);
+    if (SearchFilterService.isRunning == false)
+    {
+      FilterActivity.this.startService(i);
+    }
+    return;
   }
 
   /*
@@ -285,5 +321,5 @@ public class FilterActivity extends Activity
     }
     return cursor;
   }
-
 }
+

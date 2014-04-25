@@ -41,4 +41,16 @@ public class FilterWidget extends RelativeLayout
     label.setText(text);
   }
 
+  public String getTitle()
+  {
+    TextView label = (TextView) findViewById(R.id.filter_title);
+    return label.getText().toString();
+  }
+
+  public String getType()
+  {
+    TextView label = (TextView) findViewById(R.id.filter_type);
+    return label.getText().toString();
+  }
+
 }

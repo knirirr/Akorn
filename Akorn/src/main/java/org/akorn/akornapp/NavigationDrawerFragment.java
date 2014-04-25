@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import org.akorn.akornapp.contentprovider.AkornContentProvider;
 import org.akorn.akornapp.database.SearchTable;
+import org.apache.commons.lang3.ObjectUtils;
 
 
 /**
@@ -44,6 +45,7 @@ import org.akorn.akornapp.database.SearchTable;
  */
 public class NavigationDrawerFragment extends Fragment
 {
+  Cursor cursor;
 
     /**
      * Remember the position of the selected item.
@@ -478,22 +480,31 @@ public class NavigationDrawerFragment extends Fragment
     // group_concat may be used
     // http://www.sqlite.org/lang_aggfunc.html
     String[] orderBy = { String.valueOf(SearchTable.COLUMN_ID) };
-    Cursor cursor = getActivity().getContentResolver().query(uri,
-      new String[]
-      {
-        SearchTable.COLUMN_ID,
-        SearchTable.COLUMN_SEARCH_ID,
-        SearchTable.COLUMN_FULL,
-        SearchTable.COLUMN_TYPE,
-        SearchTable.COLUMN_TEXT
-      },
-      null, orderBy , null);
+    try
+    {
+      //cursor = getActivity().getContentResolver().query(uri,
+      cursor = getActivity().getContentResolver().query(uri,
+          new String[]
+              {
+                  SearchTable.COLUMN_ID,
+                  SearchTable.COLUMN_SEARCH_ID,
+                  SearchTable.COLUMN_FULL,
+                  SearchTable.COLUMN_TYPE,
+                  SearchTable.COLUMN_TEXT
+              },
+          null, orderBy, null
+      );
+    }
+    catch (Exception e)
+    {
+      Log.e(TAG, "Incredibly annoying database failure: " + e.toString());
+    }
 
-      if (cursor == null)
-      {
-        Log.i(TAG, "FRC! Cursor is null in NavigationDrawerFragment!");
-        Toast.makeText(getActivity(), getString(R.string.database_error), Toast.LENGTH_SHORT).show();
-      }
+    if (cursor == null)
+    {
+      Log.i(TAG, "FRC! Cursor is null in NavigationDrawerFragment!");
+      Toast.makeText(getActivity(), getString(R.string.database_error), Toast.LENGTH_SHORT).show();
+    }
           // Defines a list of columns to retrieve from the Cursor and load into an output row
       String[] mWordListColumns =
       {
@@ -527,9 +538,15 @@ public class NavigationDrawerFragment extends Fragment
     This is probably not the best way to do this, but nothing
     else seems to work.
      */
-    mCursorAdapter.getCursor().close();
-    mCursorAdapter = getList();
-    mDrawerListView.setAdapter(mCursorAdapter);
+    if (isAdded())
+    {
+      mCursorAdapter = getList();
+      mDrawerListView.setAdapter(mCursorAdapter);
+    }
+    else
+    {
+      Log.e(TAG, "Not attached to an activity!");
+    }
   }
 
 }

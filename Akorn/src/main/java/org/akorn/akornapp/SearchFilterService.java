@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -57,6 +58,7 @@ public class SearchFilterService extends IntentService
   public static final String DEVURL = "http://akorn.org:8000/api/";
   private Handler mHandler;
   private NotificationManager notificationManager;
+  private Intent startIntent;
 
   public SearchFilterService()
   {
@@ -87,6 +89,7 @@ public class SearchFilterService extends IntentService
     String server = prefs.getString("server_pref","prod");
     String username = prefs.getString("pref_username", "");
     String password = prefs.getString("pref_password", "");
+    startIntent = intent;
 
 
     String session_id = "";
@@ -104,21 +107,11 @@ public class SearchFilterService extends IntentService
     // stuff passed in via the intent - needed as some information must go into the
     // notification which will be created next
     String search_id = intent.getStringExtra("search_id");
-    String ftype = intent.getStringExtra("ftype");
-    String jtext = intent.getStringExtra("jtext");
-    String jid = intent.getStringExtra("jid");
     String notificationMessage = getString(R.string.background_sync); // default if correct message not set
 
     if (search_id.equals("new"))
     {
-      if (ftype.equals("journal"))
-      {
-        notificationMessage = getString(R.string.creating_new_journal_filter);
-      }
-      else if (ftype.equals("keyword"))
-      {
-       notificationMessage = getString(R.string.creating_new_keyword_filter);
-      }
+      notificationMessage = getString(R.string.creating_new_filter);
     }
     else
     {
@@ -233,7 +226,7 @@ public class SearchFilterService extends IntentService
       {
         // create a new search
         //mHandler.post(new ToastRunnable("A search would be created here."));
-        CreateSearch(ftype,jtext,jid);
+        CreateSearch();
         // created by a new dialog activity
       }
       else
@@ -288,51 +281,49 @@ public class SearchFilterService extends IntentService
 
   }
 
-  public void CreateSearch(String ftype, String jtext, String jid)
+  public void CreateSearch()
   {
-
-    DefaultHttpClient client = new DefaultHttpClient();
-    HttpContext localContext = new BasicHttpContext();
-    localContext.setAttribute(ClientContext.COOKIE_STORE, cookiestore);
-    Log.i(TAG, "FTYPE: " + ftype);
-    Log.i(TAG, "JTEXT: " + jtext);
-    Log.i(TAG, "JID: " + jid);
-    /*
-    Create Search endpoint (*)
-    $ curl -vX POST -d "query=<json>" http://akorn.org/api/searches
-
-    The JSON representation of the saved search should be of the same form as that returned by GET requests to the same endpoint.
-    Success
-    Status: 200
-    Body: {"query_id": "<query_id>"} 
-    {"bd20075c-e1ef-4b54-aec4-fadb9a6f5e4e": [{"text": "PLoS ONE", "full":
-"PLoS ONE", "type": "journal", "id":
-"8b05225aac657bd955fd49e2819d3609"}]}
-
-     */
-    JSONObject json = new JSONObject();
+    ArrayList<FilterRequest> classObject = new ArrayList<FilterRequest>();
+    // array of the various terms which make up a single filter
+    JSONArray submission = new JSONArray();
     try
     {
-      json.put("text", jtext);
-      json.put("type", ftype);
-      if (!jid.isEmpty())
+      // Get the Bundle Object
+      Bundle bundleObject = startIntent.getExtras();
+
+      // Get ArrayList Bundle
+      classObject = (ArrayList<FilterRequest>) bundleObject.getSerializable("create");
+
+      //Retrieve Objects from Bundle
+      for(int index = 0; index < classObject.size(); index++)
       {
-        json.put("id",jid);
-        json.put("full", jtext);
-      }
-      else
-      {
-        json.put("id",jtext);
+
+        FilterRequest fReq = classObject.get(index);
+        JSONObject json = new JSONObject();
+        try
+        {
+          json.put("text", fReq.title);
+          json.put("type", fReq.ftype);
+          if (!fReq.jid.isEmpty())
+          {
+            json.put("id", fReq.jid);
+            json.put("full", fReq.title);
+          } else
+          {
+            json.put("id", fReq.title);
+          }
+          submission.put(json);
+          Log.i(TAG, "Submission: " + submission.toString());
+        } catch (Exception e)
+        {
+          Log.e(TAG, "Couldn't create JSON: " + e.toString());
+        }
       }
     }
     catch (Exception e)
     {
-      Log.e(TAG, "Couldn't create JSON: " + e.toString());
+      Log.e(TAG,e.toString());
     }
-
-    JSONArray submission = new JSONArray();
-    submission.put(json);
-    Log.i(TAG, "Submission: " + submission.toString());
 
     HttpPost httpPost = new HttpPost(tempurl + "searches");
     List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -352,6 +343,22 @@ public class SearchFilterService extends IntentService
     }
     Log.i(TAG, "FormEntity: " + formEntity.toString());
     httpPost.setEntity(formEntity);
+
+    DefaultHttpClient client = new DefaultHttpClient();
+    HttpContext localContext = new BasicHttpContext();
+    localContext.setAttribute(ClientContext.COOKIE_STORE, cookiestore);
+    /*
+    Create Search endpoint (*)
+    $ curl -vX POST -d "query=<json>" http://akorn.org/api/searches
+
+    The JSON representation of the saved search should be of the same form as that returned by GET requests to the same endpoint.
+    Success
+    Status: 200
+    Body: {"query_id": "<query_id>"} 
+    {"bd20075c-e1ef-4b54-aec4-fadb9a6f5e4e": [{"text": "PLoS ONE", "full":
+"PLoS ONE", "type": "journal", "id":
+"8b05225aac657bd955fd49e2819d3609"}]}
+     */
 
     try
     {
@@ -379,22 +386,45 @@ public class SearchFilterService extends IntentService
         String jsonResult = sb.toString();
         JSONObject jObject = new JSONObject(jsonResult);
         String query_id = jObject.getString("query_id");
-        Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
-        ContentValues values = new ContentValues();
-        values.put(SearchTable.COLUMN_TEXT,jtext);
-        values.put(SearchTable.COLUMN_FULL,jtext);
-        values.put(SearchTable.COLUMN_TYPE,ftype);
-        values.put(SearchTable.COLUMN_SEARCH_ID,query_id);
-        if (!jid.isEmpty())
+        Log.i(TAG, "Got query ID: " + query_id);
+
+        /*
+          Now we know the id of the newly-created search, a search can be created in the local database by looping
+          over the retrieved FilterRequest objects.
+         */
+
+        for(int index = 0; index < classObject.size(); index++)
         {
-          values.put(SearchTable.COLUMN_TERM_ID, jid);
+          FilterRequest fReq = classObject.get(index);
+          // title, ftype, jid
+
+          Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
+          ContentValues values = new ContentValues();
+          values.put(SearchTable.COLUMN_TEXT,fReq.title);
+          values.put(SearchTable.COLUMN_FULL,fReq.title);
+          values.put(SearchTable.COLUMN_TYPE,fReq.ftype);
+          values.put(SearchTable.COLUMN_SEARCH_ID,query_id);
+          if (!fReq.jid.isEmpty())
+          {
+            values.put(SearchTable.COLUMN_TERM_ID, fReq.jid);
+          }
+          else
+          {
+            values.put(SearchTable.COLUMN_TERM_ID, fReq.title);
+          }
+          getContentResolver().insert(uri, values);
+        }
+        if (AkornSyncService.isRunning == true)
+        {
+          Toast.makeText(this, getString(R.string.in_progress), Toast.LENGTH_SHORT).show();
         }
         else
         {
-          values.put(SearchTable.COLUMN_TERM_ID, jtext);
+          Intent i = new Intent(this, AkornSyncService.class);
+          i.putExtra("query_id",query_id);
+          // potentially add data to the intent
+          this.startService(i);
         }
-        getContentResolver().insert(uri, values);
-        sendMessage();
       }
       else
       {

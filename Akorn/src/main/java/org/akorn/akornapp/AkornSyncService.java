@@ -283,7 +283,7 @@ public class AkornSyncService extends IntentService
         sb.append(line + "\n");
       }
       jsonResult = sb.toString();
-      Log.i(TAG, "Some JSON: " + jsonResult);
+      //Log.i(TAG, "Some JSON: " + jsonResult);
       /*
         If all those data have come back successfully then the logical next step given the database schema
         is to purge the searches table ready to insert the new stuff below...
@@ -351,7 +351,7 @@ public class AkornSyncService extends IntentService
             try { j_full = oneObject.getString("full"); } catch (JSONException e) {Log.e(TAG, pe + e.toString());}
             try { j_type = oneObject.getString("type"); } catch (JSONException e) {Log.e(TAG, pe + e.toString());}
             try { j_id = oneObject.getString("id"); } catch (JSONException e) { Log.e(TAG, pe + e.toString()); }
-            Log.i(TAG, "JSON parsed: " + namearray.getString(h) + ": " + j_text + "," + j_full + "," + j_type + "," + j_id);
+            //Log.i(TAG, "JSON parsed: " + namearray.getString(h) + ": " + j_text + "," + j_full + "," + j_type + "," + j_id);
 
             // now construct some ContentValues to insert
             Uri uri = Uri.parse("content://" + AkornContentProvider.AUTHORITY + "/searches");
@@ -372,7 +372,7 @@ public class AkornSyncService extends IntentService
               {
                 if (keywordseen.contains(s_id))
                 {
-                  searchresults.put(s_id, current + "%7Ck=" + j_text);
+                  searchresults.put(s_id, current + "&k=" + j_text);
                   keywordseen.add(s_id);
                 }
                 else
@@ -384,7 +384,7 @@ public class AkornSyncService extends IntentService
               {
                 if (journalseen.contains(s_id))
                 {
-                  searchresults.put(s_id, current + "%7Cj=" + j_id);
+                  searchresults.put(s_id, current + "&j=" + j_id);
                   journalseen.add(s_id);
                 }
                 else
@@ -448,7 +448,7 @@ public class AkornSyncService extends IntentService
       String key = entry.getKey();
       String value = entry.getValue();
       //String articleUrl = URL + "articles.xml?" + value.replace(" ","%20");
-      String articleUrl = tempurl + "articles.xml?" + value.replace(" ","%20");
+      String articleUrl = tempurl + "articles.xml?skip=0&limit=20&" + value.replace(" ","%20");
       Log.i(TAG,"Getting articles for URL: " + articleUrl);
 
       try

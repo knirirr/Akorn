@@ -19,6 +19,11 @@
     </style>
   </head>
   <body>
+$ 0.4.0-beta
+  % Version 0.4.0-beta
+  _ 2014-04-25
+    * Multi-term filters can now be created.
+    * Filters can be deleted by long-pressing in the navigation drawer.
 $ 0.3.3-beta
   % Version 0.3.3-beta
   _ 2014-04-11

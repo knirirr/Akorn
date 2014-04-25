@@ -90,8 +90,7 @@
     <string name="pick_a_type">Please select either keyword or journal title for this filter.</string>
     <string name="not_empty_journal_please">Please type a journal name before submitting.</string>
     <string name="not_empty_keyword_please">Please type a keyword before submitting.</string>
-    <string name="creating_new_journal_filter">Creating new journal filter...</string>
-    <string name="creating_new_keyword_filter">Creating new keyword filter...</string>
+    <string name="creating_new_filter">Creating new filter...</string>
     <string name="deleting_filter">Deleting filter...</string>
     <string name="created_filter">Filter created!</string>
     <string name="filterSyncFail">Filter sync failed!</string>
