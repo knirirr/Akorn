@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -51,6 +52,7 @@ public class FilterActivity extends Activity
   private static String TAG = "Akorn";
   String[] journalsString;
   String[] journalIdsString;
+  Button saveFilter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState)
@@ -79,6 +81,12 @@ public class FilterActivity extends Activity
     autoComplete = (AutoCompleteTextView) findViewById(R.id.autocomplete_box);
     autoComplete.setAdapter(adapter);
     autoComplete.setDropDownWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+
+    /*
+      Disable the create button until such time as the user has assembed a filter.
+     */
+    saveFilter = (Button) findViewById(R.id.save_button);
+    saveFilter.setEnabled(false);
   }
 
   @Override
@@ -186,6 +194,7 @@ public class FilterActivity extends Activity
     LinearLayout layout = (LinearLayout) findViewById(R.id.filter_widget_area);
     layout.addView(widget);
     acView.setText("");
+    saveFilter.setEnabled(true);
 
   }
 
@@ -211,6 +220,7 @@ public class FilterActivity extends Activity
     LinearLayout layout = (LinearLayout) findViewById(R.id.filter_widget_area);
     layout.addView(widget);
     acView.setText("");
+    saveFilter.setEnabled(true);
   }
 
   /*
@@ -264,6 +274,7 @@ public class FilterActivity extends Activity
     Log.i(TAG,"clearScreen");
     LinearLayout layout = (LinearLayout) findViewById(R.id.filter_widget_area);
     layout.removeAllViews();
+    saveFilter.setEnabled(false);
   }
 
   /*

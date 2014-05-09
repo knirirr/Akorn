@@ -174,12 +174,12 @@ public class AkornSyncService extends IntentService
     String tempurl = "";
     if (server.equals("prod"))
     {
-      mHandler.post(new ToastRunnable("Using production url (port 80)."));
+      //mHandler.post(new ToastRunnable("Using production url (port 80)."));
       tempurl = URL;
     }
     else
     {
-      mHandler.post(new ToastRunnable("Using development url (port 8000)."));
+      //mHandler.post(new ToastRunnable("Using development url (port 8000)."));
       tempurl = DEVURL;
     }
     HttpPost post = new HttpPost(tempurl + "login");

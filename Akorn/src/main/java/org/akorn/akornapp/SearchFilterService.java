@@ -392,6 +392,7 @@ public class SearchFilterService extends IntentService
           Now we know the id of the newly-created search, a search can be created in the local database by looping
           over the retrieved FilterRequest objects.
          */
+        StringBuilder content = new StringBuilder();
 
         for(int index = 0; index < classObject.size(); index++)
         {
@@ -414,6 +415,8 @@ public class SearchFilterService extends IntentService
           }
           getContentResolver().insert(uri, values);
         }
+
+        // initiate a sync to get the articles (if any) for the new filter
         if (AkornSyncService.isRunning == true)
         {
           Toast.makeText(this, getString(R.string.in_progress), Toast.LENGTH_SHORT).show();
@@ -422,6 +425,7 @@ public class SearchFilterService extends IntentService
         {
           Intent i = new Intent(this, AkornSyncService.class);
           i.putExtra("query_id",query_id);
+          i.putExtra("query_value",content.toString());
           // potentially add data to the intent
           this.startService(i);
         }

@@ -40,15 +40,15 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Create Filter"
+                android:text="@string/saveFilter"
                 android:onClick="createFilter"
-                android:id="@+id/button"/>
+                android:id="@+id/save_button"/>
 
         <Button
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Clear Screen"
+                android:text="@string/clearScreen"
                 android:onClick="clearScreen"
                 android:id="@+id/clear_screen"/>
     </LinearLayout>
